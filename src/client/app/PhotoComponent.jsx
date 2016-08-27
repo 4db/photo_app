@@ -42,7 +42,12 @@ class PhotoComponent extends React.Component {
                   {_data.slice(i,i+9).map(function(photo){
                       return <div className='box' key={photo.id}>
                           <img src={photo.image_url[0]}/>
-                          {photo.name}
+                          <span className="box-title">
+                              {photo.name}
+                          </span>
+                          <span>
+                              &nbsp;🝯 {photo.times_viewed}
+                          </span>
                       </div>;
                   })}
               </div>
