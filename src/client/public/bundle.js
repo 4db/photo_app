@@ -22003,7 +22003,13 @@
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
 	      $.ajax({
-	        url: 'https://api.500px.com/v1/photos?rpp=50&feature=upcoming&image_size%5B%5D=1&image_size%5B%5D=2&image_size%5B%5D=32&image_size%5B%5D=31&image_size%5B%5D=33&image_size%5B%5D=34&image_size%5B%5D=35&image_size%5B%5D=36&image_size%5B%5D=2048&image_size%5B%5D=4&image_size%5B%5D=14&sort=&include_states=true&include_licensing=true&formats=jpeg%2Clytro&only=&page=1&rpp=50&sdk_key=b68e60cff4c929bedea36ca978830c5caca790c3',
+	        url: 'https://api.500px.com/v1/photos',
+	        data: {
+	          rpp: 20,
+	          feature: 'upcoming',
+	          image_size: [2048],
+	          sdk_key: 'b68e60cff4c929bedea36ca978830c5caca790c3'
+	        },
 	        dataType: 'json',
 	        cache: false,
 	        success: function (data) {
@@ -22017,11 +22023,18 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      console.log(this.state.photos);
+	      var _data = this.state.photos;
 	      return _react2.default.createElement(
 	        'div',
 	        null,
-	        'here'
+	        _data.map(function (photo, i) {
+	          return _react2.default.createElement(
+	            'div',
+	            { key: photo.id },
+	            _react2.default.createElement('img', { src: photo.image_url[0] }),
+	            photo.name
+	          );
+	        })
 	      );
 	    }
 	  }]);
