@@ -83,7 +83,7 @@
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'div',
-	        null,
+	        { className: 'masonry' },
 	        _react2.default.createElement(_PhotoComponent2.default, null)
 	      );
 	    }
@@ -22026,11 +22026,11 @@
 	      var _data = this.state.photos;
 	      return _react2.default.createElement(
 	        'div',
-	        null,
+	        { className: 'column' },
 	        _data.map(function (photo, i) {
 	          return _react2.default.createElement(
 	            'div',
-	            { key: photo.id },
+	            { className: 'tile', key: photo.id },
 	            _react2.default.createElement('img', { src: photo.image_url[0] }),
 	            photo.name
 	          );

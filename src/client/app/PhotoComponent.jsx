@@ -32,10 +32,10 @@ class PhotoComponent extends React.Component {
   render() {
     var _data = this.state.photos;
     return(
-      <div>
+      <div className='column'>
           {_data.map(function(photo, i){
-             return <div key={photo.id}> 
-                      <img src={photo.image_url[0]} />
+             return <div className='tile' key={photo.id}>
+                      <img src={photo.image_url[0]}/>
                       {photo.name}
                     </div>; 
            })}
