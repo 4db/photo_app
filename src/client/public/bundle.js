@@ -83,7 +83,7 @@
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'div',
-	        { className: 'masonry' },
+	        null,
 	        _react2.default.createElement(_PhotoComponent2.default, null)
 	      );
 	    }
@@ -22024,17 +22024,58 @@
 	    key: 'render',
 	    value: function render() {
 	      var _data = this.state.photos;
+	      //TODO loop each 5
 	      return _react2.default.createElement(
 	        'div',
-	        { className: 'column' },
-	        _data.map(function (photo, i) {
-	          return _react2.default.createElement(
-	            'div',
-	            { className: 'tile', key: photo.id },
-	            _react2.default.createElement('img', { src: photo.image_url[0] }),
-	            photo.name
-	          );
-	        })
+	        { className: 'masonry' },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'column' },
+	          _data.slice(0, 4).map(function (photo, i) {
+	            return _react2.default.createElement(
+	              'div',
+	              { className: 'box', key: photo.id },
+	              _react2.default.createElement('img', { src: photo.image_url[0] }),
+	              photo.name
+	            );
+	          })
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'column' },
+	          _data.slice(5, 9).map(function (photo, i) {
+	            return _react2.default.createElement(
+	              'div',
+	              { className: 'box', key: photo.id },
+	              _react2.default.createElement('img', { src: photo.image_url[0] }),
+	              photo.name
+	            );
+	          })
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'column' },
+	          _data.slice(10, 14).map(function (photo, i) {
+	            return _react2.default.createElement(
+	              'div',
+	              { className: 'box', key: photo.id },
+	              _react2.default.createElement('img', { src: photo.image_url[0] }),
+	              photo.name
+	            );
+	          })
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'column' },
+	          _data.slice(15, 19).map(function (photo, i) {
+	            return _react2.default.createElement(
+	              'div',
+	              { className: 'box', key: photo.id },
+	              _react2.default.createElement('img', { src: photo.image_url[0] }),
+	              photo.name
+	            );
+	          })
+	        )
 	      );
 	    }
 	  }]);

@@ -31,14 +31,41 @@ class PhotoComponent extends React.Component {
 
   render() {
     var _data = this.state.photos;
+    //TODO loop each 5
     return(
+      <div className='masonry'>
       <div className='column'>
-          {_data.map(function(photo, i){
-             return <div className='tile' key={photo.id}>
+          {_data.slice(0,4).map(function(photo, i){
+             return <div className='box' key={photo.id}>
                       <img src={photo.image_url[0]}/>
                       {photo.name}
                     </div>; 
            })}
+      </div>
+      <div className='column'>
+          {_data.slice(5,9).map(function(photo, i){
+             return <div className='box' key={photo.id}>
+                      <img src={photo.image_url[0]}/>
+                      {photo.name}
+                    </div>; 
+           })}
+      </div>
+      <div className='column'>
+          {_data.slice(10,14).map(function(photo, i){
+             return <div className='box' key={photo.id}>
+                      <img src={photo.image_url[0]}/>
+                      {photo.name}
+                    </div>; 
+           })}
+      </div>
+      <div className='column'>
+          {_data.slice(15,19).map(function(photo, i){
+             return <div className='box' key={photo.id}>
+                      <img src={photo.image_url[0]}/>
+                      {photo.name}
+                    </div>; 
+           })}
+      </div>
       </div>
     );
   }

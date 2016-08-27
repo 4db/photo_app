@@ -5,7 +5,7 @@ import PhotoComponent from './PhotoComponent.jsx';
 class App extends React.Component {
   render () {
     return (
-      <div className='masonry'>
+      <div>
         <PhotoComponent />
       </div>
     );
