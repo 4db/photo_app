@@ -1,9 +1,14 @@
 import React from 'react';
 import {render} from 'react-dom';
+import PhotoComponent from './PhotoComponent.jsx';
 
 class App extends React.Component {
   render () {
-    return <p> Check React!</p>;
+    return (
+      <div>
+        <PhotoComponent />
+      </div>
+    );
   }
 }
 
