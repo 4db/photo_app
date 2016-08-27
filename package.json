@@ -4,7 +4,8 @@
   "description": "React photo app",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "webpack -d --watch",
+    "build": "webpack -p"
   },
   "repository": {
     "type": "git",
@@ -22,10 +23,7 @@
     "babel-preset-react": "^6.11.1",
     "react": "^15.3.1",
     "react-dom": "^15.3.1",
+    "react-lazyload": "^2.1.4",
     "webpack": "^1.13.2"
-  },
-  "scripts": {
-    "dev": "webpack -d --watch",
-    "build" : "webpack -p"
   }
 }

@@ -1,21 +1,25 @@
 import React from 'react';
+import LazyLoad from 'react-lazyload';
 
 class PhotoComponent extends React.Component {
 
   constructor(props) {
-    super(props)
+    super(props);
     this.state ={
-      photos : []
+      photos : [],
+      page   : 1
     }
   }
 
   componentDidMount() {
+      console.log('componentDidMount')
       $.ajax({
       url: 'https://api.500px.com/v1/photos',
       data: {
-        rpp: 20,
+        rpp: 50,
+        page: this.state.page,
         feature: 'upcoming',
-        image_size: [2048],
+        image_size: [4],
         sdk_key: 'b68e60cff4c929bedea36ca978830c5caca790c3'
       },
       dataType: 'json',
@@ -31,41 +35,18 @@ class PhotoComponent extends React.Component {
 
   render() {
     var _data = this.state.photos;
-    //TODO loop each 5
     return(
       <div className='masonry'>
-      <div className='column'>
-          {_data.slice(0,4).map(function(photo, i){
-             return <div className='box' key={photo.id}>
-                      <img src={photo.image_url[0]}/>
-                      {photo.name}
-                    </div>; 
-           })}
-      </div>
-      <div className='column'>
-          {_data.slice(5,9).map(function(photo, i){
-             return <div className='box' key={photo.id}>
-                      <img src={photo.image_url[0]}/>
-                      {photo.name}
-                    </div>; 
-           })}
-      </div>
-      <div className='column'>
-          {_data.slice(10,14).map(function(photo, i){
-             return <div className='box' key={photo.id}>
-                      <img src={photo.image_url[0]}/>
-                      {photo.name}
-                    </div>; 
-           })}
-      </div>
-      <div className='column'>
-          {_data.slice(15,19).map(function(photo, i){
-             return <div className='box' key={photo.id}>
-                      <img src={photo.image_url[0]}/>
-                      {photo.name}
-                    </div>; 
-           })}
-      </div>
+          {[0,10,20,30,40].map((i) =>
+              <div className='column' key={i}>
+                  {_data.slice(i,i+9).map(function(photo){
+                      return <div className='box' key={photo.id}>
+                          <img src={photo.image_url[0]}/>
+                          {photo.name}
+                      </div>;
+                  })}
+              </div>
+          )}
       </div>
     );
   }
