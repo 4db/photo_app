@@ -21968,7 +21968,7 @@
 	/* WEBPACK VAR INJECTION */(function($) {'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+	    value: true
 	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -21990,63 +21990,63 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var PhotoComponent = function (_React$Component) {
-	  _inherits(PhotoComponent, _React$Component);
+	    _inherits(PhotoComponent, _React$Component);
 	
-	  function PhotoComponent(props) {
-	    _classCallCheck(this, PhotoComponent);
+	    function PhotoComponent(props) {
+	        _classCallCheck(this, PhotoComponent);
 	
-	    var _this = _possibleConstructorReturn(this, (PhotoComponent.__proto__ || Object.getPrototypeOf(PhotoComponent)).call(this, props));
+	        var _this = _possibleConstructorReturn(this, (PhotoComponent.__proto__ || Object.getPrototypeOf(PhotoComponent)).call(this, props));
 	
-	    _this.state = {
-	      photos: [],
-	      page: props.page
-	    };
-	    return _this;
-	  }
-	
-	  _createClass(PhotoComponent, [{
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {
-	      $.ajax({
-	        url: 'https://api.500px.com/v1/photos',
-	        data: {
-	          rpp: 50,
-	          page: this.state.page,
-	          feature: 'upcoming',
-	          image_size: [4],
-	          sdk_key: 'b68e60cff4c929bedea36ca978830c5caca790c3'
-	        },
-	        dataType: 'json',
-	        cache: false,
-	        success: function (data) {
-	          this.setState({ photos: data.photos });
-	        }.bind(this),
-	        error: function (xhr, status, err) {
-	          console.error(this.props.url, status, err.toString());
-	        }.bind(this)
-	      });
+	        _this.state = {
+	            photos: [],
+	            page: props.page
+	        };
+	        return _this;
 	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      var _data = this.state.photos;
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'masonry' },
-	        [0, 10, 20, 30, 40].map(function (i) {
-	          return _react2.default.createElement(
-	            'div',
-	            { className: 'column', key: i },
-	            _data.slice(i, i + 9).map(function (photo) {
-	              return _react2.default.createElement(_BoxComponent2.default, { photo: photo });
-	            })
-	          );
-	        })
-	      );
-	    }
-	  }]);
 	
-	  return PhotoComponent;
+	    _createClass(PhotoComponent, [{
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            $.ajax({
+	                url: 'https://api.500px.com/v1/photos',
+	                data: {
+	                    rpp: 50,
+	                    page: this.state.page,
+	                    feature: 'upcoming',
+	                    image_size: [4],
+	                    sdk_key: 'b68e60cff4c929bedea36ca978830c5caca790c3'
+	                },
+	                dataType: 'json',
+	                cache: false,
+	                success: function (data) {
+	                    this.setState({ photos: data.photos });
+	                }.bind(this),
+	                error: function (xhr, status, err) {
+	                    console.error(this.props.url, status, err.toString());
+	                }.bind(this)
+	            });
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _data = this.state.photos;
+	            return _react2.default.createElement(
+	                'div',
+	                { className: 'masonry' },
+	                [0, 10, 20, 30, 40].map(function (i) {
+	                    return _react2.default.createElement(
+	                        'div',
+	                        { className: 'column', key: i },
+	                        _data.slice(i, i + 9).map(function (photo) {
+	                            return _react2.default.createElement(_BoxComponent2.default, { photo: photo });
+	                        })
+	                    );
+	                })
+	            );
+	        }
+	    }]);
+	
+	    return PhotoComponent;
 	}(_react2.default.Component);
 	
 	exports.default = PhotoComponent;

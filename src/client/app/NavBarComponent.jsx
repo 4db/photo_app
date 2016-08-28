@@ -15,15 +15,15 @@ class NavBarComponent extends React.Component {
     }
 
     render() {
-        return(
+        return (
             <div>
                 <header className="fixed-nav-bar">
                     <a href="#" className="favorite">Favorite <span></span></a>
                 </header>
                 <div>
-                    {[,...Array(15)].map((x, i) =>
+                    {[, ...Array(15)].map((x, i) =>
                         <LazyLoad key={i} height={1000} offset={500} debounce={500}>
-                            <PhotoComponent page={i+1}/>
+                            <PhotoComponent page={i + 1}/>
                         </LazyLoad>
                     )}
                 </div>
