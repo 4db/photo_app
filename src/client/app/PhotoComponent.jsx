@@ -1,4 +1,5 @@
 import React from 'react';
+import BoxComponent from './BoxComponent.jsx';
 
 class PhotoComponent extends React.Component {
 
@@ -11,7 +12,6 @@ class PhotoComponent extends React.Component {
   }
 
   componentDidMount() {
-      console.log('componentDidMount')
       $.ajax({
       url: 'https://api.500px.com/v1/photos',
       data: {
@@ -39,15 +39,7 @@ class PhotoComponent extends React.Component {
           {[0,10,20,30,40].map((i) =>
               <div className='column' key={i}>
                   {_data.slice(i,i+9).map(function(photo){
-                      return <div className='box' key={photo.id}>
-                          <img src={photo.image_url[0]}/>
-                          <span className="box-title">
-                              {photo.name}
-                          </span>
-                          <span>
-                              &nbsp;🝯 {photo.times_viewed}
-                          </span>
-                      </div>;
+                      return <BoxComponent photo={photo} />
                   })}
               </div>
           )}

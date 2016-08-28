@@ -61,17 +61,7 @@
 	
 	var _NavBarComponent2 = _interopRequireDefault(_NavBarComponent);
 	
-	var _PhotoComponent = __webpack_require__(/*! ./PhotoComponent.jsx */ 172);
-	
-	var _PhotoComponent2 = _interopRequireDefault(_PhotoComponent);
-	
-	var _reactLazyload = __webpack_require__(/*! react-lazyload */ 174);
-	
-	var _reactLazyload2 = _interopRequireDefault(_reactLazyload);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -94,18 +84,7 @@
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'app' },
-	        _react2.default.createElement(_NavBarComponent2.default, null),
-	        _react2.default.createElement(
-	          'div',
-	          null,
-	          [,].concat(_toConsumableArray(Array(15))).map(function (x, i) {
-	            return _react2.default.createElement(
-	              _reactLazyload2.default,
-	              { key: i, height: 1000, offset: 500, debounce: 500 },
-	              _react2.default.createElement(_PhotoComponent2.default, { page: i + 1 })
-	            );
-	          })
-	        )
+	        _react2.default.createElement(_NavBarComponent2.default, null)
 	      );
 	    }
 	  }]);
@@ -21998,6 +21977,10 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
+	var _BoxComponent = __webpack_require__(/*! ./BoxComponent.jsx */ 182);
+	
+	var _BoxComponent2 = _interopRequireDefault(_BoxComponent);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -22024,7 +22007,6 @@
 	  _createClass(PhotoComponent, [{
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
-	      console.log('componentDidMount');
 	      $.ajax({
 	        url: 'https://api.500px.com/v1/photos',
 	        data: {
@@ -22056,22 +22038,7 @@
 	            'div',
 	            { className: 'column', key: i },
 	            _data.slice(i, i + 9).map(function (photo) {
-	              return _react2.default.createElement(
-	                'div',
-	                { className: 'box', key: photo.id },
-	                _react2.default.createElement('img', { src: photo.image_url[0] }),
-	                _react2.default.createElement(
-	                  'span',
-	                  { className: 'box-title' },
-	                  photo.name
-	                ),
-	                _react2.default.createElement(
-	                  'span',
-	                  null,
-	                  ' 🝯 ',
-	                  photo.times_viewed
-	                )
-	              );
+	              return _react2.default.createElement(_BoxComponent2.default, { photo: photo });
 	            })
 	          );
 	        })
@@ -33007,7 +32974,7 @@
   \********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	/* WEBPACK VAR INJECTION */(function($) {'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -33019,7 +32986,17 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
+	var _PhotoComponent = __webpack_require__(/*! ./PhotoComponent.jsx */ 172);
+	
+	var _PhotoComponent2 = _interopRequireDefault(_PhotoComponent);
+	
+	var _reactLazyload = __webpack_require__(/*! react-lazyload */ 174);
+	
+	var _reactLazyload2 = _interopRequireDefault(_reactLazyload);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -33037,17 +33014,45 @@
 	    }
 	
 	    _createClass(NavBarComponent, [{
-	        key: "render",
+	        key: 'render',
 	        value: function render() {
 	            return _react2.default.createElement(
-	                "header",
-	                { className: "fixed-nav-bar" },
+	                'div',
+	                null,
 	                _react2.default.createElement(
-	                    "a",
-	                    { href: "#", className: "favorite" },
-	                    "Favorite 1"
+	                    'header',
+	                    { className: 'fixed-nav-bar' },
+	                    _react2.default.createElement(
+	                        'a',
+	                        { href: '#', className: 'favorite' },
+	                        'Favorite ',
+	                        _react2.default.createElement('span', null)
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    null,
+	                    [,].concat(_toConsumableArray(Array(15))).map(function (x, i) {
+	                        return _react2.default.createElement(
+	                            _reactLazyload2.default,
+	                            { key: i, height: 1000, offset: 500, debounce: 500 },
+	                            _react2.default.createElement(_PhotoComponent2.default, { page: i + 1 })
+	                        );
+	                    })
 	                )
 	            );
+	        }
+	    }], [{
+	        key: 'onFavorite',
+	        value: function onFavorite() {
+	            var count = $('.favorite>span').text();
+	            $('.favorite>span').text(count === '' ? 1 : parseInt(count) + 1);
+	        }
+	    }, {
+	        key: 'deFavorite',
+	        value: function deFavorite() {
+	            var count = $('.favorite>span').text();
+	            $('.favorite>span').text(count === '1' ? '' : parseInt(count) - 1);
 	        }
 	    }]);
 	
@@ -33055,6 +33060,98 @@
 	}(_react2.default.Component);
 	
 	exports.default = NavBarComponent;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! jquery */ 173)))
+
+/***/ },
+/* 181 */,
+/* 182 */
+/*!*****************************************!*\
+  !*** ./src/client/app/BoxComponent.jsx ***!
+  \*****************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(/*! react */ 1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _NavBarComponent = __webpack_require__(/*! ./NavBarComponent.jsx */ 180);
+	
+	var _NavBarComponent2 = _interopRequireDefault(_NavBarComponent);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var BoxComponent = function (_React$Component) {
+	    _inherits(BoxComponent, _React$Component);
+	
+	    function BoxComponent(props) {
+	        _classCallCheck(this, BoxComponent);
+	
+	        var _this = _possibleConstructorReturn(this, (BoxComponent.__proto__ || Object.getPrototypeOf(BoxComponent)).call(this, props));
+	
+	        _this.state = {
+	            id: _this.props.photo.id,
+	            url: _this.props.photo.image_url[0],
+	            name: _this.props.photo.name,
+	            times_viewed: _this.props.photo.times_viewed,
+	            backgroundColor: 'white'
+	        };
+	        return _this;
+	    }
+	
+	    _createClass(BoxComponent, [{
+	        key: 'onFavorite',
+	        value: function onFavorite() {
+	            if (this.state.backgroundColor == 'white') {
+	                this.setState({ backgroundColor: '#CECECE' });
+	                _NavBarComponent2.default.onFavorite();
+	            } else {
+	                this.setState({ backgroundColor: 'white' });
+	                _NavBarComponent2.default.deFavorite();
+	            }
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var divStyle = {
+	                backgroundColor: this.state.backgroundColor
+	            };
+	            return _react2.default.createElement(
+	                'div',
+	                { className: 'box', key: this.state.id, onClick: this.onFavorite.bind(this), style: divStyle },
+	                _react2.default.createElement('img', { src: this.state.url }),
+	                _react2.default.createElement(
+	                    'span',
+	                    { className: 'box-title' },
+	                    this.state.name
+	                ),
+	                _react2.default.createElement(
+	                    'span',
+	                    null,
+	                    ' 🝯 ',
+	                    this.state.times_viewed
+	                )
+	            );
+	        }
+	    }]);
+	
+	    return BoxComponent;
+	}(_react2.default.Component);
+	
+	exports.default = BoxComponent;
 
 /***/ }
 /******/ ]);
