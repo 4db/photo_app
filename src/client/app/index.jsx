@@ -11,7 +11,7 @@ class App extends React.Component {
         <NavBarComponent />
         <div>
           {[,...Array(15)].map((x, i) =>
-              <LazyLoad key={i} height={1000} offset={500}>
+              <LazyLoad key={i} height={1000} offset={500} debounce={500}>
                 <PhotoComponent page={i+1} />
               </LazyLoad>
           )}

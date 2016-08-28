@@ -101,7 +101,7 @@
 	          [,].concat(_toConsumableArray(Array(15))).map(function (x, i) {
 	            return _react2.default.createElement(
 	              _reactLazyload2.default,
-	              { key: i, height: 1000, offset: 500 },
+	              { key: i, height: 1000, offset: 500, debounce: 500 },
 	              _react2.default.createElement(_PhotoComponent2.default, { page: i + 1 })
 	            );
 	          })
@@ -33045,7 +33045,7 @@
 	                _react2.default.createElement(
 	                    "a",
 	                    { href: "#", className: "favorite" },
-	                    "Favorite"
+	                    "Favorite 1"
 	                )
 	            );
 	        }
