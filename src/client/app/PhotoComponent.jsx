@@ -6,12 +6,29 @@ class PhotoComponent extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            photos: [],
-            page: props.page
+            column1 : [],
+            column2 : [],
+            column3 : [],
+            column4 : [],
+            column5 : [],
+            page  : 1,
+            uploadStatus: true,
         }
     }
 
     componentDidMount() {
+        var _self = this;
+        _self.getPhotos();
+        $(window).scroll(function() {
+            if($(window).scrollTop() + $(window).height() > $(document).height() - 300) {
+                if (_self.state.uploadStatus === true) {
+                    _self.getPhotos();
+                }
+            }
+        });
+    }
+
+    getPhotos() {
         $.ajax({
             url: 'https://api.500px.com/v1/photos',
             data: {
@@ -23,8 +40,37 @@ class PhotoComponent extends React.Component {
             },
             dataType: 'json',
             cache: false,
+            beforeSend: function() {
+                this.setState({
+                    uploadStatus  : false
+                });
+            }.bind(this),
             success: function (data) {
-                this.setState({photos: data.photos});
+
+                var _self = this;
+                data.photos.map(function(photo, i){
+                    if (i < 10) {
+                        _self.state.column1.push(photo);
+                    }
+                    else if (i < 20) {
+                        _self.state.column2.push(photo);
+                    }
+                    else if (i < 30) {
+                        _self.state.column3.push(photo);
+                    }
+                    else if (i < 40) {
+                        _self.state.column4.push(photo);
+                    }
+                    else {
+                        _self.state.column5.push(photo);
+                    }
+                });
+
+                this.forceUpdate();
+                this.setState({
+                    page         : this.state.page + 1,
+                    uploadStatus : true
+                });
             }.bind(this),
             error: function (xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -33,16 +79,33 @@ class PhotoComponent extends React.Component {
     }
 
     render() {
-        var _data = this.state.photos;
         return (
             <div className='masonry'>
-                {[0, 10, 20, 30, 40].map((i) =>
-                    <div className='column' key={i}>
-                        {_data.slice(i, i + 9).map(function (photo) {
-                            return <BoxComponent photo={photo}/>
-                        })}
-                    </div>
-                )}
+                <div className='column' key='1'>
+                    {this.state.column1.map(function (photo) {
+                        return <BoxComponent photo={photo}/>
+                    })}
+                </div>
+                <div className='column' key='2'>
+                    {this.state.column2.map(function (photo) {
+                        return <BoxComponent photo={photo}/>
+                    })}
+                </div>
+                <div className='column' key='3'>
+                    {this.state.column3.map(function (photo) {
+                        return <BoxComponent photo={photo}/>
+                    })}
+                </div>
+                <div className='column' key='4'>
+                    {this.state.column4.map(function (photo) {
+                        return <BoxComponent photo={photo}/>
+                    })}
+                </div>
+                <div className='column' key='5'>
+                    {this.state.column5.map(function (photo) {
+                        return <BoxComponent photo={photo}/>
+                    })}
+                </div>
             </div>
         );
     }

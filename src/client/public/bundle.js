@@ -57,21 +57,19 @@
 	
 	var _reactDom = __webpack_require__(/*! react-dom */ 34);
 	
-	var _reactLazyload = __webpack_require__(/*! react-lazyload */ 172);
+	var _reactLazyload = __webpack_require__(/*! react-lazyload */ 176);
 	
 	var _reactLazyload2 = _interopRequireDefault(_reactLazyload);
 	
-	var _PhotoComponent = __webpack_require__(/*! ./PhotoComponent.jsx */ 178);
+	var _PhotoComponent = __webpack_require__(/*! ./PhotoComponent.jsx */ 173);
 	
 	var _PhotoComponent2 = _interopRequireDefault(_PhotoComponent);
 	
-	var _NavBarComponent = __webpack_require__(/*! ./NavBarComponent.jsx */ 181);
+	var _NavBarComponent = __webpack_require__(/*! ./NavBarComponent.jsx */ 172);
 	
 	var _NavBarComponent2 = _interopRequireDefault(_NavBarComponent);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -95,17 +93,7 @@
 	                'div',
 	                { className: 'app' },
 	                _react2.default.createElement(_NavBarComponent2.default, null),
-	                _react2.default.createElement(
-	                    'div',
-	                    null,
-	                    [,].concat(_toConsumableArray(Array(15))).map(function (x, i) {
-	                        return _react2.default.createElement(
-	                            _reactLazyload2.default,
-	                            { key: i, height: 1000, offset: 500 },
-	                            _react2.default.createElement(_PhotoComponent2.default, { page: i + 1 })
-	                        );
-	                    })
-	                )
+	                _react2.default.createElement(_PhotoComponent2.default, null)
 	            );
 	        }
 	    }]);
@@ -21981,511 +21969,18 @@
 
 /***/ },
 /* 172 */
-/*!***************************************!*\
-  !*** ./~/react-lazyload/lib/index.js ***!
-  \***************************************/
+/*!********************************************!*\
+  !*** ./src/client/app/NavBarComponent.jsx ***!
+  \********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+	/* WEBPACK VAR INJECTION */(function($) {'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.forceCheck = exports.lazyload = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _react = __webpack_require__(/*! react */ 1);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var _reactDom = __webpack_require__(/*! react-dom */ 34);
-	
-	var _reactDom2 = _interopRequireDefault(_reactDom);
-	
-	var _event = __webpack_require__(/*! ./utils/event */ 173);
-	
-	var _scrollParent = __webpack_require__(/*! ./utils/scrollParent */ 174);
-	
-	var _scrollParent2 = _interopRequireDefault(_scrollParent);
-	
-	var _debounce = __webpack_require__(/*! ./utils/debounce */ 175);
-	
-	var _debounce2 = _interopRequireDefault(_debounce);
-	
-	var _throttle = __webpack_require__(/*! ./utils/throttle */ 176);
-	
-	var _throttle2 = _interopRequireDefault(_throttle);
-	
-	var _decorator = __webpack_require__(/*! ./decorator */ 177);
-	
-	var _decorator2 = _interopRequireDefault(_decorator);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /**
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * react-lazyload
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
-	
-	
-	var LISTEN_FLAG = 'data-lazyload-listened';
-	var listeners = [];
-	var pending = [];
-	
-	var heightDiffThreshold = 20;
-	
-	/**
-	 * Check if `component` is visible in overflow container `parent`
-	 * @param  {node} component React component
-	 * @param  {node} parent    component's scroll parent
-	 * @return {bool}
-	 */
-	var checkOverflowVisible = function checkOverflowVisible(component, parent) {
-	  var node = _reactDom2.default.findDOMNode(component);
-	
-	  var _parent$getBoundingCl = parent.getBoundingClientRect();
-	
-	  var parentTop = _parent$getBoundingCl.top;
-	  var parentHeight = _parent$getBoundingCl.height;
-	
-	  var windowInnerHeight = window.innerHeight || document.documentElement.clientHeight;
-	
-	  // calculate top and height of the intersection of the element's scrollParent and viewport
-	  var intersectionTop = Math.max(parentTop, 0); // intersection's top relative to viewport
-	  var intersectionHeight = Math.min(windowInnerHeight, parentTop + parentHeight) - intersectionTop; // height
-	
-	  // check whether the element is visible in the intersection
-	
-	  var _node$getBoundingClie = node.getBoundingClientRect();
-	
-	  var top = _node$getBoundingClie.top;
-	  var height = _node$getBoundingClie.height;
-	
-	  var offsetTop = top - intersectionTop; // element's top relative to intersection
-	
-	  var offsets = Array.isArray(component.props.offset) ? component.props.offset : [component.props.offset, component.props.offset]; // Be compatible with previous API
-	
-	  return offsetTop - offsets[0] <= intersectionHeight && offsetTop + height + offsets[1] >= 0;
-	};
-	
-	/**
-	 * Check if `component` is visible in document
-	 * @param  {node} component React component
-	 * @return {bool}
-	 */
-	var checkNormalVisible = function checkNormalVisible(component) {
-	  var node = _reactDom2.default.findDOMNode(component);
-	
-	  var _node$getBoundingClie2 = node.getBoundingClientRect();
-	
-	  var top = _node$getBoundingClie2.top;
-	  var elementHeight = _node$getBoundingClie2.height;
-	
-	
-	  var windowInnerHeight = window.innerHeight || document.documentElement.clientHeight;
-	
-	  var offsets = Array.isArray(component.props.offset) ? component.props.offset : [component.props.offset, component.props.offset]; // Be compatible with previous API
-	
-	  return top - offsets[0] <= windowInnerHeight && top + elementHeight + offsets[1] >= 0;
-	};
-	
-	/**
-	 * Detect if element is visible in viewport, if so, set `visible` state to true.
-	 * If `once` prop is provided true, remove component as listener after checkVisible
-	 *
-	 * @param  {React} component   React component that respond to scroll and resize
-	 */
-	var checkVisible = function checkVisible(component) {
-	  var node = _reactDom2.default.findDOMNode(component);
-	  if (!node) {
-	    return;
-	  }
-	
-	  var parent = (0, _scrollParent2.default)(node);
-	  var isOverflow = parent !== node.ownerDocument && parent !== document && parent !== document.documentElement;
-	
-	  var visible = isOverflow ? checkOverflowVisible(component, parent) : checkNormalVisible(component);
-	
-	  if (visible) {
-	    // Avoid extra render if previously is visible, yeah I mean `render` call,
-	    // not actual DOM render
-	    if (!component.visible) {
-	      if (component.props.once) {
-	        pending.push(component);
-	      }
-	
-	      component.visible = true;
-	      component.forceUpdate();
-	    }
-	  } else if (!(component.props.once && component.visible)) {
-	    component.visible = false;
-	  }
-	};
-	
-	var purgePending = function purgePending() {
-	  pending.forEach(function (component) {
-	    var index = listeners.indexOf(component);
-	    if (index !== -1) {
-	      listeners.splice(index, 1);
-	    }
-	  });
-	
-	  pending = [];
-	};
-	
-	var lazyLoadHandler = function lazyLoadHandler() {
-	  for (var i = 0; i < listeners.length; ++i) {
-	    var listener = listeners[i];
-	    checkVisible(listener);
-	  }
-	
-	  // Remove `once` component in listeners
-	  purgePending();
-	};
-	
-	// Depending on component's props
-	var delayType = void 0;
-	var finalLazyLoadHandler = null;
-	
-	var LazyLoad = function (_Component) {
-	  _inherits(LazyLoad, _Component);
-	
-	  function LazyLoad(props) {
-	    _classCallCheck(this, LazyLoad);
-	
-	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(LazyLoad).call(this, props));
-	
-	    _this.visible = false;
-	
-	    if (_react2.default.Children.count(_this.props.children) > 1) {
-	      console.warn('[react-lazyload] Only one child is allowed to be passed to `LazyLoad`.');
-	    }
-	
-	    if (_this.props.wheel) {
-	      // eslint-disable-line
-	      console.warn('[react-lazyload] Props `wheel` is not supported anymore, try set `overflow` for lazy loading in overflow containers.');
-	    }
-	    return _this;
-	  }
-	
-	  _createClass(LazyLoad, [{
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {
-	      // Warn the user if placeholder and height is not specified and the rendered height is 0
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (!this.props.placeholder && !this.props.height && _reactDom2.default.findDOMNode(this).offsetHeight === 0) {
-	          console.warn('[react-lazyload] Please add `height` props to <LazyLoad> for better performance.');
-	        }
-	      }
-	
-	      // It's unlikely to change delay type for an application, this is mainly
-	      // designed for tests
-	      var needResetFinalLazyLoadHandler = false;
-	      if (this.props.debounce !== undefined && delayType === 'throttle') {
-	        console.warn('[react-lazyload] Previous delay function is `throttle`, now switching to `debounce`, try to set them unanimously');
-	        needResetFinalLazyLoadHandler = true;
-	      } else if (delayType === 'debounce' && this.props.debounce === undefined) {
-	        console.warn('[react-lazyload] Previous delay function is `debounce`, now switching to `throttle`, try to set them unanimously');
-	        needResetFinalLazyLoadHandler = true;
-	      }
-	
-	      if (needResetFinalLazyLoadHandler) {
-	        (0, _event.off)(window, 'scroll', finalLazyLoadHandler);
-	        (0, _event.off)(window, 'resize', finalLazyLoadHandler);
-	        finalLazyLoadHandler = null;
-	      }
-	
-	      if (!finalLazyLoadHandler) {
-	        if (this.props.debounce !== undefined) {
-	          finalLazyLoadHandler = (0, _debounce2.default)(lazyLoadHandler, typeof this.props.debounce === 'number' ? this.props.debounce : 300);
-	          delayType = 'debounce';
-	        } else {
-	          finalLazyLoadHandler = (0, _throttle2.default)(lazyLoadHandler, typeof this.props.throttle === 'number' ? this.props.throttle : 300);
-	          delayType = 'throttle';
-	        }
-	      }
-	
-	      if (this.props.overflow) {
-	        var parent = (0, _scrollParent2.default)(_reactDom2.default.findDOMNode(this));
-	        if (parent && parent.getAttribute(LISTEN_FLAG) === null) {
-	          parent.addEventListener('scroll', finalLazyLoadHandler);
-	          parent.setAttribute(LISTEN_FLAG, 1);
-	        }
-	      } else if (listeners.length === 0 || needResetFinalLazyLoadHandler) {
-	        var _props = this.props;
-	        var scroll = _props.scroll;
-	        var resize = _props.resize;
-	
-	
-	        if (scroll) {
-	          (0, _event.on)(window, 'scroll', finalLazyLoadHandler);
-	        }
-	
-	        if (resize) {
-	          (0, _event.on)(window, 'resize', finalLazyLoadHandler);
-	        }
-	      }
-	
-	      listeners.push(this);
-	      checkVisible(this);
-	    }
-	  }, {
-	    key: 'shouldComponentUpdate',
-	    value: function shouldComponentUpdate() {
-	      return this.visible;
-	    }
-	  }, {
-	    key: 'componentWillUnmount',
-	    value: function componentWillUnmount() {
-	      if (this.props.overflow) {
-	        var parent = (0, _scrollParent2.default)(_reactDom2.default.findDOMNode(this));
-	        if (parent) {
-	          parent.removeEventListener('scroll', finalLazyLoadHandler);
-	          parent.removeAttribute(LISTEN_FLAG);
-	        }
-	      }
-	
-	      var index = listeners.indexOf(this);
-	      if (index !== -1) {
-	        listeners.splice(index, 1);
-	      }
-	
-	      if (listeners.length === 0) {
-	        (0, _event.off)(window, 'resize', finalLazyLoadHandler);
-	        (0, _event.off)(window, 'scroll', finalLazyLoadHandler);
-	      }
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      return this.visible ? this.props.children : this.props.placeholder ? this.props.placeholder : _react2.default.createElement('div', { style: { height: this.props.height }, className: 'lazyload-placeholder' });
-	    }
-	  }]);
-	
-	  return LazyLoad;
-	}(_react.Component);
-	
-	LazyLoad.propTypes = {
-	  once: _react.PropTypes.bool,
-	  height: _react.PropTypes.oneOfType([_react.PropTypes.number, _react.PropTypes.string]),
-	  offset: _react.PropTypes.oneOfType([_react.PropTypes.number, _react.PropTypes.arrayOf(_react.PropTypes.number)]),
-	  overflow: _react.PropTypes.bool,
-	  resize: _react.PropTypes.bool,
-	  scroll: _react.PropTypes.bool,
-	  children: _react.PropTypes.node,
-	  throttle: _react.PropTypes.oneOfType([_react.PropTypes.number, _react.PropTypes.bool]),
-	  debounce: _react.PropTypes.oneOfType([_react.PropTypes.number, _react.PropTypes.bool]),
-	  placeholder: _react.PropTypes.node
-	};
-	
-	LazyLoad.defaultProps = {
-	  once: false,
-	  offset: 0,
-	  overflow: false,
-	  resize: false,
-	  scroll: true
-	};
-	
-	var lazyload = exports.lazyload = _decorator2.default;
-	exports.default = LazyLoad;
-	exports.forceCheck = lazyLoadHandler;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
-
-/***/ },
-/* 173 */
-/*!*********************************************!*\
-  !*** ./~/react-lazyload/lib/utils/event.js ***!
-  \*********************************************/
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.on = on;
-	exports.off = off;
-	function on(el, eventName, callback) {
-	  if (el.addEventListener) {
-	    el.addEventListener(eventName, callback, false);
-	  } else if (el.attachEvent) {
-	    el.attachEvent("on" + eventName, function (e) {
-	      callback.call(el, e || window.event);
-	    });
-	  }
-	}
-	
-	function off(el, eventName, callback) {
-	  if (el.removeEventListener) {
-	    el.removeEventListener(eventName, callback);
-	  } else if (el.detachEvent) {
-	    el.detachEvent("on" + eventName, callback);
-	  }
-	}
-
-/***/ },
-/* 174 */
-/*!****************************************************!*\
-  !*** ./~/react-lazyload/lib/utils/scrollParent.js ***!
-  \****************************************************/
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	/**
-	 * @fileOverview Find scroll parent
-	 */
-	
-	exports.default = function (node) {
-	  if (!node) {
-	    return document;
-	  }
-	
-	  var excludeStaticParent = node.style.position === 'absolute';
-	  var overflowRegex = /(scroll|auto)/;
-	  var parent = node;
-	
-	  while (parent) {
-	    if (!parent.parentNode) {
-	      return node.ownerDocument || document;
-	    }
-	
-	    var style = window.getComputedStyle(parent);
-	    var position = style.position;
-	    var overflow = style.overflow;
-	    var overflowX = style['overflow-x'];
-	    var overflowY = style['overflow-y'];
-	
-	    if (position === 'static' && excludeStaticParent) {
-	      continue;
-	    }
-	
-	    if (overflowRegex.test(overflow + overflowX + overflowY)) {
-	      return parent;
-	    }
-	
-	    parent = parent.parentNode;
-	  }
-	
-	  return node.ownerDocument || document;
-	};
-
-/***/ },
-/* 175 */
-/*!************************************************!*\
-  !*** ./~/react-lazyload/lib/utils/debounce.js ***!
-  \************************************************/
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = debounce;
-	function debounce(func, wait, immediate) {
-	  var timeout = void 0;
-	  var args = void 0;
-	  var context = void 0;
-	  var timestamp = void 0;
-	  var result = void 0;
-	
-	  var later = function later() {
-	    var last = +new Date() - timestamp;
-	
-	    if (last < wait && last >= 0) {
-	      timeout = setTimeout(later, wait - last);
-	    } else {
-	      timeout = null;
-	      if (!immediate) {
-	        result = func.apply(context, args);
-	        if (!timeout) {
-	          context = args = null;
-	        }
-	      }
-	    }
-	  };
-	
-	  return function debounced() {
-	    context = this;
-	    args = arguments;
-	    timestamp = +new Date();
-	
-	    var callNow = immediate && !timeout;
-	    if (!timeout) {
-	      timeout = setTimeout(later, wait);
-	    }
-	
-	    if (callNow) {
-	      result = func.apply(context, args);
-	      context = args = null;
-	    }
-	
-	    return result;
-	  };
-	}
-
-/***/ },
-/* 176 */
-/*!************************************************!*\
-  !*** ./~/react-lazyload/lib/utils/throttle.js ***!
-  \************************************************/
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = throttle;
-	/*eslint-disable */
-	function throttle(fn, threshhold, scope) {
-	  threshhold || (threshhold = 250);
-	  var last, deferTimer;
-	  return function () {
-	    var context = scope || this;
-	
-	    var now = +new Date(),
-	        args = arguments;
-	    if (last && now < last + threshhold) {
-	      // hold on to it
-	      clearTimeout(deferTimer);
-	      deferTimer = setTimeout(function () {
-	        last = now;
-	        fn.apply(context, args);
-	      }, threshhold);
-	    } else {
-	      last = now;
-	      fn.apply(context, args);
-	    }
-	  };
-	}
-
-/***/ },
-/* 177 */
-/*!*******************************************!*\
-  !*** ./~/react-lazyload/lib/decorator.js ***!
-  \*******************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
+	    value: true
 	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _index = __webpack_require__(/*! ./index */ 172);
-	
-	var _index2 = _interopRequireDefault(_index);
 	
 	var _react = __webpack_require__(/*! react */ 1);
 	
@@ -22499,43 +21994,55 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var getDisplayName = function getDisplayName(WrappedComponent) {
-	  return WrappedComponent.displayName || WrappedComponent.name || 'Component';
-	};
+	var NavBarComponent = function (_React$Component) {
+	    _inherits(NavBarComponent, _React$Component);
 	
-	exports.default = function () {
-	  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-	  return function lazyload(WrappedComponent) {
-	    return function (_Component) {
-	      _inherits(LazyLoadDecorated, _Component);
+	    function NavBarComponent() {
+	        _classCallCheck(this, NavBarComponent);
 	
-	      function LazyLoadDecorated() {
-	        _classCallCheck(this, LazyLoadDecorated);
+	        return _possibleConstructorReturn(this, (NavBarComponent.__proto__ || Object.getPrototypeOf(NavBarComponent)).apply(this, arguments));
+	    }
 	
-	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(LazyLoadDecorated).call(this));
-	
-	        _this.displayName = 'LazyLoad' + getDisplayName(WrappedComponent);
-	        return _this;
-	      }
-	
-	      _createClass(LazyLoadDecorated, [{
+	    _createClass(NavBarComponent, [{
 	        key: 'render',
 	        value: function render() {
-	          return _react2.default.createElement(
-	            _index2.default,
-	            options,
-	            _react2.default.createElement(WrappedComponent, this.props)
-	          );
+	            return _react2.default.createElement(
+	                'div',
+	                null,
+	                _react2.default.createElement(
+	                    'header',
+	                    { className: 'fixed-nav-bar' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'favorite' },
+	                        'Favorite counter: ',
+	                        _react2.default.createElement('span', null)
+	                    )
+	                )
+	            );
 	        }
-	      }]);
+	    }], [{
+	        key: 'onFavorite',
+	        value: function onFavorite() {
+	            var count = $('.favorite>span').text();
+	            $('.favorite>span').text(count === '' ? 1 : parseInt(count) + 1);
+	        }
+	    }, {
+	        key: 'deFavorite',
+	        value: function deFavorite() {
+	            var count = $('.favorite>span').text();
+	            $('.favorite>span').text(count === '1' ? '' : parseInt(count) - 1);
+	        }
+	    }]);
 	
-	      return LazyLoadDecorated;
-	    }(_react.Component);
-	  };
-	};
+	    return NavBarComponent;
+	}(_react2.default.Component);
+	
+	exports.default = NavBarComponent;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! jquery */ 174)))
 
 /***/ },
-/* 178 */
+/* 173 */
 /*!*******************************************!*\
   !*** ./src/client/app/PhotoComponent.jsx ***!
   \*******************************************/
@@ -22553,7 +22060,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _BoxComponent = __webpack_require__(/*! ./BoxComponent.jsx */ 180);
+	var _BoxComponent = __webpack_require__(/*! ./BoxComponent.jsx */ 175);
 	
 	var _BoxComponent2 = _interopRequireDefault(_BoxComponent);
 	
@@ -22574,8 +22081,13 @@
 	        var _this = _possibleConstructorReturn(this, (PhotoComponent.__proto__ || Object.getPrototypeOf(PhotoComponent)).call(this, props));
 	
 	        _this.state = {
-	            photos: [],
-	            page: props.page
+	            column1: [],
+	            column2: [],
+	            column3: [],
+	            column4: [],
+	            column5: [],
+	            page: 1,
+	            uploadStatus: true
 	        };
 	        return _this;
 	    }
@@ -22583,6 +22095,19 @@
 	    _createClass(PhotoComponent, [{
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
+	            var _self = this;
+	            _self.getPhotos();
+	            $(window).scroll(function () {
+	                if ($(window).scrollTop() + $(window).height() > $(document).height() - 300) {
+	                    if (_self.state.uploadStatus === true) {
+	                        _self.getPhotos();
+	                    }
+	                }
+	            });
+	        }
+	    }, {
+	        key: 'getPhotos',
+	        value: function getPhotos() {
 	            $.ajax({
 	                url: 'https://api.500px.com/v1/photos',
 	                data: {
@@ -22594,8 +22119,33 @@
 	                },
 	                dataType: 'json',
 	                cache: false,
+	                beforeSend: function () {
+	                    this.setState({
+	                        uploadStatus: false
+	                    });
+	                }.bind(this),
 	                success: function (data) {
-	                    this.setState({ photos: data.photos });
+	
+	                    var _self = this;
+	                    data.photos.map(function (photo, i) {
+	                        if (i < 10) {
+	                            _self.state.column1.push(photo);
+	                        } else if (i < 20) {
+	                            _self.state.column2.push(photo);
+	                        } else if (i < 30) {
+	                            _self.state.column3.push(photo);
+	                        } else if (i < 40) {
+	                            _self.state.column4.push(photo);
+	                        } else {
+	                            _self.state.column5.push(photo);
+	                        }
+	                    });
+	
+	                    this.forceUpdate();
+	                    this.setState({
+	                        page: this.state.page + 1,
+	                        uploadStatus: true
+	                    });
 	                }.bind(this),
 	                error: function (xhr, status, err) {
 	                    console.error(this.props.url, status, err.toString());
@@ -22605,19 +22155,44 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _data = this.state.photos;
 	            return _react2.default.createElement(
 	                'div',
 	                { className: 'masonry' },
-	                [0, 10, 20, 30, 40].map(function (i) {
-	                    return _react2.default.createElement(
-	                        'div',
-	                        { className: 'column', key: i },
-	                        _data.slice(i, i + 9).map(function (photo) {
-	                            return _react2.default.createElement(_BoxComponent2.default, { photo: photo });
-	                        })
-	                    );
-	                })
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'column', key: '1' },
+	                    this.state.column1.map(function (photo) {
+	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo });
+	                    })
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'column', key: '2' },
+	                    this.state.column2.map(function (photo) {
+	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo });
+	                    })
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'column', key: '3' },
+	                    this.state.column3.map(function (photo) {
+	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo });
+	                    })
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'column', key: '4' },
+	                    this.state.column4.map(function (photo) {
+	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo });
+	                    })
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'column', key: '5' },
+	                    this.state.column5.map(function (photo) {
+	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo });
+	                    })
+	                )
 	            );
 	        }
 	    }]);
@@ -22626,10 +22201,10 @@
 	}(_react2.default.Component);
 	
 	exports.default = PhotoComponent;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! jquery */ 179)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! jquery */ 174)))
 
 /***/ },
-/* 179 */
+/* 174 */
 /*!*********************************!*\
   !*** ./~/jquery/dist/jquery.js ***!
   \*********************************/
@@ -32989,7 +32564,7 @@
 
 
 /***/ },
-/* 180 */
+/* 175 */
 /*!*****************************************!*\
   !*** ./src/client/app/BoxComponent.jsx ***!
   \*****************************************/
@@ -33007,7 +32582,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _NavBarComponent = __webpack_require__(/*! ./NavBarComponent.jsx */ 181);
+	var _NavBarComponent = __webpack_require__(/*! ./NavBarComponent.jsx */ 172);
 	
 	var _NavBarComponent2 = _interopRequireDefault(_NavBarComponent);
 	
@@ -33079,19 +32654,512 @@
 	exports.default = BoxComponent;
 
 /***/ },
-/* 181 */
-/*!********************************************!*\
-  !*** ./src/client/app/NavBarComponent.jsx ***!
-  \********************************************/
+/* 176 */
+/*!***************************************!*\
+  !*** ./~/react-lazyload/lib/index.js ***!
+  \***************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function($) {'use strict';
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
+	});
+	exports.forceCheck = exports.lazyload = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(/*! react */ 1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _reactDom = __webpack_require__(/*! react-dom */ 34);
+	
+	var _reactDom2 = _interopRequireDefault(_reactDom);
+	
+	var _event = __webpack_require__(/*! ./utils/event */ 177);
+	
+	var _scrollParent = __webpack_require__(/*! ./utils/scrollParent */ 178);
+	
+	var _scrollParent2 = _interopRequireDefault(_scrollParent);
+	
+	var _debounce = __webpack_require__(/*! ./utils/debounce */ 179);
+	
+	var _debounce2 = _interopRequireDefault(_debounce);
+	
+	var _throttle = __webpack_require__(/*! ./utils/throttle */ 180);
+	
+	var _throttle2 = _interopRequireDefault(_throttle);
+	
+	var _decorator = __webpack_require__(/*! ./decorator */ 181);
+	
+	var _decorator2 = _interopRequireDefault(_decorator);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * react-lazyload
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+	
+	
+	var LISTEN_FLAG = 'data-lazyload-listened';
+	var listeners = [];
+	var pending = [];
+	
+	var heightDiffThreshold = 20;
+	
+	/**
+	 * Check if `component` is visible in overflow container `parent`
+	 * @param  {node} component React component
+	 * @param  {node} parent    component's scroll parent
+	 * @return {bool}
+	 */
+	var checkOverflowVisible = function checkOverflowVisible(component, parent) {
+	  var node = _reactDom2.default.findDOMNode(component);
+	
+	  var _parent$getBoundingCl = parent.getBoundingClientRect();
+	
+	  var parentTop = _parent$getBoundingCl.top;
+	  var parentHeight = _parent$getBoundingCl.height;
+	
+	  var windowInnerHeight = window.innerHeight || document.documentElement.clientHeight;
+	
+	  // calculate top and height of the intersection of the element's scrollParent and viewport
+	  var intersectionTop = Math.max(parentTop, 0); // intersection's top relative to viewport
+	  var intersectionHeight = Math.min(windowInnerHeight, parentTop + parentHeight) - intersectionTop; // height
+	
+	  // check whether the element is visible in the intersection
+	
+	  var _node$getBoundingClie = node.getBoundingClientRect();
+	
+	  var top = _node$getBoundingClie.top;
+	  var height = _node$getBoundingClie.height;
+	
+	  var offsetTop = top - intersectionTop; // element's top relative to intersection
+	
+	  var offsets = Array.isArray(component.props.offset) ? component.props.offset : [component.props.offset, component.props.offset]; // Be compatible with previous API
+	
+	  return offsetTop - offsets[0] <= intersectionHeight && offsetTop + height + offsets[1] >= 0;
+	};
+	
+	/**
+	 * Check if `component` is visible in document
+	 * @param  {node} component React component
+	 * @return {bool}
+	 */
+	var checkNormalVisible = function checkNormalVisible(component) {
+	  var node = _reactDom2.default.findDOMNode(component);
+	
+	  var _node$getBoundingClie2 = node.getBoundingClientRect();
+	
+	  var top = _node$getBoundingClie2.top;
+	  var elementHeight = _node$getBoundingClie2.height;
+	
+	
+	  var windowInnerHeight = window.innerHeight || document.documentElement.clientHeight;
+	
+	  var offsets = Array.isArray(component.props.offset) ? component.props.offset : [component.props.offset, component.props.offset]; // Be compatible with previous API
+	
+	  return top - offsets[0] <= windowInnerHeight && top + elementHeight + offsets[1] >= 0;
+	};
+	
+	/**
+	 * Detect if element is visible in viewport, if so, set `visible` state to true.
+	 * If `once` prop is provided true, remove component as listener after checkVisible
+	 *
+	 * @param  {React} component   React component that respond to scroll and resize
+	 */
+	var checkVisible = function checkVisible(component) {
+	  var node = _reactDom2.default.findDOMNode(component);
+	  if (!node) {
+	    return;
+	  }
+	
+	  var parent = (0, _scrollParent2.default)(node);
+	  var isOverflow = parent !== node.ownerDocument && parent !== document && parent !== document.documentElement;
+	
+	  var visible = isOverflow ? checkOverflowVisible(component, parent) : checkNormalVisible(component);
+	
+	  if (visible) {
+	    // Avoid extra render if previously is visible, yeah I mean `render` call,
+	    // not actual DOM render
+	    if (!component.visible) {
+	      if (component.props.once) {
+	        pending.push(component);
+	      }
+	
+	      component.visible = true;
+	      component.forceUpdate();
+	    }
+	  } else if (!(component.props.once && component.visible)) {
+	    component.visible = false;
+	  }
+	};
+	
+	var purgePending = function purgePending() {
+	  pending.forEach(function (component) {
+	    var index = listeners.indexOf(component);
+	    if (index !== -1) {
+	      listeners.splice(index, 1);
+	    }
+	  });
+	
+	  pending = [];
+	};
+	
+	var lazyLoadHandler = function lazyLoadHandler() {
+	  for (var i = 0; i < listeners.length; ++i) {
+	    var listener = listeners[i];
+	    checkVisible(listener);
+	  }
+	
+	  // Remove `once` component in listeners
+	  purgePending();
+	};
+	
+	// Depending on component's props
+	var delayType = void 0;
+	var finalLazyLoadHandler = null;
+	
+	var LazyLoad = function (_Component) {
+	  _inherits(LazyLoad, _Component);
+	
+	  function LazyLoad(props) {
+	    _classCallCheck(this, LazyLoad);
+	
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(LazyLoad).call(this, props));
+	
+	    _this.visible = false;
+	
+	    if (_react2.default.Children.count(_this.props.children) > 1) {
+	      console.warn('[react-lazyload] Only one child is allowed to be passed to `LazyLoad`.');
+	    }
+	
+	    if (_this.props.wheel) {
+	      // eslint-disable-line
+	      console.warn('[react-lazyload] Props `wheel` is not supported anymore, try set `overflow` for lazy loading in overflow containers.');
+	    }
+	    return _this;
+	  }
+	
+	  _createClass(LazyLoad, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      // Warn the user if placeholder and height is not specified and the rendered height is 0
+	      if (process.env.NODE_ENV !== 'production') {
+	        if (!this.props.placeholder && !this.props.height && _reactDom2.default.findDOMNode(this).offsetHeight === 0) {
+	          console.warn('[react-lazyload] Please add `height` props to <LazyLoad> for better performance.');
+	        }
+	      }
+	
+	      // It's unlikely to change delay type for an application, this is mainly
+	      // designed for tests
+	      var needResetFinalLazyLoadHandler = false;
+	      if (this.props.debounce !== undefined && delayType === 'throttle') {
+	        console.warn('[react-lazyload] Previous delay function is `throttle`, now switching to `debounce`, try to set them unanimously');
+	        needResetFinalLazyLoadHandler = true;
+	      } else if (delayType === 'debounce' && this.props.debounce === undefined) {
+	        console.warn('[react-lazyload] Previous delay function is `debounce`, now switching to `throttle`, try to set them unanimously');
+	        needResetFinalLazyLoadHandler = true;
+	      }
+	
+	      if (needResetFinalLazyLoadHandler) {
+	        (0, _event.off)(window, 'scroll', finalLazyLoadHandler);
+	        (0, _event.off)(window, 'resize', finalLazyLoadHandler);
+	        finalLazyLoadHandler = null;
+	      }
+	
+	      if (!finalLazyLoadHandler) {
+	        if (this.props.debounce !== undefined) {
+	          finalLazyLoadHandler = (0, _debounce2.default)(lazyLoadHandler, typeof this.props.debounce === 'number' ? this.props.debounce : 300);
+	          delayType = 'debounce';
+	        } else {
+	          finalLazyLoadHandler = (0, _throttle2.default)(lazyLoadHandler, typeof this.props.throttle === 'number' ? this.props.throttle : 300);
+	          delayType = 'throttle';
+	        }
+	      }
+	
+	      if (this.props.overflow) {
+	        var parent = (0, _scrollParent2.default)(_reactDom2.default.findDOMNode(this));
+	        if (parent && parent.getAttribute(LISTEN_FLAG) === null) {
+	          parent.addEventListener('scroll', finalLazyLoadHandler);
+	          parent.setAttribute(LISTEN_FLAG, 1);
+	        }
+	      } else if (listeners.length === 0 || needResetFinalLazyLoadHandler) {
+	        var _props = this.props;
+	        var scroll = _props.scroll;
+	        var resize = _props.resize;
+	
+	
+	        if (scroll) {
+	          (0, _event.on)(window, 'scroll', finalLazyLoadHandler);
+	        }
+	
+	        if (resize) {
+	          (0, _event.on)(window, 'resize', finalLazyLoadHandler);
+	        }
+	      }
+	
+	      listeners.push(this);
+	      checkVisible(this);
+	    }
+	  }, {
+	    key: 'shouldComponentUpdate',
+	    value: function shouldComponentUpdate() {
+	      return this.visible;
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      if (this.props.overflow) {
+	        var parent = (0, _scrollParent2.default)(_reactDom2.default.findDOMNode(this));
+	        if (parent) {
+	          parent.removeEventListener('scroll', finalLazyLoadHandler);
+	          parent.removeAttribute(LISTEN_FLAG);
+	        }
+	      }
+	
+	      var index = listeners.indexOf(this);
+	      if (index !== -1) {
+	        listeners.splice(index, 1);
+	      }
+	
+	      if (listeners.length === 0) {
+	        (0, _event.off)(window, 'resize', finalLazyLoadHandler);
+	        (0, _event.off)(window, 'scroll', finalLazyLoadHandler);
+	      }
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return this.visible ? this.props.children : this.props.placeholder ? this.props.placeholder : _react2.default.createElement('div', { style: { height: this.props.height }, className: 'lazyload-placeholder' });
+	    }
+	  }]);
+	
+	  return LazyLoad;
+	}(_react.Component);
+	
+	LazyLoad.propTypes = {
+	  once: _react.PropTypes.bool,
+	  height: _react.PropTypes.oneOfType([_react.PropTypes.number, _react.PropTypes.string]),
+	  offset: _react.PropTypes.oneOfType([_react.PropTypes.number, _react.PropTypes.arrayOf(_react.PropTypes.number)]),
+	  overflow: _react.PropTypes.bool,
+	  resize: _react.PropTypes.bool,
+	  scroll: _react.PropTypes.bool,
+	  children: _react.PropTypes.node,
+	  throttle: _react.PropTypes.oneOfType([_react.PropTypes.number, _react.PropTypes.bool]),
+	  debounce: _react.PropTypes.oneOfType([_react.PropTypes.number, _react.PropTypes.bool]),
+	  placeholder: _react.PropTypes.node
+	};
+	
+	LazyLoad.defaultProps = {
+	  once: false,
+	  offset: 0,
+	  overflow: false,
+	  resize: false,
+	  scroll: true
+	};
+	
+	var lazyload = exports.lazyload = _decorator2.default;
+	exports.default = LazyLoad;
+	exports.forceCheck = lazyLoadHandler;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+
+/***/ },
+/* 177 */
+/*!*********************************************!*\
+  !*** ./~/react-lazyload/lib/utils/event.js ***!
+  \*********************************************/
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.on = on;
+	exports.off = off;
+	function on(el, eventName, callback) {
+	  if (el.addEventListener) {
+	    el.addEventListener(eventName, callback, false);
+	  } else if (el.attachEvent) {
+	    el.attachEvent("on" + eventName, function (e) {
+	      callback.call(el, e || window.event);
+	    });
+	  }
+	}
+	
+	function off(el, eventName, callback) {
+	  if (el.removeEventListener) {
+	    el.removeEventListener(eventName, callback);
+	  } else if (el.detachEvent) {
+	    el.detachEvent("on" + eventName, callback);
+	  }
+	}
+
+/***/ },
+/* 178 */
+/*!****************************************************!*\
+  !*** ./~/react-lazyload/lib/utils/scrollParent.js ***!
+  \****************************************************/
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	/**
+	 * @fileOverview Find scroll parent
+	 */
+	
+	exports.default = function (node) {
+	  if (!node) {
+	    return document;
+	  }
+	
+	  var excludeStaticParent = node.style.position === 'absolute';
+	  var overflowRegex = /(scroll|auto)/;
+	  var parent = node;
+	
+	  while (parent) {
+	    if (!parent.parentNode) {
+	      return node.ownerDocument || document;
+	    }
+	
+	    var style = window.getComputedStyle(parent);
+	    var position = style.position;
+	    var overflow = style.overflow;
+	    var overflowX = style['overflow-x'];
+	    var overflowY = style['overflow-y'];
+	
+	    if (position === 'static' && excludeStaticParent) {
+	      continue;
+	    }
+	
+	    if (overflowRegex.test(overflow + overflowX + overflowY)) {
+	      return parent;
+	    }
+	
+	    parent = parent.parentNode;
+	  }
+	
+	  return node.ownerDocument || document;
+	};
+
+/***/ },
+/* 179 */
+/*!************************************************!*\
+  !*** ./~/react-lazyload/lib/utils/debounce.js ***!
+  \************************************************/
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = debounce;
+	function debounce(func, wait, immediate) {
+	  var timeout = void 0;
+	  var args = void 0;
+	  var context = void 0;
+	  var timestamp = void 0;
+	  var result = void 0;
+	
+	  var later = function later() {
+	    var last = +new Date() - timestamp;
+	
+	    if (last < wait && last >= 0) {
+	      timeout = setTimeout(later, wait - last);
+	    } else {
+	      timeout = null;
+	      if (!immediate) {
+	        result = func.apply(context, args);
+	        if (!timeout) {
+	          context = args = null;
+	        }
+	      }
+	    }
+	  };
+	
+	  return function debounced() {
+	    context = this;
+	    args = arguments;
+	    timestamp = +new Date();
+	
+	    var callNow = immediate && !timeout;
+	    if (!timeout) {
+	      timeout = setTimeout(later, wait);
+	    }
+	
+	    if (callNow) {
+	      result = func.apply(context, args);
+	      context = args = null;
+	    }
+	
+	    return result;
+	  };
+	}
+
+/***/ },
+/* 180 */
+/*!************************************************!*\
+  !*** ./~/react-lazyload/lib/utils/throttle.js ***!
+  \************************************************/
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = throttle;
+	/*eslint-disable */
+	function throttle(fn, threshhold, scope) {
+	  threshhold || (threshhold = 250);
+	  var last, deferTimer;
+	  return function () {
+	    var context = scope || this;
+	
+	    var now = +new Date(),
+	        args = arguments;
+	    if (last && now < last + threshhold) {
+	      // hold on to it
+	      clearTimeout(deferTimer);
+	      deferTimer = setTimeout(function () {
+	        last = now;
+	        fn.apply(context, args);
+	      }, threshhold);
+	    } else {
+	      last = now;
+	      fn.apply(context, args);
+	    }
+	  };
+	}
+
+/***/ },
+/* 181 */
+/*!*******************************************!*\
+  !*** ./~/react-lazyload/lib/decorator.js ***!
+  \*******************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
 	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _index = __webpack_require__(/*! ./index */ 176);
+	
+	var _index2 = _interopRequireDefault(_index);
 	
 	var _react = __webpack_require__(/*! react */ 1);
 	
@@ -33105,53 +33173,41 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var NavBarComponent = function (_React$Component) {
-	    _inherits(NavBarComponent, _React$Component);
+	var getDisplayName = function getDisplayName(WrappedComponent) {
+	  return WrappedComponent.displayName || WrappedComponent.name || 'Component';
+	};
 	
-	    function NavBarComponent() {
-	        _classCallCheck(this, NavBarComponent);
+	exports.default = function () {
+	  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	  return function lazyload(WrappedComponent) {
+	    return function (_Component) {
+	      _inherits(LazyLoadDecorated, _Component);
 	
-	        return _possibleConstructorReturn(this, (NavBarComponent.__proto__ || Object.getPrototypeOf(NavBarComponent)).apply(this, arguments));
-	    }
+	      function LazyLoadDecorated() {
+	        _classCallCheck(this, LazyLoadDecorated);
 	
-	    _createClass(NavBarComponent, [{
+	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(LazyLoadDecorated).call(this));
+	
+	        _this.displayName = 'LazyLoad' + getDisplayName(WrappedComponent);
+	        return _this;
+	      }
+	
+	      _createClass(LazyLoadDecorated, [{
 	        key: 'render',
 	        value: function render() {
-	            return _react2.default.createElement(
-	                'div',
-	                null,
-	                _react2.default.createElement(
-	                    'header',
-	                    { className: 'fixed-nav-bar' },
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'favorite' },
-	                        'Favorite counter: ',
-	                        _react2.default.createElement('span', null)
-	                    )
-	                )
-	            );
+	          return _react2.default.createElement(
+	            _index2.default,
+	            options,
+	            _react2.default.createElement(WrappedComponent, this.props)
+	          );
 	        }
-	    }], [{
-	        key: 'onFavorite',
-	        value: function onFavorite() {
-	            var count = $('.favorite>span').text();
-	            $('.favorite>span').text(count === '' ? 1 : parseInt(count) + 1);
-	        }
-	    }, {
-	        key: 'deFavorite',
-	        value: function deFavorite() {
-	            var count = $('.favorite>span').text();
-	            $('.favorite>span').text(count === '1' ? '' : parseInt(count) - 1);
-	        }
-	    }]);
+	      }]);
 	
-	    return NavBarComponent;
-	}(_react2.default.Component);
-	
-	exports.default = NavBarComponent;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! jquery */ 179)))
+	      return LazyLoadDecorated;
+	    }(_react.Component);
+	  };
+	};
 
 /***/ }
 /******/ ]);
-//# sourceMappingURL=bundle.js.map
+//# sourceMappingURL=bundle.js.mapndle.js.map
