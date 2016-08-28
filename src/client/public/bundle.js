@@ -57,11 +57,21 @@
 	
 	var _reactDom = __webpack_require__(/*! react-dom */ 34);
 	
+	var _reactLazyload = __webpack_require__(/*! react-lazyload */ 174);
+	
+	var _reactLazyload2 = _interopRequireDefault(_reactLazyload);
+	
+	var _PhotoComponent = __webpack_require__(/*! ./PhotoComponent.jsx */ 172);
+	
+	var _PhotoComponent2 = _interopRequireDefault(_PhotoComponent);
+	
 	var _NavBarComponent = __webpack_require__(/*! ./NavBarComponent.jsx */ 180);
 	
 	var _NavBarComponent2 = _interopRequireDefault(_NavBarComponent);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -84,7 +94,18 @@
 	            return _react2.default.createElement(
 	                'div',
 	                { className: 'app' },
-	                _react2.default.createElement(_NavBarComponent2.default, null)
+	                _react2.default.createElement(_NavBarComponent2.default, null),
+	                _react2.default.createElement(
+	                    'div',
+	                    null,
+	                    [,].concat(_toConsumableArray(Array(15))).map(function (x, i) {
+	                        return _react2.default.createElement(
+	                            _reactLazyload2.default,
+	                            { key: i, height: 1000, offset: 500 },
+	                            _react2.default.createElement(_PhotoComponent2.default, { page: i + 1 })
+	                        );
+	                    })
+	                )
 	            );
 	        }
 	    }]);
@@ -32986,17 +33007,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _PhotoComponent = __webpack_require__(/*! ./PhotoComponent.jsx */ 172);
-	
-	var _PhotoComponent2 = _interopRequireDefault(_PhotoComponent);
-	
-	var _reactLazyload = __webpack_require__(/*! react-lazyload */ 174);
-	
-	var _reactLazyload2 = _interopRequireDefault(_reactLazyload);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -33023,22 +33034,11 @@
 	                    'header',
 	                    { className: 'fixed-nav-bar' },
 	                    _react2.default.createElement(
-	                        'a',
-	                        { href: '#', className: 'favorite' },
-	                        'Favorite ',
+	                        'div',
+	                        { className: 'favorite' },
+	                        'Favorite counter: ',
 	                        _react2.default.createElement('span', null)
 	                    )
-	                ),
-	                _react2.default.createElement(
-	                    'div',
-	                    null,
-	                    [,].concat(_toConsumableArray(Array(15))).map(function (x, i) {
-	                        return _react2.default.createElement(
-	                            _reactLazyload2.default,
-	                            { key: i, height: 1000, offset: 500, debounce: 500 },
-	                            _react2.default.createElement(_PhotoComponent2.default, { page: i + 1 })
-	                        );
-	                    })
 	                )
 	            );
 	        }
