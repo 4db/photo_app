@@ -1,5 +1,4 @@
 import React from 'react';
-import LazyLoad from 'react-lazyload';
 
 class PhotoComponent extends React.Component {
 
@@ -7,7 +6,7 @@ class PhotoComponent extends React.Component {
     super(props);
     this.state ={
       photos : [],
-      page   : 1
+      page   : props.page
     }
   }
 

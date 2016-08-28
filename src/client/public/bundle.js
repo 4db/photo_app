@@ -57,6 +57,10 @@
 	
 	var _reactDom = __webpack_require__(/*! react-dom */ 34);
 	
+	var _NavBarComponent = __webpack_require__(/*! ./NavBarComponent.jsx */ 180);
+	
+	var _NavBarComponent2 = _interopRequireDefault(_NavBarComponent);
+	
 	var _PhotoComponent = __webpack_require__(/*! ./PhotoComponent.jsx */ 172);
 	
 	var _PhotoComponent2 = _interopRequireDefault(_PhotoComponent);
@@ -89,14 +93,19 @@
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'div',
-	        null,
-	        [,].concat(_toConsumableArray(Array(15))).map(function (x, i) {
-	          return _react2.default.createElement(
-	            _reactLazyload2.default,
-	            { key: i, height: 1000, offset: 500 },
-	            _react2.default.createElement(_PhotoComponent2.default, { page: 1 })
-	          );
-	        })
+	        { className: 'app' },
+	        _react2.default.createElement(_NavBarComponent2.default, null),
+	        _react2.default.createElement(
+	          'div',
+	          null,
+	          [,].concat(_toConsumableArray(Array(15))).map(function (x, i) {
+	            return _react2.default.createElement(
+	              _reactLazyload2.default,
+	              { key: i, height: 1000, offset: 500 },
+	              _react2.default.createElement(_PhotoComponent2.default, { page: i + 1 })
+	            );
+	          })
+	        )
 	      );
 	    }
 	  }]);
@@ -21989,10 +21998,6 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactLazyload = __webpack_require__(/*! react-lazyload */ 174);
-	
-	var _reactLazyload2 = _interopRequireDefault(_reactLazyload);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -22011,7 +22016,7 @@
 	
 	    _this.state = {
 	      photos: [],
-	      page: 1
+	      page: props.page
 	    };
 	    return _this;
 	  }
@@ -32994,6 +32999,62 @@
 	    }(_react.Component);
 	  };
 	};
+
+/***/ },
+/* 180 */
+/*!********************************************!*\
+  !*** ./src/client/app/NavBarComponent.jsx ***!
+  \********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(/*! react */ 1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var NavBarComponent = function (_React$Component) {
+	    _inherits(NavBarComponent, _React$Component);
+	
+	    function NavBarComponent() {
+	        _classCallCheck(this, NavBarComponent);
+	
+	        return _possibleConstructorReturn(this, (NavBarComponent.__proto__ || Object.getPrototypeOf(NavBarComponent)).apply(this, arguments));
+	    }
+	
+	    _createClass(NavBarComponent, [{
+	        key: "render",
+	        value: function render() {
+	            return _react2.default.createElement(
+	                "header",
+	                { className: "fixed-nav-bar" },
+	                _react2.default.createElement(
+	                    "a",
+	                    { href: "#", className: "favorite" },
+	                    "Favorite"
+	                )
+	            );
+	        }
+	    }]);
+	
+	    return NavBarComponent;
+	}(_react2.default.Component);
+	
+	exports.default = NavBarComponent;
 
 /***/ }
 /******/ ]);
