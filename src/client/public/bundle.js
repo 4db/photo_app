@@ -22036,7 +22036,7 @@
 	                        ),
 	                        _react2.default.createElement(
 	                            'li',
-	                            { className: 'item', id: 'favorite' },
+	                            { className: 'item' },
 	                            this.state.favorite
 	                        )
 	                    )
@@ -32598,10 +32598,6 @@
 	var _react = __webpack_require__(/*! react */ 1);
 	
 	var _react2 = _interopRequireDefault(_react);
-	
-	var _NavBarComponent = __webpack_require__(/*! ./NavBarComponent.jsx */ 172);
-	
-	var _NavBarComponent2 = _interopRequireDefault(_NavBarComponent);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	

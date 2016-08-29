@@ -25,12 +25,12 @@ class NavBarComponent extends React.Component {
     render() {
         return (
             <div>
-                <header className="fixed-nav-bar">
-                    <ul className="list">
-                        <li className="item">
+                <header className='fixed-nav-bar'>
+                    <ul className='list'>
+                        <li className='item'>
                             Favorite counter:&nbsp;
                         </li>
-                        <li className="item" id="favorite" >
+                        <li className='item'>
                             {this.state.favorite}
                         </li>
                     </ul>

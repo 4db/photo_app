@@ -6,12 +6,12 @@ class PhotoComponent extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            column1 : [],
-            column2 : [],
-            column3 : [],
-            column4 : [],
-            column5 : [],
-            page  : 1,
+            column1     : [],
+            column2     : [],
+            column3     : [],
+            column4     : [],
+            column5     : [],
+            page        : 1,
             uploadStatus: true,
         }
     }
