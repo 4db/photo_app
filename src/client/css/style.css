@@ -1,6 +1,12 @@
+@import url(https://fonts.googleapis.com/css?family=Ek+Mukta:200);
+
 body {
-    font-family: -apple-system, Helvetica, Arial, sans-serif;
-    font-size: 0.7em;
+    font-family: 'Ek Mukta', sans-serif;
+    font-weight: 100;
+    text-decoration: none;
+    font-size: 16px;
+    line-height: 2.35;
+    font-weight: 200;
 }
 
 img {
@@ -14,6 +20,7 @@ img {
     align-content: stretch;
     width: 100%;
     margin: auto;
+    padding-top: 25px;
 }
 
 .column {
@@ -25,6 +32,7 @@ img {
 }
 
 .box {
+    font-size: 12px;
     cursor: pointer;
     color: white;
     display: inline-block;
@@ -33,7 +41,7 @@ img {
     border: 1px solid #ddd;
     padding: 6px;
     text-align: center;
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.12);
 }
 
 .box:hover {
@@ -48,18 +56,46 @@ img {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 9999;
+    z-index: 2;
     width: 100%;
-    height: 25px;
-    background-color: white;
+    height: 44px;
+    background-color: #2A2A2B;
+    color: #fff;
 }
 
 .app {
     margin-top: 20px;
 }
 
+.list {
+    list-style: none;
+    font-size: 1em;
+    font-family: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    text-align: inherit;
+    cursor: default;
+    margin: 0 -10px;
+    width: auto;
+    height: 44px;
+    text-align: justify;
+    display: block;
+    list-style-type: disc;
+}
+
+.item {
+    display: inline-block;
+    position: relative;
+    height: 44px;
+    z-index: 1;
+    vertical-align: top;
+    color: #fff;
+    background: no-repeat;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
 .favorite {
     margin-left: 10%;
     font-size: 1.5em;
-    text-decoration: none;
 }

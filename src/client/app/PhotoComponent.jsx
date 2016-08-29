@@ -45,36 +45,40 @@ class PhotoComponent extends React.Component {
                     uploadStatus  : false
                 });
             }.bind(this),
-            success: function (data) {
-
-                var _self = this;
-                data.photos.map(function(photo, i){
-                    if (i < 10) {
-                        _self.state.column1.push(photo);
-                    }
-                    else if (i < 20) {
-                        _self.state.column2.push(photo);
-                    }
-                    else if (i < 30) {
-                        _self.state.column3.push(photo);
-                    }
-                    else if (i < 40) {
-                        _self.state.column4.push(photo);
-                    }
-                    else {
-                        _self.state.column5.push(photo);
-                    }
-                });
-
-                this.forceUpdate();
-                this.setState({
-                    page         : this.state.page + 1,
-                    uploadStatus : true
-                });
-            }.bind(this),
+            success: this.photosUpdate.bind(this),
             error: function (xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
             }.bind(this)
+        });
+    }
+
+    /**
+     * Update photo by column
+     * @param data - array with 50 elements
+     */
+    photosUpdate(data) {
+        data.photos.map(function(photo, i){
+            if (i < 10) {
+                this.state.column1.push(photo);
+            }
+            else if (i < 20) {
+                this.state.column2.push(photo);
+            }
+            else if (i < 30) {
+                this.state.column3.push(photo);
+            }
+            else if (i < 40) {
+                this.state.column4.push(photo);
+            }
+            else {
+                this.state.column5.push(photo);
+            }
+        }.bind(this));
+
+        this.forceUpdate();
+        this.setState({
+            page         : this.state.page + 1,
+            uploadStatus : true
         });
     }
 

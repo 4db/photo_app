@@ -16,7 +16,7 @@ class BoxComponent extends React.Component {
 
     onFavorite() {
         if (this.state.backgroundColor == 'white') {
-            this.setState({backgroundColor: '#CECECE'});
+            this.setState({backgroundColor: '#ECD6BE'});
             NavBarComponent.onFavorite();
         }
         else {
