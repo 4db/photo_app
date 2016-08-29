@@ -57,10 +57,6 @@
 	
 	var _reactDom = __webpack_require__(/*! react-dom */ 34);
 	
-	var _PhotoComponent = __webpack_require__(/*! ./PhotoComponent.jsx */ 172);
-	
-	var _PhotoComponent2 = _interopRequireDefault(_PhotoComponent);
-	
 	var _NavBarComponent = __webpack_require__(/*! ./NavBarComponent.jsx */ 175);
 	
 	var _NavBarComponent2 = _interopRequireDefault(_NavBarComponent);
@@ -88,8 +84,7 @@
 	            return _react2.default.createElement(
 	                'div',
 	                { className: 'app' },
-	                _react2.default.createElement(_NavBarComponent2.default, null),
-	                _react2.default.createElement(_PhotoComponent2.default, null)
+	                _react2.default.createElement(_NavBarComponent2.default, null)
 	            );
 	        }
 	    }]);
@@ -22091,36 +22086,36 @@
 	                    'div',
 	                    { className: 'column', key: '1' },
 	                    this.state.column1.map(function (photo) {
-	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo });
-	                    })
+	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo, onFavorite: this.props.onFavorite, deFavorite: this.props.deFavorite });
+	                    }.bind(this))
 	                ),
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'column', key: '2' },
 	                    this.state.column2.map(function (photo) {
-	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo });
-	                    })
+	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo, onFavorite: this.props.onFavorite, deFavorite: this.props.deFavorite });
+	                    }.bind(this))
 	                ),
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'column', key: '3' },
 	                    this.state.column3.map(function (photo) {
-	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo });
-	                    })
+	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo, onFavorite: this.props.onFavorite, deFavorite: this.props.deFavorite });
+	                    }.bind(this))
 	                ),
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'column', key: '4' },
 	                    this.state.column4.map(function (photo) {
-	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo });
-	                    })
+	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo, onFavorite: this.props.onFavorite, deFavorite: this.props.deFavorite });
+	                    }.bind(this))
 	                ),
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'column', key: '5' },
 	                    this.state.column5.map(function (photo) {
-	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo });
-	                    })
+	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo, onFavorite: this.props.onFavorite, deFavorite: this.props.deFavorite });
+	                    }.bind(this))
 	                )
 	            );
 	        }
@@ -32542,14 +32537,14 @@
 	    }
 	
 	    _createClass(BoxComponent, [{
-	        key: 'onFavorite',
-	        value: function onFavorite() {
+	        key: 'favorite',
+	        value: function favorite() {
 	            if (this.state.backgroundColor == 'white') {
 	                this.setState({ backgroundColor: '#ECD6BE' });
-	                _NavBarComponent2.default.onFavorite();
+	                this.props.onFavorite();
 	            } else {
 	                this.setState({ backgroundColor: 'white' });
-	                _NavBarComponent2.default.deFavorite();
+	                this.props.deFavorite();
 	            }
 	        }
 	    }, {
@@ -32560,7 +32555,7 @@
 	            };
 	            return _react2.default.createElement(
 	                'div',
-	                { className: 'box', key: this.state.id, onClick: this.onFavorite.bind(this), style: divStyle },
+	                { className: 'box', key: this.state.id, onClick: this.favorite.bind(this), style: divStyle },
 	                _react2.default.createElement('img', { src: this.state.url }),
 	                _react2.default.createElement(
 	                    'span',
@@ -32589,7 +32584,7 @@
   \********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function($) {'use strict';
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -32600,6 +32595,10 @@
 	var _react = __webpack_require__(/*! react */ 1);
 	
 	var _react2 = _interopRequireDefault(_react);
+	
+	var _PhotoComponent = __webpack_require__(/*! ./PhotoComponent.jsx */ 172);
+	
+	var _PhotoComponent2 = _interopRequireDefault(_PhotoComponent);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -32612,13 +32611,32 @@
 	var NavBarComponent = function (_React$Component) {
 	    _inherits(NavBarComponent, _React$Component);
 	
-	    function NavBarComponent() {
+	    function NavBarComponent(props) {
 	        _classCallCheck(this, NavBarComponent);
 	
-	        return _possibleConstructorReturn(this, (NavBarComponent.__proto__ || Object.getPrototypeOf(NavBarComponent)).apply(this, arguments));
+	        var _this = _possibleConstructorReturn(this, (NavBarComponent.__proto__ || Object.getPrototypeOf(NavBarComponent)).call(this, props));
+	
+	        _this.state = {
+	            favorite: ''
+	        };
+	        return _this;
 	    }
 	
 	    _createClass(NavBarComponent, [{
+	        key: 'onFavorite',
+	        value: function onFavorite() {
+	            this.setState({
+	                favorite: this.state.favorite === '' ? 1 : parseInt(this.state.favorite) + 1
+	            });
+	        }
+	    }, {
+	        key: 'deFavorite',
+	        value: function deFavorite() {
+	            this.setState({
+	                favorite: this.state.favorite === 1 ? '' : parseInt(this.state.favorite) - 1
+	            });
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 	            return _react2.default.createElement(
@@ -32635,22 +32653,15 @@
 	                            { className: 'item' },
 	                            'Favorite counter: '
 	                        ),
-	                        _react2.default.createElement('li', { className: 'item', id: 'favorite' })
+	                        _react2.default.createElement(
+	                            'li',
+	                            { className: 'item', id: 'favorite' },
+	                            this.state.favorite
+	                        )
 	                    )
-	                )
+	                ),
+	                _react2.default.createElement(_PhotoComponent2.default, { onFavorite: this.onFavorite.bind(this), deFavorite: this.deFavorite.bind(this) })
 	            );
-	        }
-	    }], [{
-	        key: 'onFavorite',
-	        value: function onFavorite() {
-	            var count = $('#favorite').text();
-	            $('#favorite').text(count === '' ? 1 : parseInt(count) + 1);
-	        }
-	    }, {
-	        key: 'deFavorite',
-	        value: function deFavorite() {
-	            var count = $('#favorite').text();
-	            $('#favorite').text(count === '1' ? '' : parseInt(count) - 1);
 	        }
 	    }]);
 	
@@ -32658,7 +32669,6 @@
 	}(_react2.default.Component);
 	
 	exports.default = NavBarComponent;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! jquery */ 173)))
 
 /***/ }
 /******/ ]);

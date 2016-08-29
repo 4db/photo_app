@@ -14,14 +14,14 @@ class BoxComponent extends React.Component {
         }
     }
 
-    onFavorite() {
+    favorite() {
         if (this.state.backgroundColor == 'white') {
             this.setState({backgroundColor: '#ECD6BE'});
-            NavBarComponent.onFavorite();
+            this.props.onFavorite();
         }
         else {
             this.setState({backgroundColor: 'white'});
-            NavBarComponent.deFavorite();
+            this.props.deFavorite();
         }
     }
 
@@ -30,7 +30,7 @@ class BoxComponent extends React.Component {
             backgroundColor: this.state.backgroundColor
         };
         return (
-            <div className='box' key={this.state.id} onClick={this.onFavorite.bind(this)} style={divStyle}>
+            <div className='box' key={this.state.id} onClick={this.favorite.bind(this)} style={divStyle}>
                 <img src={this.state.url}/>
                 <span className="box-title">{this.state.name}</span>
                 <span>&nbsp;🝯 {this.state.times_viewed}</span>

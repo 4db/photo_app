@@ -1,15 +1,25 @@
 import React from 'react';
+import PhotoComponent from './PhotoComponent.jsx';
 
 class NavBarComponent extends React.Component {
 
-    static onFavorite() {
-        var count = $('#favorite').text();
-        $('#favorite').text(count === '' ? 1 : parseInt(count) + 1);
+    constructor(props) {
+        super(props);
+        this.state = {
+            favorite: ''
+        }
     }
 
-    static deFavorite() {
-        var count = $('#favorite').text();
-        $('#favorite').text(count === '1' ? '' : parseInt(count) - 1);
+    onFavorite() {
+        this.setState({
+            favorite: this.state.favorite === '' ? 1 : parseInt(this.state.favorite) + 1
+        });
+    }
+
+    deFavorite() {
+        this.setState({
+            favorite: this.state.favorite === 1 ? '' : parseInt(this.state.favorite) -1
+        });
     }
 
     render() {
@@ -21,9 +31,11 @@ class NavBarComponent extends React.Component {
                             Favorite counter:&nbsp;
                         </li>
                         <li className="item" id="favorite" >
+                            {this.state.favorite}
                         </li>
                     </ul>
                 </header>
+                <PhotoComponent onFavorite={this.onFavorite.bind(this)} deFavorite={this.deFavorite.bind(this)}/>
             </div>
         );
     }

@@ -87,28 +87,28 @@ class PhotoComponent extends React.Component {
             <div className='masonry'>
                 <div className='column' key='1'>
                     {this.state.column1.map(function (photo) {
-                        return <BoxComponent photo={photo}/>
-                    })}
+                        return <BoxComponent photo={photo} onFavorite={this.props.onFavorite} deFavorite={this.props.deFavorite}/>
+                    }.bind(this))}
                 </div>
                 <div className='column' key='2'>
                     {this.state.column2.map(function (photo) {
-                        return <BoxComponent photo={photo}/>
-                    })}
+                        return <BoxComponent photo={photo} onFavorite={this.props.onFavorite} deFavorite={this.props.deFavorite}/>
+                    }.bind(this))}
                 </div>
                 <div className='column' key='3'>
                     {this.state.column3.map(function (photo) {
-                        return <BoxComponent photo={photo}/>
-                    })}
+                        return <BoxComponent photo={photo} onFavorite={this.props.onFavorite} deFavorite={this.props.deFavorite}/>
+                    }.bind(this))}
                 </div>
                 <div className='column' key='4'>
                     {this.state.column4.map(function (photo) {
-                        return <BoxComponent photo={photo}/>
-                    })}
+                        return <BoxComponent photo={photo} onFavorite={this.props.onFavorite} deFavorite={this.props.deFavorite}/>
+                    }.bind(this))}
                 </div>
                 <div className='column' key='5'>
                     {this.state.column5.map(function (photo) {
-                        return <BoxComponent photo={photo}/>
-                    })}
+                        return <BoxComponent photo={photo} onFavorite={this.props.onFavorite} deFavorite={this.props.deFavorite}/>
+                    }.bind(this))}
                 </div>
             </div>
         );
