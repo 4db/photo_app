@@ -57,7 +57,7 @@
 	
 	var _reactDom = __webpack_require__(/*! react-dom */ 34);
 	
-	var _NavBarComponent = __webpack_require__(/*! ./NavBarComponent.jsx */ 175);
+	var _NavBarComponent = __webpack_require__(/*! ./NavBarComponent.jsx */ 172);
 	
 	var _NavBarComponent2 = _interopRequireDefault(_NavBarComponent);
 	
@@ -21960,6 +21960,99 @@
 
 /***/ },
 /* 172 */
+/*!********************************************!*\
+  !*** ./src/client/app/NavBarComponent.jsx ***!
+  \********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(/*! react */ 1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _PhotoComponent = __webpack_require__(/*! ./PhotoComponent.jsx */ 173);
+	
+	var _PhotoComponent2 = _interopRequireDefault(_PhotoComponent);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var NavBarComponent = function (_React$Component) {
+	    _inherits(NavBarComponent, _React$Component);
+	
+	    function NavBarComponent(props) {
+	        _classCallCheck(this, NavBarComponent);
+	
+	        var _this = _possibleConstructorReturn(this, (NavBarComponent.__proto__ || Object.getPrototypeOf(NavBarComponent)).call(this, props));
+	
+	        _this.state = {
+	            favorite: ''
+	        };
+	        return _this;
+	    }
+	
+	    _createClass(NavBarComponent, [{
+	        key: 'onFavorite',
+	        value: function onFavorite() {
+	            this.setState({
+	                favorite: this.state.favorite === '' ? 1 : parseInt(this.state.favorite) + 1
+	            });
+	        }
+	    }, {
+	        key: 'deFavorite',
+	        value: function deFavorite() {
+	            this.setState({
+	                favorite: this.state.favorite === 1 ? '' : parseInt(this.state.favorite) - 1
+	            });
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            return _react2.default.createElement(
+	                'div',
+	                null,
+	                _react2.default.createElement(
+	                    'header',
+	                    { className: 'fixed-nav-bar' },
+	                    _react2.default.createElement(
+	                        'ul',
+	                        { className: 'list' },
+	                        _react2.default.createElement(
+	                            'li',
+	                            { className: 'item' },
+	                            'Favorite counter: '
+	                        ),
+	                        _react2.default.createElement(
+	                            'li',
+	                            { className: 'item', id: 'favorite' },
+	                            this.state.favorite
+	                        )
+	                    )
+	                ),
+	                _react2.default.createElement(_PhotoComponent2.default, { onFavorite: this.onFavorite.bind(this), deFavorite: this.deFavorite.bind(this) })
+	            );
+	        }
+	    }]);
+	
+	    return NavBarComponent;
+	}(_react2.default.Component);
+	
+	exports.default = NavBarComponent;
+
+/***/ },
+/* 173 */
 /*!*******************************************!*\
   !*** ./src/client/app/PhotoComponent.jsx ***!
   \*******************************************/
@@ -21977,7 +22070,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _BoxComponent = __webpack_require__(/*! ./BoxComponent.jsx */ 174);
+	var _BoxComponent = __webpack_require__(/*! ./BoxComponent.jsx */ 175);
 	
 	var _BoxComponent2 = _interopRequireDefault(_BoxComponent);
 	
@@ -22125,10 +22218,10 @@
 	}(_react2.default.Component);
 	
 	exports.default = PhotoComponent;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! jquery */ 173)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! jquery */ 174)))
 
 /***/ },
-/* 173 */
+/* 174 */
 /*!*********************************!*\
   !*** ./~/jquery/dist/jquery.js ***!
   \*********************************/
@@ -32488,7 +32581,7 @@
 
 
 /***/ },
-/* 174 */
+/* 175 */
 /*!*****************************************!*\
   !*** ./src/client/app/BoxComponent.jsx ***!
   \*****************************************/
@@ -32506,7 +32599,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _NavBarComponent = __webpack_require__(/*! ./NavBarComponent.jsx */ 175);
+	var _NavBarComponent = __webpack_require__(/*! ./NavBarComponent.jsx */ 172);
 	
 	var _NavBarComponent2 = _interopRequireDefault(_NavBarComponent);
 	
@@ -32531,7 +32624,7 @@
 	            url: _this.props.photo.image_url[0],
 	            name: _this.props.photo.name,
 	            times_viewed: _this.props.photo.times_viewed,
-	            backgroundColor: 'white'
+	            styleClass: 'box'
 	        };
 	        return _this;
 	    }
@@ -32539,23 +32632,24 @@
 	    _createClass(BoxComponent, [{
 	        key: 'favorite',
 	        value: function favorite() {
-	            if (this.state.backgroundColor == 'white') {
-	                this.setState({ backgroundColor: '#ECD6BE' });
+	            if (this.state.styleClass == 'box') {
+	                this.setState({
+	                    styleClass: 'box box-favorite'
+	                });
 	                this.props.onFavorite();
 	            } else {
-	                this.setState({ backgroundColor: 'white' });
+	                this.setState({
+	                    styleClass: 'box'
+	                });
 	                this.props.deFavorite();
 	            }
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var divStyle = {
-	                backgroundColor: this.state.backgroundColor
-	            };
 	            return _react2.default.createElement(
 	                'div',
-	                { className: 'box', key: this.state.id, onClick: this.favorite.bind(this), style: divStyle },
+	                { className: this.state.styleClass, key: this.state.id, onClick: this.favorite.bind(this) },
 	                _react2.default.createElement('img', { src: this.state.url }),
 	                _react2.default.createElement(
 	                    'span',
@@ -32576,99 +32670,6 @@
 	}(_react2.default.Component);
 	
 	exports.default = BoxComponent;
-
-/***/ },
-/* 175 */
-/*!********************************************!*\
-  !*** ./src/client/app/NavBarComponent.jsx ***!
-  \********************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _react = __webpack_require__(/*! react */ 1);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var _PhotoComponent = __webpack_require__(/*! ./PhotoComponent.jsx */ 172);
-	
-	var _PhotoComponent2 = _interopRequireDefault(_PhotoComponent);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var NavBarComponent = function (_React$Component) {
-	    _inherits(NavBarComponent, _React$Component);
-	
-	    function NavBarComponent(props) {
-	        _classCallCheck(this, NavBarComponent);
-	
-	        var _this = _possibleConstructorReturn(this, (NavBarComponent.__proto__ || Object.getPrototypeOf(NavBarComponent)).call(this, props));
-	
-	        _this.state = {
-	            favorite: ''
-	        };
-	        return _this;
-	    }
-	
-	    _createClass(NavBarComponent, [{
-	        key: 'onFavorite',
-	        value: function onFavorite() {
-	            this.setState({
-	                favorite: this.state.favorite === '' ? 1 : parseInt(this.state.favorite) + 1
-	            });
-	        }
-	    }, {
-	        key: 'deFavorite',
-	        value: function deFavorite() {
-	            this.setState({
-	                favorite: this.state.favorite === 1 ? '' : parseInt(this.state.favorite) - 1
-	            });
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            return _react2.default.createElement(
-	                'div',
-	                null,
-	                _react2.default.createElement(
-	                    'header',
-	                    { className: 'fixed-nav-bar' },
-	                    _react2.default.createElement(
-	                        'ul',
-	                        { className: 'list' },
-	                        _react2.default.createElement(
-	                            'li',
-	                            { className: 'item' },
-	                            'Favorite counter: '
-	                        ),
-	                        _react2.default.createElement(
-	                            'li',
-	                            { className: 'item', id: 'favorite' },
-	                            this.state.favorite
-	                        )
-	                    )
-	                ),
-	                _react2.default.createElement(_PhotoComponent2.default, { onFavorite: this.onFavorite.bind(this), deFavorite: this.deFavorite.bind(this) })
-	            );
-	        }
-	    }]);
-	
-	    return NavBarComponent;
-	}(_react2.default.Component);
-	
-	exports.default = NavBarComponent;
 
 /***/ }
 /******/ ]);

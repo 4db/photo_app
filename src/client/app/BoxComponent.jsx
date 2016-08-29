@@ -10,27 +10,28 @@ class BoxComponent extends React.Component {
             url: this.props.photo.image_url[0],
             name: this.props.photo.name,
             times_viewed: this.props.photo.times_viewed,
-            backgroundColor: 'white'
+            styleClass: 'box'
         }
     }
 
     favorite() {
-        if (this.state.backgroundColor == 'white') {
-            this.setState({backgroundColor: '#ECD6BE'});
+        if (this.state.styleClass == 'box') {
+            this.setState({
+                styleClass: 'box box-favorite',
+            });
             this.props.onFavorite();
         }
         else {
-            this.setState({backgroundColor: 'white'});
+            this.setState({
+                styleClass: 'box',
+            });
             this.props.deFavorite();
         }
     }
 
     render() {
-        var divStyle = {
-            backgroundColor: this.state.backgroundColor
-        };
         return (
-            <div className='box' key={this.state.id} onClick={this.favorite.bind(this)} style={divStyle}>
+            <div className={this.state.styleClass} key={this.state.id} onClick={this.favorite.bind(this)}>
                 <img src={this.state.url}/>
                 <span className="box-title">{this.state.name}</span>
                 <span>&nbsp;🝯 {this.state.times_viewed}</span>
