@@ -1,0 +1,4 @@
+exports[`App test App renders correctly 1`] = `
+<div
+  className="app" />
+`;
