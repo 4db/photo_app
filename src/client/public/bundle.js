@@ -57,8 +57,6 @@
 	
 	var _reactDom = __webpack_require__(/*! react-dom */ 34);
 	
-	var _reactDom2 = _interopRequireDefault(_reactDom);
-	
 	var _NavBarComponent = __webpack_require__(/*! ./NavBarComponent.jsx */ 172);
 	
 	var _NavBarComponent2 = _interopRequireDefault(_NavBarComponent);
@@ -94,7 +92,7 @@
 	    return App;
 	}(_react2.default.Component);
 	
-	(0, _reactDom2.default)(_react2.default.createElement(App, null), document.getElementById('app'));
+	(0, _reactDom.render)(_react2.default.createElement(App, null), document.getElementById('app'));
 
 /***/ },
 /* 1 */
