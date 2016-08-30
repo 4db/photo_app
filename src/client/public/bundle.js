@@ -22149,18 +22149,23 @@
 	    }, {
 	        key: 'photosUpdate',
 	        value: function photosUpdate(data) {
+	            var arr = this.state.column1;
 	            data.photos.map(function (photo, i) {
-	                if (i < 10) {
-	                    this.state.column1.push(photo);
-	                } else if (i < 20) {
-	                    this.state.column2.push(photo);
-	                } else if (i < 30) {
-	                    this.state.column3.push(photo);
-	                } else if (i < 40) {
-	                    this.state.column4.push(photo);
-	                } else {
-	                    this.state.column5.push(photo);
+	                switch (i) {
+	                    case 10:
+	                        arr = this.state.column2;
+	                        break;
+	                    case 20:
+	                        arr = this.state.column3;
+	                        break;
+	                    case 30:
+	                        arr = this.state.column4;
+	                        break;
+	                    case 40:
+	                        arr = this.state.column5;
+	                        break;
 	                }
+	                arr.push(photo);
 	            }.bind(this));
 	
 	            this.forceUpdate();
@@ -22174,38 +22179,38 @@
 	        value: function render() {
 	            return _react2.default.createElement(
 	                'div',
-	                { className: 'masonry' },
+	                { className: 'masonry', key: 'masonry' },
 	                _react2.default.createElement(
 	                    'div',
-	                    { className: 'column', key: '1' },
+	                    { className: 'column', key: 'column-1' },
 	                    this.state.column1.map(function (photo) {
 	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo, onFavorite: this.props.onFavorite, deFavorite: this.props.deFavorite });
 	                    }.bind(this))
 	                ),
 	                _react2.default.createElement(
 	                    'div',
-	                    { className: 'column', key: '2' },
+	                    { className: 'column', key: 'column-2' },
 	                    this.state.column2.map(function (photo) {
 	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo, onFavorite: this.props.onFavorite, deFavorite: this.props.deFavorite });
 	                    }.bind(this))
 	                ),
 	                _react2.default.createElement(
 	                    'div',
-	                    { className: 'column', key: '3' },
+	                    { className: 'column', key: 'column-3' },
 	                    this.state.column3.map(function (photo) {
 	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo, onFavorite: this.props.onFavorite, deFavorite: this.props.deFavorite });
 	                    }.bind(this))
 	                ),
 	                _react2.default.createElement(
 	                    'div',
-	                    { className: 'column', key: '4' },
+	                    { className: 'column', key: 'column-4' },
 	                    this.state.column4.map(function (photo) {
 	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo, onFavorite: this.props.onFavorite, deFavorite: this.props.deFavorite });
 	                    }.bind(this))
 	                ),
 	                _react2.default.createElement(
 	                    'div',
-	                    { className: 'column', key: '5' },
+	                    { className: 'column', key: 'column-5' },
 	                    this.state.column5.map(function (photo) {
 	                        return _react2.default.createElement(_BoxComponent2.default, { photo: photo, onFavorite: this.props.onFavorite, deFavorite: this.props.deFavorite });
 	                    }.bind(this))
