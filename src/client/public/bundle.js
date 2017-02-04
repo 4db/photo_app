@@ -55,9 +55,9 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactDom = __webpack_require__(/*! react-dom */ 34);
+	var _reactDom = __webpack_require__(/*! react-dom */ 32);
 	
-	var _NavBarComponent = __webpack_require__(/*! ./NavBarComponent.jsx */ 172);
+	var _NavBarComponent = __webpack_require__(/*! ./NavBarComponent.jsx */ 178);
 	
 	var _NavBarComponent2 = _interopRequireDefault(_NavBarComponent);
 	
@@ -121,7 +121,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule React
 	 */
 	
 	'use strict';
@@ -129,15 +128,15 @@
 	var _assign = __webpack_require__(/*! object-assign */ 4);
 	
 	var ReactChildren = __webpack_require__(/*! ./ReactChildren */ 5);
-	var ReactComponent = __webpack_require__(/*! ./ReactComponent */ 17);
-	var ReactPureComponent = __webpack_require__(/*! ./ReactPureComponent */ 20);
-	var ReactClass = __webpack_require__(/*! ./ReactClass */ 21);
-	var ReactDOMFactories = __webpack_require__(/*! ./ReactDOMFactories */ 26);
+	var ReactComponent = __webpack_require__(/*! ./ReactComponent */ 18);
+	var ReactPureComponent = __webpack_require__(/*! ./ReactPureComponent */ 21);
+	var ReactClass = __webpack_require__(/*! ./ReactClass */ 22);
+	var ReactDOMFactories = __webpack_require__(/*! ./ReactDOMFactories */ 24);
 	var ReactElement = __webpack_require__(/*! ./ReactElement */ 9);
-	var ReactPropTypes = __webpack_require__(/*! ./ReactPropTypes */ 31);
-	var ReactVersion = __webpack_require__(/*! ./ReactVersion */ 32);
+	var ReactPropTypes = __webpack_require__(/*! ./ReactPropTypes */ 29);
+	var ReactVersion = __webpack_require__(/*! ./ReactVersion */ 30);
 	
-	var onlyChild = __webpack_require__(/*! ./onlyChild */ 33);
+	var onlyChild = __webpack_require__(/*! ./onlyChild */ 31);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
 	var createElement = ReactElement.createElement;
@@ -145,7 +144,7 @@
 	var cloneElement = ReactElement.cloneElement;
 	
 	if (process.env.NODE_ENV !== 'production') {
-	  var ReactElementValidator = __webpack_require__(/*! ./ReactElementValidator */ 27);
+	  var ReactElementValidator = __webpack_require__(/*! ./ReactElementValidator */ 25);
 	  createElement = ReactElementValidator.createElement;
 	  createFactory = ReactElementValidator.createFactory;
 	  cloneElement = ReactElementValidator.cloneElement;
@@ -202,7 +201,7 @@
 	};
 	
 	module.exports = React;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
 /* 3 */
@@ -222,25 +221,40 @@
 	var cachedSetTimeout;
 	var cachedClearTimeout;
 	
+	function defaultSetTimout() {
+	    throw new Error('setTimeout has not been defined');
+	}
+	function defaultClearTimeout () {
+	    throw new Error('clearTimeout has not been defined');
+	}
 	(function () {
 	    try {
-	        cachedSetTimeout = setTimeout;
-	    } catch (e) {
-	        cachedSetTimeout = function () {
-	            throw new Error('setTimeout is not defined');
+	        if (typeof setTimeout === 'function') {
+	            cachedSetTimeout = setTimeout;
+	        } else {
+	            cachedSetTimeout = defaultSetTimout;
 	        }
+	    } catch (e) {
+	        cachedSetTimeout = defaultSetTimout;
 	    }
 	    try {
-	        cachedClearTimeout = clearTimeout;
-	    } catch (e) {
-	        cachedClearTimeout = function () {
-	            throw new Error('clearTimeout is not defined');
+	        if (typeof clearTimeout === 'function') {
+	            cachedClearTimeout = clearTimeout;
+	        } else {
+	            cachedClearTimeout = defaultClearTimeout;
 	        }
+	    } catch (e) {
+	        cachedClearTimeout = defaultClearTimeout;
 	    }
 	} ())
 	function runTimeout(fun) {
 	    if (cachedSetTimeout === setTimeout) {
 	        //normal enviroments in sane situations
+	        return setTimeout(fun, 0);
+	    }
+	    // if setTimeout wasn't available but was latter defined
+	    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+	        cachedSetTimeout = setTimeout;
 	        return setTimeout(fun, 0);
 	    }
 	    try {
@@ -261,6 +275,11 @@
 	function runClearTimeout(marker) {
 	    if (cachedClearTimeout === clearTimeout) {
 	        //normal enviroments in sane situations
+	        return clearTimeout(marker);
+	    }
+	    // if clearTimeout wasn't available but was latter defined
+	    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+	        cachedClearTimeout = clearTimeout;
 	        return clearTimeout(marker);
 	    }
 	    try {
@@ -380,8 +399,15 @@
   \**********************************/
 /***/ function(module, exports) {
 
+	/*
+	object-assign
+	(c) Sindre Sorhus
+	@license MIT
+	*/
+	
 	'use strict';
 	/* eslint-disable no-unused-vars */
+	var getOwnPropertySymbols = Object.getOwnPropertySymbols;
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 	var propIsEnumerable = Object.prototype.propertyIsEnumerable;
 	
@@ -402,7 +428,7 @@
 			// Detect buggy property enumeration order in older V8 versions.
 	
 			// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-			var test1 = new String('abc');  // eslint-disable-line
+			var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
 			test1[5] = 'de';
 			if (Object.getOwnPropertyNames(test1)[0] === '5') {
 				return false;
@@ -431,7 +457,7 @@
 			}
 	
 			return true;
-		} catch (e) {
+		} catch (err) {
 			// We don't expect any of the above to throw, but better to be safe.
 			return false;
 		}
@@ -451,8 +477,8 @@
 				}
 			}
 	
-			if (Object.getOwnPropertySymbols) {
-				symbols = Object.getOwnPropertySymbols(from);
+			if (getOwnPropertySymbols) {
+				symbols = getOwnPropertySymbols(from);
 				for (var i = 0; i < symbols.length; i++) {
 					if (propIsEnumerable.call(from, symbols[i])) {
 						to[symbols[i]] = from[symbols[i]];
@@ -480,7 +506,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactChildren
 	 */
 	
 	'use strict';
@@ -489,7 +514,7 @@
 	var ReactElement = __webpack_require__(/*! ./ReactElement */ 9);
 	
 	var emptyFunction = __webpack_require__(/*! fbjs/lib/emptyFunction */ 12);
-	var traverseAllChildren = __webpack_require__(/*! ./traverseAllChildren */ 14);
+	var traverseAllChildren = __webpack_require__(/*! ./traverseAllChildren */ 15);
 	
 	var twoArgumentPooler = PooledClass.twoArgumentPooler;
 	var fourArgumentPooler = PooledClass.fourArgumentPooler;
@@ -520,8 +545,8 @@
 	PooledClass.addPoolingTo(ForEachBookKeeping, twoArgumentPooler);
 	
 	function forEachSingleChild(bookKeeping, child, name) {
-	  var func = bookKeeping.func;
-	  var context = bookKeeping.context;
+	  var func = bookKeeping.func,
+	      context = bookKeeping.context;
 	
 	  func.call(context, child, bookKeeping.count++);
 	}
@@ -573,10 +598,10 @@
 	PooledClass.addPoolingTo(MapBookKeeping, fourArgumentPooler);
 	
 	function mapSingleChildIntoContext(bookKeeping, child, childKey) {
-	  var result = bookKeeping.result;
-	  var keyPrefix = bookKeeping.keyPrefix;
-	  var func = bookKeeping.func;
-	  var context = bookKeeping.context;
+	  var result = bookKeeping.result,
+	      keyPrefix = bookKeeping.keyPrefix,
+	      func = bookKeeping.func,
+	      context = bookKeeping.context;
 	
 	
 	  var mappedChild = func.call(context, child, bookKeeping.count++);
@@ -679,7 +704,7 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule PooledClass
+	 * 
 	 */
 	
 	'use strict';
@@ -739,17 +764,6 @@
 	  }
 	};
 	
-	var fiveArgumentPooler = function (a1, a2, a3, a4, a5) {
-	  var Klass = this;
-	  if (Klass.instancePool.length) {
-	    var instance = Klass.instancePool.pop();
-	    Klass.call(instance, a1, a2, a3, a4, a5);
-	    return instance;
-	  } else {
-	    return new Klass(a1, a2, a3, a4, a5);
-	  }
-	};
-	
 	var standardReleaser = function (instance) {
 	  var Klass = this;
 	  !(instance instanceof Klass) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Trying to release an instance into a pool of a different type.') : _prodInvariant('25') : void 0;
@@ -772,6 +786,8 @@
 	 * @param {Function} pooler Customizable pooler.
 	 */
 	var addPoolingTo = function (CopyConstructor, pooler) {
+	  // Casting as any so that flow ignores the actual implementation and trusts
+	  // it to match the type we declared
 	  var NewKlass = CopyConstructor;
 	  NewKlass.instancePool = [];
 	  NewKlass.getPooled = pooler || DEFAULT_POOLER;
@@ -787,12 +803,11 @@
 	  oneArgumentPooler: oneArgumentPooler,
 	  twoArgumentPooler: twoArgumentPooler,
 	  threeArgumentPooler: threeArgumentPooler,
-	  fourArgumentPooler: fourArgumentPooler,
-	  fiveArgumentPooler: fiveArgumentPooler
+	  fourArgumentPooler: fourArgumentPooler
 	};
 	
 	module.exports = PooledClass;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
 /* 7 */
@@ -809,7 +824,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule reactProdInvariant
 	 * 
 	 */
 	'use strict';
@@ -871,12 +885,18 @@
 	 * will remain to ensure logic does not differ in production.
 	 */
 	
-	function invariant(condition, format, a, b, c, d, e, f) {
-	  if (process.env.NODE_ENV !== 'production') {
+	var validateFormat = function validateFormat(format) {};
+	
+	if (process.env.NODE_ENV !== 'production') {
+	  validateFormat = function validateFormat(format) {
 	    if (format === undefined) {
 	      throw new Error('invariant requires an error message argument');
 	    }
-	  }
+	  };
+	}
+	
+	function invariant(condition, format, a, b, c, d, e, f) {
+	  validateFormat(format);
 	
 	  if (!condition) {
 	    var error;
@@ -897,7 +917,7 @@
 	}
 	
 	module.exports = invariant;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
 /* 9 */
@@ -914,7 +934,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactElement
 	 */
 	
 	'use strict';
@@ -927,9 +946,7 @@
 	var canDefineProperty = __webpack_require__(/*! ./canDefineProperty */ 13);
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 	
-	// The Symbol used to tag the ReactElement type. If there is no native Symbol
-	// nor polyfill, then a plain number is used for performance.
-	var REACT_ELEMENT_TYPE = typeof Symbol === 'function' && Symbol['for'] && Symbol['for']('react.element') || 0xeac7;
+	var REACT_ELEMENT_TYPE = __webpack_require__(/*! ./ReactElementSymbol */ 14);
 	
 	var RESERVED_PROPS = {
 	  key: true,
@@ -1033,7 +1050,6 @@
 	    // This can be replaced with a WeakMap once they are implemented in
 	    // commonly used development environments.
 	    element._store = {};
-	    var shadowChildren = Array.isArray(props.children) ? props.children.slice(0) : props.children;
 	
 	    // To make comparing ReactElements easier for testing purposes, we make
 	    // the validation flag non-enumerable (where possible, which should
@@ -1053,12 +1069,6 @@
 	        writable: false,
 	        value: self
 	      });
-	      Object.defineProperty(element, '_shadowChildren', {
-	        configurable: false,
-	        enumerable: false,
-	        writable: false,
-	        value: shadowChildren
-	      });
 	      // Two elements created in two different places should be considered
 	      // equal for testing purposes and therefore we hide it from enumeration.
 	      Object.defineProperty(element, '_source', {
@@ -1070,7 +1080,6 @@
 	    } else {
 	      element._store.validated = false;
 	      element._self = self;
-	      element._shadowChildren = shadowChildren;
 	      element._source = source;
 	    }
 	    if (Object.freeze) {
@@ -1098,14 +1107,6 @@
 	  var source = null;
 	
 	  if (config != null) {
-	    if (process.env.NODE_ENV !== 'production') {
-	      process.env.NODE_ENV !== 'production' ? warning(
-	      /* eslint-disable no-proto */
-	      config.__proto__ == null || config.__proto__ === Object.prototype,
-	      /* eslint-enable no-proto */
-	      'React.createElement(...): Expected props argument to be a plain object. ' + 'Properties defined in its prototype chain will be ignored.') : void 0;
-	    }
-	
 	    if (hasValidRef(config)) {
 	      ref = config.ref;
 	    }
@@ -1132,6 +1133,11 @@
 	    var childArray = Array(childrenLength);
 	    for (var i = 0; i < childrenLength; i++) {
 	      childArray[i] = arguments[i + 2];
+	    }
+	    if (process.env.NODE_ENV !== 'production') {
+	      if (Object.freeze) {
+	        Object.freeze(childArray);
+	      }
 	    }
 	    props.children = childArray;
 	  }
@@ -1206,14 +1212,6 @@
 	  var owner = element._owner;
 	
 	  if (config != null) {
-	    if (process.env.NODE_ENV !== 'production') {
-	      process.env.NODE_ENV !== 'production' ? warning(
-	      /* eslint-disable no-proto */
-	      config.__proto__ == null || config.__proto__ === Object.prototype,
-	      /* eslint-enable no-proto */
-	      'React.cloneElement(...): Expected props argument to be a plain object. ' + 'Properties defined in its prototype chain will be ignored.') : void 0;
-	    }
-	
 	    if (hasValidRef(config)) {
 	      // Silently steal the ref from the parent.
 	      ref = config.ref;
@@ -1267,10 +1265,8 @@
 	  return typeof object === 'object' && object !== null && object.$$typeof === REACT_ELEMENT_TYPE;
 	};
 	
-	ReactElement.REACT_ELEMENT_TYPE = REACT_ELEMENT_TYPE;
-	
 	module.exports = ReactElement;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
 /* 10 */
@@ -1287,7 +1283,7 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactCurrentOwner
+	 * 
 	 */
 	
 	'use strict';
@@ -1298,7 +1294,6 @@
 	 * The current owner is the component who should own any components that are
 	 * currently being constructed.
 	 */
-	
 	var ReactCurrentOwner = {
 	
 	  /**
@@ -1384,7 +1379,7 @@
 	}
 	
 	module.exports = warning;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
 /* 12 */
@@ -1447,7 +1442,7 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule canDefineProperty
+	 * 
 	 */
 	
 	'use strict';
@@ -1455,6 +1450,7 @@
 	var canDefineProperty = false;
 	if (process.env.NODE_ENV !== 'production') {
 	  try {
+	    // $FlowFixMe https://github.com/facebook/flow/issues/285
 	    Object.defineProperty({}, 'x', { get: function () {} });
 	    canDefineProperty = true;
 	  } catch (x) {
@@ -1463,10 +1459,37 @@
 	}
 	
 	module.exports = canDefineProperty;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
 /* 14 */
+/*!*******************************************!*\
+  !*** ./~/react/lib/ReactElementSymbol.js ***!
+  \*******************************************/
+/***/ function(module, exports) {
+
+	/**
+	 * Copyright 2014-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * 
+	 */
+	
+	'use strict';
+	
+	// The Symbol used to tag the ReactElement type. If there is no native Symbol
+	// nor polyfill, then a plain number is used for performance.
+	
+	var REACT_ELEMENT_TYPE = typeof Symbol === 'function' && Symbol['for'] && Symbol['for']('react.element') || 0xeac7;
+	
+	module.exports = REACT_ELEMENT_TYPE;
+
+/***/ },
+/* 15 */
 /*!********************************************!*\
   !*** ./~/react/lib/traverseAllChildren.js ***!
   \********************************************/
@@ -1480,7 +1503,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule traverseAllChildren
 	 */
 	
 	'use strict';
@@ -1488,15 +1510,21 @@
 	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
 	
 	var ReactCurrentOwner = __webpack_require__(/*! ./ReactCurrentOwner */ 10);
-	var ReactElement = __webpack_require__(/*! ./ReactElement */ 9);
+	var REACT_ELEMENT_TYPE = __webpack_require__(/*! ./ReactElementSymbol */ 14);
 	
-	var getIteratorFn = __webpack_require__(/*! ./getIteratorFn */ 15);
+	var getIteratorFn = __webpack_require__(/*! ./getIteratorFn */ 16);
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
-	var KeyEscapeUtils = __webpack_require__(/*! ./KeyEscapeUtils */ 16);
+	var KeyEscapeUtils = __webpack_require__(/*! ./KeyEscapeUtils */ 17);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
 	var SEPARATOR = '.';
 	var SUBSEPARATOR = ':';
+	
+	/**
+	 * This is inlined from ReactElement since this file is shared between
+	 * isomorphic and renderers. We could extract this to a
+	 *
+	 */
 	
 	/**
 	 * TODO: Test that a single child and an array with one item have the same key
@@ -1539,7 +1567,10 @@
 	    children = null;
 	  }
 	
-	  if (children === null || type === 'string' || type === 'number' || ReactElement.isValidElement(children)) {
+	  if (children === null || type === 'string' || type === 'number' ||
+	  // The following is inlined from ReactElement. This means we can optimize
+	  // some checks. React Fiber also inlines this logic for similar purposes.
+	  type === 'object' && children.$$typeof === REACT_ELEMENT_TYPE) {
 	    callback(traverseContext, children,
 	    // If it's the only child, treat the name as if it was wrapped in an array
 	    // so that it's consistent if the number of children grows.
@@ -1639,10 +1670,10 @@
 	}
 	
 	module.exports = traverseAllChildren;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 15 */
+/* 16 */
 /*!**************************************!*\
   !*** ./~/react/lib/getIteratorFn.js ***!
   \**************************************/
@@ -1656,7 +1687,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule getIteratorFn
 	 * 
 	 */
 	
@@ -1691,7 +1721,7 @@
 	module.exports = getIteratorFn;
 
 /***/ },
-/* 16 */
+/* 17 */
 /*!***************************************!*\
   !*** ./~/react/lib/KeyEscapeUtils.js ***!
   \***************************************/
@@ -1705,7 +1735,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule KeyEscapeUtils
 	 * 
 	 */
 	
@@ -1758,7 +1787,7 @@
 	module.exports = KeyEscapeUtils;
 
 /***/ },
-/* 17 */
+/* 18 */
 /*!***************************************!*\
   !*** ./~/react/lib/ReactComponent.js ***!
   \***************************************/
@@ -1772,17 +1801,16 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactComponent
 	 */
 	
 	'use strict';
 	
 	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
 	
-	var ReactNoopUpdateQueue = __webpack_require__(/*! ./ReactNoopUpdateQueue */ 18);
+	var ReactNoopUpdateQueue = __webpack_require__(/*! ./ReactNoopUpdateQueue */ 19);
 	
 	var canDefineProperty = __webpack_require__(/*! ./canDefineProperty */ 13);
-	var emptyObject = __webpack_require__(/*! fbjs/lib/emptyObject */ 19);
+	var emptyObject = __webpack_require__(/*! fbjs/lib/emptyObject */ 20);
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
@@ -1882,10 +1910,10 @@
 	}
 	
 	module.exports = ReactComponent;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 18 */
+/* 19 */
 /*!*********************************************!*\
   !*** ./~/react/lib/ReactNoopUpdateQueue.js ***!
   \*********************************************/
@@ -1899,7 +1927,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactNoopUpdateQueue
 	 */
 	
 	'use strict';
@@ -1987,10 +2014,10 @@
 	};
 	
 	module.exports = ReactNoopUpdateQueue;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 19 */
+/* 20 */
 /*!***********************************!*\
   !*** ./~/fbjs/lib/emptyObject.js ***!
   \***********************************/
@@ -2015,10 +2042,10 @@
 	}
 	
 	module.exports = emptyObject;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 20 */
+/* 21 */
 /*!*******************************************!*\
   !*** ./~/react/lib/ReactPureComponent.js ***!
   \*******************************************/
@@ -2032,17 +2059,16 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactPureComponent
 	 */
 	
 	'use strict';
 	
 	var _assign = __webpack_require__(/*! object-assign */ 4);
 	
-	var ReactComponent = __webpack_require__(/*! ./ReactComponent */ 17);
-	var ReactNoopUpdateQueue = __webpack_require__(/*! ./ReactNoopUpdateQueue */ 18);
+	var ReactComponent = __webpack_require__(/*! ./ReactComponent */ 18);
+	var ReactNoopUpdateQueue = __webpack_require__(/*! ./ReactNoopUpdateQueue */ 19);
 	
-	var emptyObject = __webpack_require__(/*! fbjs/lib/emptyObject */ 19);
+	var emptyObject = __webpack_require__(/*! fbjs/lib/emptyObject */ 20);
 	
 	/**
 	 * Base class helpers for the updating state of a component.
@@ -2068,7 +2094,7 @@
 	module.exports = ReactPureComponent;
 
 /***/ },
-/* 21 */
+/* 22 */
 /*!***********************************!*\
   !*** ./~/react/lib/ReactClass.js ***!
   \***********************************/
@@ -2082,7 +2108,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactClass
 	 */
 	
 	'use strict';
@@ -2090,44 +2115,27 @@
 	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7),
 	    _assign = __webpack_require__(/*! object-assign */ 4);
 	
-	var ReactComponent = __webpack_require__(/*! ./ReactComponent */ 17);
+	var ReactComponent = __webpack_require__(/*! ./ReactComponent */ 18);
 	var ReactElement = __webpack_require__(/*! ./ReactElement */ 9);
-	var ReactPropTypeLocations = __webpack_require__(/*! ./ReactPropTypeLocations */ 22);
-	var ReactPropTypeLocationNames = __webpack_require__(/*! ./ReactPropTypeLocationNames */ 24);
-	var ReactNoopUpdateQueue = __webpack_require__(/*! ./ReactNoopUpdateQueue */ 18);
+	var ReactPropTypeLocationNames = __webpack_require__(/*! ./ReactPropTypeLocationNames */ 23);
+	var ReactNoopUpdateQueue = __webpack_require__(/*! ./ReactNoopUpdateQueue */ 19);
 	
-	var emptyObject = __webpack_require__(/*! fbjs/lib/emptyObject */ 19);
+	var emptyObject = __webpack_require__(/*! fbjs/lib/emptyObject */ 20);
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
-	var keyMirror = __webpack_require__(/*! fbjs/lib/keyMirror */ 23);
-	var keyOf = __webpack_require__(/*! fbjs/lib/keyOf */ 25);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
-	var MIXINS_KEY = keyOf({ mixins: null });
+	var MIXINS_KEY = 'mixins';
+	
+	// Helper function to allow the creation of anonymous functions which do not
+	// have .name set to the name of the variable being assigned to.
+	function identity(fn) {
+	  return fn;
+	}
 	
 	/**
 	 * Policies that describe methods in `ReactClassInterface`.
 	 */
-	var SpecPolicy = keyMirror({
-	  /**
-	   * These methods may be defined only once by the class specification or mixin.
-	   */
-	  DEFINE_ONCE: null,
-	  /**
-	   * These methods may be defined by both the class specification and mixins.
-	   * Subsequent definitions will be chained. These methods must return void.
-	   */
-	  DEFINE_MANY: null,
-	  /**
-	   * These methods are overriding the base class.
-	   */
-	  OVERRIDE_BASE: null,
-	  /**
-	   * These methods are similar to DEFINE_MANY, except we assume they return
-	   * objects. We try to merge the keys of the return values of all the mixed in
-	   * functions. If there is a key conflict we throw.
-	   */
-	  DEFINE_MANY_MERGED: null
-	});
+	
 	
 	var injectedMixins = [];
 	
@@ -2161,7 +2169,7 @@
 	   * @type {array}
 	   * @optional
 	   */
-	  mixins: SpecPolicy.DEFINE_MANY,
+	  mixins: 'DEFINE_MANY',
 	
 	  /**
 	   * An object containing properties and methods that should be defined on
@@ -2170,7 +2178,7 @@
 	   * @type {object}
 	   * @optional
 	   */
-	  statics: SpecPolicy.DEFINE_MANY,
+	  statics: 'DEFINE_MANY',
 	
 	  /**
 	   * Definition of prop types for this component.
@@ -2178,7 +2186,7 @@
 	   * @type {object}
 	   * @optional
 	   */
-	  propTypes: SpecPolicy.DEFINE_MANY,
+	  propTypes: 'DEFINE_MANY',
 	
 	  /**
 	   * Definition of context types for this component.
@@ -2186,7 +2194,7 @@
 	   * @type {object}
 	   * @optional
 	   */
-	  contextTypes: SpecPolicy.DEFINE_MANY,
+	  contextTypes: 'DEFINE_MANY',
 	
 	  /**
 	   * Definition of context types this component sets for its children.
@@ -2194,7 +2202,7 @@
 	   * @type {object}
 	   * @optional
 	   */
-	  childContextTypes: SpecPolicy.DEFINE_MANY,
+	  childContextTypes: 'DEFINE_MANY',
 	
 	  // ==== Definition methods ====
 	
@@ -2208,7 +2216,7 @@
 	   * @return {object}
 	   * @optional
 	   */
-	  getDefaultProps: SpecPolicy.DEFINE_MANY_MERGED,
+	  getDefaultProps: 'DEFINE_MANY_MERGED',
 	
 	  /**
 	   * Invoked once before the component is mounted. The return value will be used
@@ -2224,13 +2232,13 @@
 	   * @return {object}
 	   * @optional
 	   */
-	  getInitialState: SpecPolicy.DEFINE_MANY_MERGED,
+	  getInitialState: 'DEFINE_MANY_MERGED',
 	
 	  /**
 	   * @return {object}
 	   * @optional
 	   */
-	  getChildContext: SpecPolicy.DEFINE_MANY_MERGED,
+	  getChildContext: 'DEFINE_MANY_MERGED',
 	
 	  /**
 	   * Uses props from `this.props` and state from `this.state` to render the
@@ -2248,7 +2256,7 @@
 	   * @nosideeffects
 	   * @required
 	   */
-	  render: SpecPolicy.DEFINE_ONCE,
+	  render: 'DEFINE_ONCE',
 	
 	  // ==== Delegate methods ====
 	
@@ -2259,7 +2267,7 @@
 	   *
 	   * @optional
 	   */
-	  componentWillMount: SpecPolicy.DEFINE_MANY,
+	  componentWillMount: 'DEFINE_MANY',
 	
 	  /**
 	   * Invoked when the component has been mounted and has a DOM representation.
@@ -2271,7 +2279,7 @@
 	   * @param {DOMElement} rootNode DOM element representing the component.
 	   * @optional
 	   */
-	  componentDidMount: SpecPolicy.DEFINE_MANY,
+	  componentDidMount: 'DEFINE_MANY',
 	
 	  /**
 	   * Invoked before the component receives new props.
@@ -2292,7 +2300,7 @@
 	   * @param {object} nextProps
 	   * @optional
 	   */
-	  componentWillReceiveProps: SpecPolicy.DEFINE_MANY,
+	  componentWillReceiveProps: 'DEFINE_MANY',
 	
 	  /**
 	   * Invoked while deciding if the component should be updated as a result of
@@ -2314,7 +2322,7 @@
 	   * @return {boolean} True if the component should update.
 	   * @optional
 	   */
-	  shouldComponentUpdate: SpecPolicy.DEFINE_ONCE,
+	  shouldComponentUpdate: 'DEFINE_ONCE',
 	
 	  /**
 	   * Invoked when the component is about to update due to a transition from
@@ -2331,7 +2339,7 @@
 	   * @param {ReactReconcileTransaction} transaction
 	   * @optional
 	   */
-	  componentWillUpdate: SpecPolicy.DEFINE_MANY,
+	  componentWillUpdate: 'DEFINE_MANY',
 	
 	  /**
 	   * Invoked when the component's DOM representation has been updated.
@@ -2345,7 +2353,7 @@
 	   * @param {DOMElement} rootNode DOM element representing the component.
 	   * @optional
 	   */
-	  componentDidUpdate: SpecPolicy.DEFINE_MANY,
+	  componentDidUpdate: 'DEFINE_MANY',
 	
 	  /**
 	   * Invoked when the component is about to be removed from its parent and have
@@ -2358,7 +2366,7 @@
 	   *
 	   * @optional
 	   */
-	  componentWillUnmount: SpecPolicy.DEFINE_MANY,
+	  componentWillUnmount: 'DEFINE_MANY',
 	
 	  // ==== Advanced methods ====
 	
@@ -2372,7 +2380,7 @@
 	   * @internal
 	   * @overridable
 	   */
-	  updateComponent: SpecPolicy.OVERRIDE_BASE
+	  updateComponent: 'OVERRIDE_BASE'
 	
 	};
 	
@@ -2398,13 +2406,13 @@
 	  },
 	  childContextTypes: function (Constructor, childContextTypes) {
 	    if (process.env.NODE_ENV !== 'production') {
-	      validateTypeDef(Constructor, childContextTypes, ReactPropTypeLocations.childContext);
+	      validateTypeDef(Constructor, childContextTypes, 'childContext');
 	    }
 	    Constructor.childContextTypes = _assign({}, Constructor.childContextTypes, childContextTypes);
 	  },
 	  contextTypes: function (Constructor, contextTypes) {
 	    if (process.env.NODE_ENV !== 'production') {
-	      validateTypeDef(Constructor, contextTypes, ReactPropTypeLocations.context);
+	      validateTypeDef(Constructor, contextTypes, 'context');
 	    }
 	    Constructor.contextTypes = _assign({}, Constructor.contextTypes, contextTypes);
 	  },
@@ -2421,7 +2429,7 @@
 	  },
 	  propTypes: function (Constructor, propTypes) {
 	    if (process.env.NODE_ENV !== 'production') {
-	      validateTypeDef(Constructor, propTypes, ReactPropTypeLocations.prop);
+	      validateTypeDef(Constructor, propTypes, 'prop');
 	    }
 	    Constructor.propTypes = _assign({}, Constructor.propTypes, propTypes);
 	  },
@@ -2430,7 +2438,6 @@
 	  },
 	  autobind: function () {} };
 	
-	// noop
 	function validateTypeDef(Constructor, typeDef, location) {
 	  for (var propName in typeDef) {
 	    if (typeDef.hasOwnProperty(propName)) {
@@ -2446,12 +2453,12 @@
 	
 	  // Disallow overriding of base class methods unless explicitly allowed.
 	  if (ReactClassMixin.hasOwnProperty(name)) {
-	    !(specPolicy === SpecPolicy.OVERRIDE_BASE) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactClassInterface: You are attempting to override `%s` from your class specification. Ensure that your method names do not overlap with React methods.', name) : _prodInvariant('73', name) : void 0;
+	    !(specPolicy === 'OVERRIDE_BASE') ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactClassInterface: You are attempting to override `%s` from your class specification. Ensure that your method names do not overlap with React methods.', name) : _prodInvariant('73', name) : void 0;
 	  }
 	
 	  // Disallow defining methods more than once unless explicitly allowed.
 	  if (isAlreadyDefined) {
-	    !(specPolicy === SpecPolicy.DEFINE_MANY || specPolicy === SpecPolicy.DEFINE_MANY_MERGED) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactClassInterface: You are attempting to define `%s` on your component more than once. This conflict may be due to a mixin.', name) : _prodInvariant('74', name) : void 0;
+	    !(specPolicy === 'DEFINE_MANY' || specPolicy === 'DEFINE_MANY_MERGED') ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactClassInterface: You are attempting to define `%s` on your component more than once. This conflict may be due to a mixin.', name) : _prodInvariant('74', name) : void 0;
 	  }
 	}
 	
@@ -2517,13 +2524,13 @@
 	          var specPolicy = ReactClassInterface[name];
 	
 	          // These cases should already be caught by validateMethodOverride.
-	          !(isReactClassMethod && (specPolicy === SpecPolicy.DEFINE_MANY_MERGED || specPolicy === SpecPolicy.DEFINE_MANY)) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactClass: Unexpected spec policy %s for key %s when mixing in component specs.', specPolicy, name) : _prodInvariant('77', specPolicy, name) : void 0;
+	          !(isReactClassMethod && (specPolicy === 'DEFINE_MANY_MERGED' || specPolicy === 'DEFINE_MANY')) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactClass: Unexpected spec policy %s for key %s when mixing in component specs.', specPolicy, name) : _prodInvariant('77', specPolicy, name) : void 0;
 	
 	          // For methods which are defined more than once, call the existing
 	          // methods before calling the new property, merging if appropriate.
-	          if (specPolicy === SpecPolicy.DEFINE_MANY_MERGED) {
+	          if (specPolicy === 'DEFINE_MANY_MERGED') {
 	            proto[name] = createMergedResultFunction(proto[name], property);
-	          } else if (specPolicy === SpecPolicy.DEFINE_MANY) {
+	          } else if (specPolicy === 'DEFINE_MANY') {
 	            proto[name] = createChainedFunction(proto[name], property);
 	          }
 	        } else {
@@ -2718,7 +2725,10 @@
 	   * @public
 	   */
 	  createClass: function (spec) {
-	    var Constructor = function (props, context, updater) {
+	    // To keep our warnings more understandable, we'll use a little hack here to
+	    // ensure that Constructor.name !== 'Constructor'. This makes sure we don't
+	    // unnecessarily identify a class without displayName as 'Constructor'.
+	    var Constructor = identity(function (props, context, updater) {
 	      // This constructor gets overridden by mocks. The argument is used
 	      // by mocks to assert on what gets mounted.
 	
@@ -2753,7 +2763,7 @@
 	      !(typeof initialState === 'object' && !Array.isArray(initialState)) ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s.getInitialState(): must return an object or null', Constructor.displayName || 'ReactCompositeComponent') : _prodInvariant('82', Constructor.displayName || 'ReactCompositeComponent') : void 0;
 	
 	      this.state = initialState;
-	    };
+	    });
 	    Constructor.prototype = new ReactClassComponent();
 	    Constructor.prototype.constructor = Constructor;
 	    Constructor.prototype.__reactAutoBindPairs = [];
@@ -2806,96 +2816,10 @@
 	};
 	
 	module.exports = ReactClass;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
-
-/***/ },
-/* 22 */
-/*!***********************************************!*\
-  !*** ./~/react/lib/ReactPropTypeLocations.js ***!
-  \***********************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Copyright 2013-present, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 * @providesModule ReactPropTypeLocations
-	 */
-	
-	'use strict';
-	
-	var keyMirror = __webpack_require__(/*! fbjs/lib/keyMirror */ 23);
-	
-	var ReactPropTypeLocations = keyMirror({
-	  prop: null,
-	  context: null,
-	  childContext: null
-	});
-	
-	module.exports = ReactPropTypeLocations;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
 /* 23 */
-/*!*********************************!*\
-  !*** ./~/fbjs/lib/keyMirror.js ***!
-  \*********************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {/**
-	 * Copyright (c) 2013-present, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 * @typechecks static-only
-	 */
-	
-	'use strict';
-	
-	var invariant = __webpack_require__(/*! ./invariant */ 8);
-	
-	/**
-	 * Constructs an enumeration with keys equal to their value.
-	 *
-	 * For example:
-	 *
-	 *   var COLORS = keyMirror({blue: null, red: null});
-	 *   var myColor = COLORS.blue;
-	 *   var isColorValid = !!COLORS[myColor];
-	 *
-	 * The last line could not be performed if the values of the generated enum were
-	 * not equal to their keys.
-	 *
-	 *   Input:  {key1: val1, key2: val2}
-	 *   Output: {key1: key1, key2: key2}
-	 *
-	 * @param {object} obj
-	 * @return {object}
-	 */
-	var keyMirror = function keyMirror(obj) {
-	  var ret = {};
-	  var key;
-	  !(obj instanceof Object && !Array.isArray(obj)) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'keyMirror(...): Argument must be an object.') : invariant(false) : void 0;
-	  for (key in obj) {
-	    if (!obj.hasOwnProperty(key)) {
-	      continue;
-	    }
-	    ret[key] = key;
-	  }
-	  return ret;
-	};
-	
-	module.exports = keyMirror;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
-
-/***/ },
-/* 24 */
 /*!***************************************************!*\
   !*** ./~/react/lib/ReactPropTypeLocationNames.js ***!
   \***************************************************/
@@ -2909,7 +2833,7 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactPropTypeLocationNames
+	 * 
 	 */
 	
 	'use strict';
@@ -2925,52 +2849,10 @@
 	}
 	
 	module.exports = ReactPropTypeLocationNames;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 25 */
-/*!*****************************!*\
-  !*** ./~/fbjs/lib/keyOf.js ***!
-  \*****************************/
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	/**
-	 * Copyright (c) 2013-present, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 */
-	
-	/**
-	 * Allows extraction of a minified key. Let's the build system minify keys
-	 * without losing the ability to dynamically use key strings as values
-	 * themselves. Pass in an object with a single key/val pair and it will return
-	 * you the string key of that single record. Suppose you want to grab the
-	 * value for a key 'className' inside of an object. Key/val minification may
-	 * have aliased that key to be 'xa12'. keyOf({className: null}) will return
-	 * 'xa12' in that case. Resolve keys you want to use once at startup time, then
-	 * reuse those resolutions.
-	 */
-	var keyOf = function keyOf(oneKeyObj) {
-	  var key;
-	  for (key in oneKeyObj) {
-	    if (!oneKeyObj.hasOwnProperty(key)) {
-	      continue;
-	    }
-	    return key;
-	  }
-	  return null;
-	};
-	
-	module.exports = keyOf;
-
-/***/ },
-/* 26 */
+/* 24 */
 /*!******************************************!*\
   !*** ./~/react/lib/ReactDOMFactories.js ***!
   \******************************************/
@@ -2984,7 +2866,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDOMFactories
 	 */
 	
 	'use strict';
@@ -2998,7 +2879,7 @@
 	 */
 	var createDOMFactory = ReactElement.createFactory;
 	if (process.env.NODE_ENV !== 'production') {
-	  var ReactElementValidator = __webpack_require__(/*! ./ReactElementValidator */ 27);
+	  var ReactElementValidator = __webpack_require__(/*! ./ReactElementValidator */ 25);
 	  createDOMFactory = ReactElementValidator.createFactory;
 	}
 	
@@ -3146,10 +3027,10 @@
 	};
 	
 	module.exports = ReactDOMFactories;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 27 */
+/* 25 */
 /*!**********************************************!*\
   !*** ./~/react/lib/ReactElementValidator.js ***!
   \**********************************************/
@@ -3163,7 +3044,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactElementValidator
 	 */
 	
 	/**
@@ -3176,14 +3056,13 @@
 	'use strict';
 	
 	var ReactCurrentOwner = __webpack_require__(/*! ./ReactCurrentOwner */ 10);
-	var ReactComponentTreeHook = __webpack_require__(/*! ./ReactComponentTreeHook */ 28);
+	var ReactComponentTreeHook = __webpack_require__(/*! ./ReactComponentTreeHook */ 26);
 	var ReactElement = __webpack_require__(/*! ./ReactElement */ 9);
-	var ReactPropTypeLocations = __webpack_require__(/*! ./ReactPropTypeLocations */ 22);
 	
-	var checkReactTypeSpec = __webpack_require__(/*! ./checkReactTypeSpec */ 29);
+	var checkReactTypeSpec = __webpack_require__(/*! ./checkReactTypeSpec */ 27);
 	
 	var canDefineProperty = __webpack_require__(/*! ./canDefineProperty */ 13);
-	var getIteratorFn = __webpack_require__(/*! ./getIteratorFn */ 15);
+	var getIteratorFn = __webpack_require__(/*! ./getIteratorFn */ 16);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
 	function getDeclarationErrorAddendum() {
@@ -3307,7 +3186,7 @@
 	  }
 	  var name = componentClass.displayName || componentClass.name;
 	  if (componentClass.propTypes) {
-	    checkReactTypeSpec(componentClass.propTypes, element.props, ReactPropTypeLocations.prop, name, element, null);
+	    checkReactTypeSpec(componentClass.propTypes, element.props, 'prop', name, element, null);
 	  }
 	  if (typeof componentClass.getDefaultProps === 'function') {
 	    process.env.NODE_ENV !== 'production' ? warning(componentClass.getDefaultProps.isReactClassApproved, 'getDefaultProps is only used on classic React.createClass ' + 'definitions. Use a static property named `defaultProps` instead.') : void 0;
@@ -3321,7 +3200,14 @@
 	    // We warn in this case but don't throw. We expect the element creation to
 	    // succeed and there will likely be errors in render.
 	    if (!validType) {
-	      process.env.NODE_ENV !== 'production' ? warning(false, 'React.createElement: type should not be null, undefined, boolean, or ' + 'number. It should be a string (for DOM elements) or a ReactClass ' + '(for composite components).%s', getDeclarationErrorAddendum()) : void 0;
+	      if (typeof type !== 'function' && typeof type !== 'string') {
+	        var info = '';
+	        if (type === undefined || typeof type === 'object' && type !== null && Object.keys(type).length === 0) {
+	          info += ' You likely forgot to export your component from the file ' + 'it\'s defined in.';
+	        }
+	        info += getDeclarationErrorAddendum();
+	        process.env.NODE_ENV !== 'production' ? warning(false, 'React.createElement: type is invalid -- expected a string (for ' + 'built-in components) or a class/function (for composite ' + 'components) but got: %s.%s', type == null ? type : typeof type, info) : void 0;
+	      }
 	    }
 	
 	    var element = ReactElement.createElement.apply(this, arguments);
@@ -3383,10 +3269,10 @@
 	};
 	
 	module.exports = ReactElementValidator;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 28 */
+/* 26 */
 /*!***********************************************!*\
   !*** ./~/react/lib/ReactComponentTreeHook.js ***!
   \***********************************************/
@@ -3400,7 +3286,7 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactComponentTreeHook
+	 * 
 	 */
 	
 	'use strict';
@@ -3443,113 +3329,96 @@
 	// Set.prototype.keys
 	Set.prototype != null && typeof Set.prototype.keys === 'function' && isNative(Set.prototype.keys);
 	
-	var itemMap;
-	var rootIDSet;
-	
-	var itemByKey;
-	var rootByKey;
+	var setItem;
+	var getItem;
+	var removeItem;
+	var getItemIDs;
+	var addRoot;
+	var removeRoot;
+	var getRootIDs;
 	
 	if (canUseCollections) {
-	  itemMap = new Map();
-	  rootIDSet = new Set();
+	  var itemMap = new Map();
+	  var rootIDSet = new Set();
+	
+	  setItem = function (id, item) {
+	    itemMap.set(id, item);
+	  };
+	  getItem = function (id) {
+	    return itemMap.get(id);
+	  };
+	  removeItem = function (id) {
+	    itemMap['delete'](id);
+	  };
+	  getItemIDs = function () {
+	    return Array.from(itemMap.keys());
+	  };
+	
+	  addRoot = function (id) {
+	    rootIDSet.add(id);
+	  };
+	  removeRoot = function (id) {
+	    rootIDSet['delete'](id);
+	  };
+	  getRootIDs = function () {
+	    return Array.from(rootIDSet.keys());
+	  };
 	} else {
-	  itemByKey = {};
-	  rootByKey = {};
+	  var itemByKey = {};
+	  var rootByKey = {};
+	
+	  // Use non-numeric keys to prevent V8 performance issues:
+	  // https://github.com/facebook/react/pull/7232
+	  var getKeyFromID = function (id) {
+	    return '.' + id;
+	  };
+	  var getIDFromKey = function (key) {
+	    return parseInt(key.substr(1), 10);
+	  };
+	
+	  setItem = function (id, item) {
+	    var key = getKeyFromID(id);
+	    itemByKey[key] = item;
+	  };
+	  getItem = function (id) {
+	    var key = getKeyFromID(id);
+	    return itemByKey[key];
+	  };
+	  removeItem = function (id) {
+	    var key = getKeyFromID(id);
+	    delete itemByKey[key];
+	  };
+	  getItemIDs = function () {
+	    return Object.keys(itemByKey).map(getIDFromKey);
+	  };
+	
+	  addRoot = function (id) {
+	    var key = getKeyFromID(id);
+	    rootByKey[key] = true;
+	  };
+	  removeRoot = function (id) {
+	    var key = getKeyFromID(id);
+	    delete rootByKey[key];
+	  };
+	  getRootIDs = function () {
+	    return Object.keys(rootByKey).map(getIDFromKey);
+	  };
 	}
 	
 	var unmountedIDs = [];
 	
-	// Use non-numeric keys to prevent V8 performance issues:
-	// https://github.com/facebook/react/pull/7232
-	function getKeyFromID(id) {
-	  return '.' + id;
-	}
-	function getIDFromKey(key) {
-	  return parseInt(key.substr(1), 10);
-	}
-	
-	function get(id) {
-	  if (canUseCollections) {
-	    return itemMap.get(id);
-	  } else {
-	    var key = getKeyFromID(id);
-	    return itemByKey[key];
-	  }
-	}
-	
-	function remove(id) {
-	  if (canUseCollections) {
-	    itemMap['delete'](id);
-	  } else {
-	    var key = getKeyFromID(id);
-	    delete itemByKey[key];
-	  }
-	}
-	
-	function create(id, element, parentID) {
-	  var item = {
-	    element: element,
-	    parentID: parentID,
-	    text: null,
-	    childIDs: [],
-	    isMounted: false,
-	    updateCount: 0
-	  };
-	
-	  if (canUseCollections) {
-	    itemMap.set(id, item);
-	  } else {
-	    var key = getKeyFromID(id);
-	    itemByKey[key] = item;
-	  }
-	}
-	
-	function addRoot(id) {
-	  if (canUseCollections) {
-	    rootIDSet.add(id);
-	  } else {
-	    var key = getKeyFromID(id);
-	    rootByKey[key] = true;
-	  }
-	}
-	
-	function removeRoot(id) {
-	  if (canUseCollections) {
-	    rootIDSet['delete'](id);
-	  } else {
-	    var key = getKeyFromID(id);
-	    delete rootByKey[key];
-	  }
-	}
-	
-	function getRegisteredIDs() {
-	  if (canUseCollections) {
-	    return Array.from(itemMap.keys());
-	  } else {
-	    return Object.keys(itemByKey).map(getIDFromKey);
-	  }
-	}
-	
-	function getRootIDs() {
-	  if (canUseCollections) {
-	    return Array.from(rootIDSet.keys());
-	  } else {
-	    return Object.keys(rootByKey).map(getIDFromKey);
-	  }
-	}
-	
 	function purgeDeep(id) {
-	  var item = get(id);
+	  var item = getItem(id);
 	  if (item) {
 	    var childIDs = item.childIDs;
 	
-	    remove(id);
+	    removeItem(id);
 	    childIDs.forEach(purgeDeep);
 	  }
 	}
 	
 	function describeComponentFrame(name, source, ownerName) {
-	  return '\n    in ' + name + (source ? ' (at ' + source.fileName.replace(/^.*[\\\/]/, '') + ':' + source.lineNumber + ')' : ownerName ? ' (created by ' + ownerName + ')' : '');
+	  return '\n    in ' + (name || 'Unknown') + (source ? ' (at ' + source.fileName.replace(/^.*[\\\/]/, '') + ':' + source.lineNumber + ')' : ownerName ? ' (created by ' + ownerName + ')' : '');
 	}
 	
 	function getDisplayName(element) {
@@ -3578,12 +3447,13 @@
 	
 	var ReactComponentTreeHook = {
 	  onSetChildren: function (id, nextChildIDs) {
-	    var item = get(id);
+	    var item = getItem(id);
+	    !item ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Item must have been set') : _prodInvariant('144') : void 0;
 	    item.childIDs = nextChildIDs;
 	
 	    for (var i = 0; i < nextChildIDs.length; i++) {
 	      var nextChildID = nextChildIDs[i];
-	      var nextChild = get(nextChildID);
+	      var nextChild = getItem(nextChildID);
 	      !nextChild ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Expected hook events to fire for the child before its parent includes it in onSetChildren().') : _prodInvariant('140') : void 0;
 	      !(nextChild.childIDs != null || typeof nextChild.element !== 'object' || nextChild.element == null) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Expected onSetChildren() to fire for a container child before its parent includes it in onSetChildren().') : _prodInvariant('141') : void 0;
 	      !nextChild.isMounted ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Expected onMountComponent() to fire for the child before its parent includes it in onSetChildren().') : _prodInvariant('71') : void 0;
@@ -3591,16 +3461,24 @@
 	        nextChild.parentID = id;
 	        // TODO: This shouldn't be necessary but mounting a new root during in
 	        // componentWillMount currently causes not-yet-mounted components to
-	        // be purged from our tree data so their parent ID is missing.
+	        // be purged from our tree data so their parent id is missing.
 	      }
 	      !(nextChild.parentID === id) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Expected onBeforeMountComponent() parent and onSetChildren() to be consistent (%s has parents %s and %s).', nextChildID, nextChild.parentID, id) : _prodInvariant('142', nextChildID, nextChild.parentID, id) : void 0;
 	    }
 	  },
 	  onBeforeMountComponent: function (id, element, parentID) {
-	    create(id, element, parentID);
+	    var item = {
+	      element: element,
+	      parentID: parentID,
+	      text: null,
+	      childIDs: [],
+	      isMounted: false,
+	      updateCount: 0
+	    };
+	    setItem(id, item);
 	  },
 	  onBeforeUpdateComponent: function (id, element) {
-	    var item = get(id);
+	    var item = getItem(id);
 	    if (!item || !item.isMounted) {
 	      // We may end up here as a result of setState() in componentWillUnmount().
 	      // In this case, ignore the element.
@@ -3609,7 +3487,8 @@
 	    item.element = element;
 	  },
 	  onMountComponent: function (id) {
-	    var item = get(id);
+	    var item = getItem(id);
+	    !item ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Item must have been set') : _prodInvariant('144') : void 0;
 	    item.isMounted = true;
 	    var isRoot = item.parentID === 0;
 	    if (isRoot) {
@@ -3617,7 +3496,7 @@
 	    }
 	  },
 	  onUpdateComponent: function (id) {
-	    var item = get(id);
+	    var item = getItem(id);
 	    if (!item || !item.isMounted) {
 	      // We may end up here as a result of setState() in componentWillUnmount().
 	      // In this case, ignore the element.
@@ -3626,7 +3505,7 @@
 	    item.updateCount++;
 	  },
 	  onUnmountComponent: function (id) {
-	    var item = get(id);
+	    var item = getItem(id);
 	    if (item) {
 	      // We need to check if it exists.
 	      // `item` might not exist if it is inside an error boundary, and a sibling
@@ -3654,16 +3533,15 @@
 	    unmountedIDs.length = 0;
 	  },
 	  isMounted: function (id) {
-	    var item = get(id);
+	    var item = getItem(id);
 	    return item ? item.isMounted : false;
 	  },
 	  getCurrentStackAddendum: function (topElement) {
 	    var info = '';
 	    if (topElement) {
-	      var type = topElement.type;
-	      var name = typeof type === 'function' ? type.displayName || type.name : type;
+	      var name = getDisplayName(topElement);
 	      var owner = topElement._owner;
-	      info += describeComponentFrame(name || 'Unknown', topElement._source, owner && owner.getName());
+	      info += describeComponentFrame(name, topElement._source, owner && owner.getName());
 	    }
 	
 	    var currentOwner = ReactCurrentOwner.current;
@@ -3681,7 +3559,7 @@
 	    return info;
 	  },
 	  getChildIDs: function (id) {
-	    var item = get(id);
+	    var item = getItem(id);
 	    return item ? item.childIDs : [];
 	  },
 	  getDisplayName: function (id) {
@@ -3692,7 +3570,7 @@
 	    return getDisplayName(element);
 	  },
 	  getElement: function (id) {
-	    var item = get(id);
+	    var item = getItem(id);
 	    return item ? item.element : null;
 	  },
 	  getOwnerID: function (id) {
@@ -3703,11 +3581,11 @@
 	    return element._owner._debugID;
 	  },
 	  getParentID: function (id) {
-	    var item = get(id);
+	    var item = getItem(id);
 	    return item ? item.parentID : null;
 	  },
 	  getSource: function (id) {
-	    var item = get(id);
+	    var item = getItem(id);
 	    var element = item ? item.element : null;
 	    var source = element != null ? element._source : null;
 	    return source;
@@ -3723,21 +3601,20 @@
 	    }
 	  },
 	  getUpdateCount: function (id) {
-	    var item = get(id);
+	    var item = getItem(id);
 	    return item ? item.updateCount : 0;
 	  },
 	
 	
-	  getRegisteredIDs: getRegisteredIDs,
-	
-	  getRootIDs: getRootIDs
+	  getRootIDs: getRootIDs,
+	  getRegisteredIDs: getItemIDs
 	};
 	
 	module.exports = ReactComponentTreeHook;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 29 */
+/* 27 */
 /*!*******************************************!*\
   !*** ./~/react/lib/checkReactTypeSpec.js ***!
   \*******************************************/
@@ -3751,15 +3628,14 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule checkReactTypeSpec
 	 */
 	
 	'use strict';
 	
 	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
 	
-	var ReactPropTypeLocationNames = __webpack_require__(/*! ./ReactPropTypeLocationNames */ 24);
-	var ReactPropTypesSecret = __webpack_require__(/*! ./ReactPropTypesSecret */ 30);
+	var ReactPropTypeLocationNames = __webpack_require__(/*! ./ReactPropTypeLocationNames */ 23);
+	var ReactPropTypesSecret = __webpack_require__(/*! ./ReactPropTypesSecret */ 28);
 	
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
@@ -3772,7 +3648,7 @@
 	  // https://github.com/facebook/react/issues/7240
 	  // Remove the inline requires when we don't need them anymore:
 	  // https://github.com/facebook/react/pull/7178
-	  ReactComponentTreeHook = __webpack_require__(/*! ./ReactComponentTreeHook */ 28);
+	  ReactComponentTreeHook = __webpack_require__(/*! ./ReactComponentTreeHook */ 26);
 	}
 	
 	var loggedTypeFailures = {};
@@ -3814,7 +3690,7 @@
 	
 	        if (process.env.NODE_ENV !== 'production') {
 	          if (!ReactComponentTreeHook) {
-	            ReactComponentTreeHook = __webpack_require__(/*! ./ReactComponentTreeHook */ 28);
+	            ReactComponentTreeHook = __webpack_require__(/*! ./ReactComponentTreeHook */ 26);
 	          }
 	          if (debugID !== null) {
 	            componentStackInfo = ReactComponentTreeHook.getStackAddendumByID(debugID);
@@ -3830,10 +3706,10 @@
 	}
 	
 	module.exports = checkReactTypeSpec;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 30 */
+/* 28 */
 /*!*********************************************!*\
   !*** ./~/react/lib/ReactPropTypesSecret.js ***!
   \*********************************************/
@@ -3847,7 +3723,7 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactPropTypesSecret
+	 * 
 	 */
 	
 	'use strict';
@@ -3857,7 +3733,7 @@
 	module.exports = ReactPropTypesSecret;
 
 /***/ },
-/* 31 */
+/* 29 */
 /*!***************************************!*\
   !*** ./~/react/lib/ReactPropTypes.js ***!
   \***************************************/
@@ -3871,17 +3747,16 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactPropTypes
 	 */
 	
 	'use strict';
 	
 	var ReactElement = __webpack_require__(/*! ./ReactElement */ 9);
-	var ReactPropTypeLocationNames = __webpack_require__(/*! ./ReactPropTypeLocationNames */ 24);
-	var ReactPropTypesSecret = __webpack_require__(/*! ./ReactPropTypesSecret */ 30);
+	var ReactPropTypeLocationNames = __webpack_require__(/*! ./ReactPropTypeLocationNames */ 23);
+	var ReactPropTypesSecret = __webpack_require__(/*! ./ReactPropTypesSecret */ 28);
 	
 	var emptyFunction = __webpack_require__(/*! fbjs/lib/emptyFunction */ 12);
-	var getIteratorFn = __webpack_require__(/*! ./getIteratorFn */ 15);
+	var getIteratorFn = __webpack_require__(/*! ./getIteratorFn */ 16);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
 	/**
@@ -3996,7 +3871,7 @@
 	      if (secret !== ReactPropTypesSecret && typeof console !== 'undefined') {
 	        var cacheKey = componentName + ':' + propName;
 	        if (!manualPropTypeCallCache[cacheKey]) {
-	          process.env.NODE_ENV !== 'production' ? warning(false, 'You are manually calling a React.PropTypes validation ' + 'function for the `%s` prop on `%s`. This is deprecated ' + 'and will not work in the next major version. You may be ' + 'seeing this warning due to a third-party PropTypes library. ' + 'See https://fb.me/react-warning-dont-call-proptypes for details.', propFullName, componentName) : void 0;
+	          process.env.NODE_ENV !== 'production' ? warning(false, 'You are manually calling a React.PropTypes validation ' + 'function for the `%s` prop on `%s`. This is deprecated ' + 'and will not work in production with the next major version. ' + 'You may be seeing this warning due to a third-party PropTypes ' + 'library. See https://fb.me/react-warning-dont-call-proptypes ' + 'for details.', propFullName, componentName) : void 0;
 	          manualPropTypeCallCache[cacheKey] = true;
 	        }
 	      }
@@ -4004,7 +3879,10 @@
 	    if (props[propName] == null) {
 	      var locationName = ReactPropTypeLocationNames[location];
 	      if (isRequired) {
-	        return new PropTypeError('Required ' + locationName + ' `' + propFullName + '` was not specified in ' + ('`' + componentName + '`.'));
+	        if (props[propName] === null) {
+	          return new PropTypeError('The ' + locationName + ' `' + propFullName + '` is marked as required ' + ('in `' + componentName + '`, but its value is `null`.'));
+	        }
+	        return new PropTypeError('The ' + locationName + ' `' + propFullName + '` is marked as required in ' + ('`' + componentName + '`, but its value is `undefined`.'));
 	      }
 	      return null;
 	    } else {
@@ -4294,10 +4172,10 @@
 	}
 	
 	module.exports = ReactPropTypes;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 32 */
+/* 30 */
 /*!*************************************!*\
   !*** ./~/react/lib/ReactVersion.js ***!
   \*************************************/
@@ -4311,15 +4189,14 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactVersion
 	 */
 	
 	'use strict';
 	
-	module.exports = '15.3.1';
+	module.exports = '15.4.2';
 
 /***/ },
-/* 33 */
+/* 31 */
 /*!**********************************!*\
   !*** ./~/react/lib/onlyChild.js ***!
   \**********************************/
@@ -4333,7 +4210,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule onlyChild
 	 */
 	'use strict';
 	
@@ -4363,10 +4239,10 @@
 	}
 	
 	module.exports = onlyChild;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 34 */
+/* 32 */
 /*!******************************!*\
   !*** ./~/react-dom/index.js ***!
   \******************************/
@@ -4374,14 +4250,14 @@
 
 	'use strict';
 	
-	module.exports = __webpack_require__(/*! react/lib/ReactDOM */ 35);
+	module.exports = __webpack_require__(/*! ./lib/ReactDOM */ 33);
 
 
 /***/ },
-/* 35 */
-/*!*********************************!*\
-  !*** ./~/react/lib/ReactDOM.js ***!
-  \*********************************/
+/* 33 */
+/*!*************************************!*\
+  !*** ./~/react-dom/lib/ReactDOM.js ***!
+  \*************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -4392,23 +4268,22 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDOM
 	 */
 	
 	/* globals __REACT_DEVTOOLS_GLOBAL_HOOK__*/
 	
 	'use strict';
 	
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
-	var ReactDefaultInjection = __webpack_require__(/*! ./ReactDefaultInjection */ 39);
-	var ReactMount = __webpack_require__(/*! ./ReactMount */ 162);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
+	var ReactDefaultInjection = __webpack_require__(/*! ./ReactDefaultInjection */ 38);
+	var ReactMount = __webpack_require__(/*! ./ReactMount */ 166);
 	var ReactReconciler = __webpack_require__(/*! ./ReactReconciler */ 59);
 	var ReactUpdates = __webpack_require__(/*! ./ReactUpdates */ 56);
-	var ReactVersion = __webpack_require__(/*! ./ReactVersion */ 32);
+	var ReactVersion = __webpack_require__(/*! ./ReactVersion */ 171);
 	
-	var findDOMNode = __webpack_require__(/*! ./findDOMNode */ 167);
-	var getHostComponentFromComposite = __webpack_require__(/*! ./getHostComponentFromComposite */ 168);
-	var renderSubtreeIntoContainer = __webpack_require__(/*! ./renderSubtreeIntoContainer */ 169);
+	var findDOMNode = __webpack_require__(/*! ./findDOMNode */ 172);
+	var getHostComponentFromComposite = __webpack_require__(/*! ./getHostComponentFromComposite */ 173);
+	var renderSubtreeIntoContainer = __webpack_require__(/*! ./renderSubtreeIntoContainer */ 174);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
 	ReactDefaultInjection.inject();
@@ -4426,7 +4301,6 @@
 	
 	// Inject the runtime into a devtools global hook regardless of browser.
 	// Allows for debugging when the hook is injected on the page.
-	/* eslint-enable camelcase */
 	if (typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined' && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.inject === 'function') {
 	  __REACT_DEVTOOLS_GLOBAL_HOOK__.inject({
 	    ComponentTree: {
@@ -4449,7 +4323,7 @@
 	}
 	
 	if (process.env.NODE_ENV !== 'production') {
-	  var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 49);
+	  var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 48);
 	  if (ExecutionEnvironment.canUseDOM && window.top === window.self) {
 	
 	    // First check if devtools is not installed
@@ -4473,7 +4347,7 @@
 	
 	    var expectedFeatures = [
 	    // shims
-	    Array.isArray, Array.prototype.every, Array.prototype.forEach, Array.prototype.indexOf, Array.prototype.map, Date.now, Function.prototype.bind, Object.keys, String.prototype.split, String.prototype.trim];
+	    Array.isArray, Array.prototype.every, Array.prototype.forEach, Array.prototype.indexOf, Array.prototype.map, Date.now, Function.prototype.bind, Object.keys, String.prototype.trim];
 	
 	    for (var i = 0; i < expectedFeatures.length; i++) {
 	      if (!expectedFeatures[i]) {
@@ -4486,21 +4360,23 @@
 	
 	if (process.env.NODE_ENV !== 'production') {
 	  var ReactInstrumentation = __webpack_require__(/*! ./ReactInstrumentation */ 62);
-	  var ReactDOMUnknownPropertyHook = __webpack_require__(/*! ./ReactDOMUnknownPropertyHook */ 170);
-	  var ReactDOMNullInputValuePropHook = __webpack_require__(/*! ./ReactDOMNullInputValuePropHook */ 171);
+	  var ReactDOMUnknownPropertyHook = __webpack_require__(/*! ./ReactDOMUnknownPropertyHook */ 175);
+	  var ReactDOMNullInputValuePropHook = __webpack_require__(/*! ./ReactDOMNullInputValuePropHook */ 176);
+	  var ReactDOMInvalidARIAHook = __webpack_require__(/*! ./ReactDOMInvalidARIAHook */ 177);
 	
 	  ReactInstrumentation.debugTool.addHook(ReactDOMUnknownPropertyHook);
 	  ReactInstrumentation.debugTool.addHook(ReactDOMNullInputValuePropHook);
+	  ReactInstrumentation.debugTool.addHook(ReactDOMInvalidARIAHook);
 	}
 	
 	module.exports = ReactDOM;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 36 */
-/*!**********************************************!*\
-  !*** ./~/react/lib/ReactDOMComponentTree.js ***!
-  \**********************************************/
+/* 34 */
+/*!**************************************************!*\
+  !*** ./~/react-dom/lib/ReactDOMComponentTree.js ***!
+  \**************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -4511,15 +4387,14 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDOMComponentTree
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
-	var DOMProperty = __webpack_require__(/*! ./DOMProperty */ 37);
-	var ReactDOMComponentFlags = __webpack_require__(/*! ./ReactDOMComponentFlags */ 38);
+	var DOMProperty = __webpack_require__(/*! ./DOMProperty */ 36);
+	var ReactDOMComponentFlags = __webpack_require__(/*! ./ReactDOMComponentFlags */ 37);
 	
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	
@@ -4527,6 +4402,13 @@
 	var Flags = ReactDOMComponentFlags;
 	
 	var internalInstanceKey = '__reactInternalInstance$' + Math.random().toString(36).slice(2);
+	
+	/**
+	 * Check if a given node should be cached.
+	 */
+	function shouldPrecacheNode(node, nodeID) {
+	  return node.nodeType === 1 && node.getAttribute(ATTR_NAME) === String(nodeID) || node.nodeType === 8 && node.nodeValue === ' react-text: ' + nodeID + ' ' || node.nodeType === 8 && node.nodeValue === ' react-empty: ' + nodeID + ' ';
+	}
 	
 	/**
 	 * Drill down (through composites and empty components) until we get a host or
@@ -4593,7 +4475,7 @@
 	    }
 	    // We assume the child nodes are in the same order as the child instances.
 	    for (; childNode !== null; childNode = childNode.nextSibling) {
-	      if (childNode.nodeType === 1 && childNode.getAttribute(ATTR_NAME) === String(childID) || childNode.nodeType === 8 && childNode.nodeValue === ' react-text: ' + childID + ' ' || childNode.nodeType === 8 && childNode.nodeValue === ' react-empty: ' + childID + ' ') {
+	      if (shouldPrecacheNode(childNode, childID)) {
 	        precacheNode(childInst, childNode);
 	        continue outer;
 	      }
@@ -4691,13 +4573,59 @@
 	};
 	
 	module.exports = ReactDOMComponentTree;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 37 */
-/*!************************************!*\
-  !*** ./~/react/lib/DOMProperty.js ***!
-  \************************************/
+/* 35 */
+/*!***********************************************!*\
+  !*** ./~/react-dom/lib/reactProdInvariant.js ***!
+  \***********************************************/
+/***/ function(module, exports) {
+
+	/**
+	 * Copyright (c) 2013-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * 
+	 */
+	'use strict';
+	
+	/**
+	 * WARNING: DO NOT manually require this module.
+	 * This is a replacement for `invariant(...)` used by the error code system
+	 * and will _only_ be required by the corresponding babel pass.
+	 * It always throws.
+	 */
+	
+	function reactProdInvariant(code) {
+	  var argCount = arguments.length - 1;
+	
+	  var message = 'Minified React error #' + code + '; visit ' + 'http://facebook.github.io/react/docs/error-decoder.html?invariant=' + code;
+	
+	  for (var argIdx = 0; argIdx < argCount; argIdx++) {
+	    message += '&args[]=' + encodeURIComponent(arguments[argIdx + 1]);
+	  }
+	
+	  message += ' for the full message or use the non-minified dev environment' + ' for full errors and additional helpful warnings.';
+	
+	  var error = new Error(message);
+	  error.name = 'Invariant Violation';
+	  error.framesToPop = 1; // we don't care about reactProdInvariant's own frame
+	
+	  throw error;
+	}
+	
+	module.exports = reactProdInvariant;
+
+/***/ },
+/* 36 */
+/*!****************************************!*\
+  !*** ./~/react-dom/lib/DOMProperty.js ***!
+  \****************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -4708,12 +4636,11 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule DOMProperty
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	
@@ -4879,9 +4806,13 @@
 	  /**
 	   * Mapping from lowercase property names to the properly cased version, used
 	   * to warn in the case of missing properties. Available only in __DEV__.
+	   *
+	   * autofocus is predefined, because adding it to the property whitelist
+	   * causes unintended side effects.
+	   *
 	   * @type {Object}
 	   */
-	  getPossibleStandardName: process.env.NODE_ENV !== 'production' ? {} : null,
+	  getPossibleStandardName: process.env.NODE_ENV !== 'production' ? { autofocus: 'autoFocus' } : null,
 	
 	  /**
 	   * All of the isCustomAttribute() functions that have been injected.
@@ -4906,13 +4837,13 @@
 	};
 	
 	module.exports = DOMProperty;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 38 */
-/*!***********************************************!*\
-  !*** ./~/react/lib/ReactDOMComponentFlags.js ***!
-  \***********************************************/
+/* 37 */
+/*!***************************************************!*\
+  !*** ./~/react-dom/lib/ReactDOMComponentFlags.js ***!
+  \***************************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -4923,7 +4854,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDOMComponentFlags
 	 */
 	
 	'use strict';
@@ -4935,10 +4865,10 @@
 	module.exports = ReactDOMComponentFlags;
 
 /***/ },
-/* 39 */
-/*!**********************************************!*\
-  !*** ./~/react/lib/ReactDefaultInjection.js ***!
-  \**********************************************/
+/* 38 */
+/*!**************************************************!*\
+  !*** ./~/react-dom/lib/ReactDefaultInjection.js ***!
+  \**************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -4949,29 +4879,29 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDefaultInjection
 	 */
 	
 	'use strict';
 	
+	var ARIADOMPropertyConfig = __webpack_require__(/*! ./ARIADOMPropertyConfig */ 39);
 	var BeforeInputEventPlugin = __webpack_require__(/*! ./BeforeInputEventPlugin */ 40);
 	var ChangeEventPlugin = __webpack_require__(/*! ./ChangeEventPlugin */ 55);
-	var DefaultEventPluginOrder = __webpack_require__(/*! ./DefaultEventPluginOrder */ 73);
-	var EnterLeaveEventPlugin = __webpack_require__(/*! ./EnterLeaveEventPlugin */ 74);
-	var HTMLDOMPropertyConfig = __webpack_require__(/*! ./HTMLDOMPropertyConfig */ 79);
-	var ReactComponentBrowserEnvironment = __webpack_require__(/*! ./ReactComponentBrowserEnvironment */ 80);
-	var ReactDOMComponent = __webpack_require__(/*! ./ReactDOMComponent */ 94);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
-	var ReactDOMEmptyComponent = __webpack_require__(/*! ./ReactDOMEmptyComponent */ 133);
-	var ReactDOMTreeTraversal = __webpack_require__(/*! ./ReactDOMTreeTraversal */ 134);
-	var ReactDOMTextComponent = __webpack_require__(/*! ./ReactDOMTextComponent */ 135);
-	var ReactDefaultBatchingStrategy = __webpack_require__(/*! ./ReactDefaultBatchingStrategy */ 136);
-	var ReactEventListener = __webpack_require__(/*! ./ReactEventListener */ 137);
-	var ReactInjection = __webpack_require__(/*! ./ReactInjection */ 140);
-	var ReactReconcileTransaction = __webpack_require__(/*! ./ReactReconcileTransaction */ 141);
-	var SVGDOMPropertyConfig = __webpack_require__(/*! ./SVGDOMPropertyConfig */ 149);
-	var SelectEventPlugin = __webpack_require__(/*! ./SelectEventPlugin */ 150);
-	var SimpleEventPlugin = __webpack_require__(/*! ./SimpleEventPlugin */ 151);
+	var DefaultEventPluginOrder = __webpack_require__(/*! ./DefaultEventPluginOrder */ 72);
+	var EnterLeaveEventPlugin = __webpack_require__(/*! ./EnterLeaveEventPlugin */ 73);
+	var HTMLDOMPropertyConfig = __webpack_require__(/*! ./HTMLDOMPropertyConfig */ 78);
+	var ReactComponentBrowserEnvironment = __webpack_require__(/*! ./ReactComponentBrowserEnvironment */ 79);
+	var ReactDOMComponent = __webpack_require__(/*! ./ReactDOMComponent */ 92);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
+	var ReactDOMEmptyComponent = __webpack_require__(/*! ./ReactDOMEmptyComponent */ 137);
+	var ReactDOMTreeTraversal = __webpack_require__(/*! ./ReactDOMTreeTraversal */ 138);
+	var ReactDOMTextComponent = __webpack_require__(/*! ./ReactDOMTextComponent */ 139);
+	var ReactDefaultBatchingStrategy = __webpack_require__(/*! ./ReactDefaultBatchingStrategy */ 140);
+	var ReactEventListener = __webpack_require__(/*! ./ReactEventListener */ 141);
+	var ReactInjection = __webpack_require__(/*! ./ReactInjection */ 144);
+	var ReactReconcileTransaction = __webpack_require__(/*! ./ReactReconcileTransaction */ 145);
+	var SVGDOMPropertyConfig = __webpack_require__(/*! ./SVGDOMPropertyConfig */ 153);
+	var SelectEventPlugin = __webpack_require__(/*! ./SelectEventPlugin */ 154);
+	var SimpleEventPlugin = __webpack_require__(/*! ./SimpleEventPlugin */ 155);
 	
 	var alreadyInjected = false;
 	
@@ -5009,6 +4939,7 @@
 	
 	  ReactInjection.HostComponent.injectTextComponentClass(ReactDOMTextComponent);
 	
+	  ReactInjection.DOMProperty.injectDOMPropertyConfig(ARIADOMPropertyConfig);
 	  ReactInjection.DOMProperty.injectDOMPropertyConfig(HTMLDOMPropertyConfig);
 	  ReactInjection.DOMProperty.injectDOMPropertyConfig(SVGDOMPropertyConfig);
 	
@@ -5027,10 +4958,91 @@
 	};
 
 /***/ },
+/* 39 */
+/*!**************************************************!*\
+  !*** ./~/react-dom/lib/ARIADOMPropertyConfig.js ***!
+  \**************************************************/
+/***/ function(module, exports) {
+
+	/**
+	 * Copyright 2013-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 */
+	
+	'use strict';
+	
+	var ARIADOMPropertyConfig = {
+	  Properties: {
+	    // Global States and Properties
+	    'aria-current': 0, // state
+	    'aria-details': 0,
+	    'aria-disabled': 0, // state
+	    'aria-hidden': 0, // state
+	    'aria-invalid': 0, // state
+	    'aria-keyshortcuts': 0,
+	    'aria-label': 0,
+	    'aria-roledescription': 0,
+	    // Widget Attributes
+	    'aria-autocomplete': 0,
+	    'aria-checked': 0,
+	    'aria-expanded': 0,
+	    'aria-haspopup': 0,
+	    'aria-level': 0,
+	    'aria-modal': 0,
+	    'aria-multiline': 0,
+	    'aria-multiselectable': 0,
+	    'aria-orientation': 0,
+	    'aria-placeholder': 0,
+	    'aria-pressed': 0,
+	    'aria-readonly': 0,
+	    'aria-required': 0,
+	    'aria-selected': 0,
+	    'aria-sort': 0,
+	    'aria-valuemax': 0,
+	    'aria-valuemin': 0,
+	    'aria-valuenow': 0,
+	    'aria-valuetext': 0,
+	    // Live Region Attributes
+	    'aria-atomic': 0,
+	    'aria-busy': 0,
+	    'aria-live': 0,
+	    'aria-relevant': 0,
+	    // Drag-and-Drop Attributes
+	    'aria-dropeffect': 0,
+	    'aria-grabbed': 0,
+	    // Relationship Attributes
+	    'aria-activedescendant': 0,
+	    'aria-colcount': 0,
+	    'aria-colindex': 0,
+	    'aria-colspan': 0,
+	    'aria-controls': 0,
+	    'aria-describedby': 0,
+	    'aria-errormessage': 0,
+	    'aria-flowto': 0,
+	    'aria-labelledby': 0,
+	    'aria-owns': 0,
+	    'aria-posinset': 0,
+	    'aria-rowcount': 0,
+	    'aria-rowindex': 0,
+	    'aria-rowspan': 0,
+	    'aria-setsize': 0
+	  },
+	  DOMAttributeNames: {},
+	  DOMPropertyNames: {}
+	};
+	
+	module.exports = ARIADOMPropertyConfig;
+
+/***/ },
 /* 40 */
-/*!***********************************************!*\
-  !*** ./~/react/lib/BeforeInputEventPlugin.js ***!
-  \***********************************************/
+/*!***************************************************!*\
+  !*** ./~/react-dom/lib/BeforeInputEventPlugin.js ***!
+  \***************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -5041,19 +5053,15 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule BeforeInputEventPlugin
 	 */
 	
 	'use strict';
 	
-	var EventConstants = __webpack_require__(/*! ./EventConstants */ 41);
-	var EventPropagators = __webpack_require__(/*! ./EventPropagators */ 42);
-	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 49);
-	var FallbackCompositionState = __webpack_require__(/*! ./FallbackCompositionState */ 50);
+	var EventPropagators = __webpack_require__(/*! ./EventPropagators */ 41);
+	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 48);
+	var FallbackCompositionState = __webpack_require__(/*! ./FallbackCompositionState */ 49);
 	var SyntheticCompositionEvent = __webpack_require__(/*! ./SyntheticCompositionEvent */ 52);
 	var SyntheticInputEvent = __webpack_require__(/*! ./SyntheticInputEvent */ 54);
-	
-	var keyOf = __webpack_require__(/*! fbjs/lib/keyOf */ 25);
 	
 	var END_KEYCODES = [9, 13, 27, 32]; // Tab, Return, Esc, Space
 	var START_KEYCODE = 229;
@@ -5087,37 +5095,35 @@
 	var SPACEBAR_CODE = 32;
 	var SPACEBAR_CHAR = String.fromCharCode(SPACEBAR_CODE);
 	
-	var topLevelTypes = EventConstants.topLevelTypes;
-	
 	// Events and their corresponding property names.
 	var eventTypes = {
 	  beforeInput: {
 	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onBeforeInput: null }),
-	      captured: keyOf({ onBeforeInputCapture: null })
+	      bubbled: 'onBeforeInput',
+	      captured: 'onBeforeInputCapture'
 	    },
-	    dependencies: [topLevelTypes.topCompositionEnd, topLevelTypes.topKeyPress, topLevelTypes.topTextInput, topLevelTypes.topPaste]
+	    dependencies: ['topCompositionEnd', 'topKeyPress', 'topTextInput', 'topPaste']
 	  },
 	  compositionEnd: {
 	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onCompositionEnd: null }),
-	      captured: keyOf({ onCompositionEndCapture: null })
+	      bubbled: 'onCompositionEnd',
+	      captured: 'onCompositionEndCapture'
 	    },
-	    dependencies: [topLevelTypes.topBlur, topLevelTypes.topCompositionEnd, topLevelTypes.topKeyDown, topLevelTypes.topKeyPress, topLevelTypes.topKeyUp, topLevelTypes.topMouseDown]
+	    dependencies: ['topBlur', 'topCompositionEnd', 'topKeyDown', 'topKeyPress', 'topKeyUp', 'topMouseDown']
 	  },
 	  compositionStart: {
 	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onCompositionStart: null }),
-	      captured: keyOf({ onCompositionStartCapture: null })
+	      bubbled: 'onCompositionStart',
+	      captured: 'onCompositionStartCapture'
 	    },
-	    dependencies: [topLevelTypes.topBlur, topLevelTypes.topCompositionStart, topLevelTypes.topKeyDown, topLevelTypes.topKeyPress, topLevelTypes.topKeyUp, topLevelTypes.topMouseDown]
+	    dependencies: ['topBlur', 'topCompositionStart', 'topKeyDown', 'topKeyPress', 'topKeyUp', 'topMouseDown']
 	  },
 	  compositionUpdate: {
 	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onCompositionUpdate: null }),
-	      captured: keyOf({ onCompositionUpdateCapture: null })
+	      bubbled: 'onCompositionUpdate',
+	      captured: 'onCompositionUpdateCapture'
 	    },
-	    dependencies: [topLevelTypes.topBlur, topLevelTypes.topCompositionUpdate, topLevelTypes.topKeyDown, topLevelTypes.topKeyPress, topLevelTypes.topKeyUp, topLevelTypes.topMouseDown]
+	    dependencies: ['topBlur', 'topCompositionUpdate', 'topKeyDown', 'topKeyPress', 'topKeyUp', 'topMouseDown']
 	  }
 	};
 	
@@ -5143,11 +5149,11 @@
 	 */
 	function getCompositionEventType(topLevelType) {
 	  switch (topLevelType) {
-	    case topLevelTypes.topCompositionStart:
+	    case 'topCompositionStart':
 	      return eventTypes.compositionStart;
-	    case topLevelTypes.topCompositionEnd:
+	    case 'topCompositionEnd':
 	      return eventTypes.compositionEnd;
-	    case topLevelTypes.topCompositionUpdate:
+	    case 'topCompositionUpdate':
 	      return eventTypes.compositionUpdate;
 	  }
 	}
@@ -5161,7 +5167,7 @@
 	 * @return {boolean}
 	 */
 	function isFallbackCompositionStart(topLevelType, nativeEvent) {
-	  return topLevelType === topLevelTypes.topKeyDown && nativeEvent.keyCode === START_KEYCODE;
+	  return topLevelType === 'topKeyDown' && nativeEvent.keyCode === START_KEYCODE;
 	}
 	
 	/**
@@ -5173,16 +5179,16 @@
 	 */
 	function isFallbackCompositionEnd(topLevelType, nativeEvent) {
 	  switch (topLevelType) {
-	    case topLevelTypes.topKeyUp:
+	    case 'topKeyUp':
 	      // Command keys insert or clear IME input.
 	      return END_KEYCODES.indexOf(nativeEvent.keyCode) !== -1;
-	    case topLevelTypes.topKeyDown:
+	    case 'topKeyDown':
 	      // Expect IME keyCode on each keydown. If we get any other
 	      // code we must have exited earlier.
 	      return nativeEvent.keyCode !== START_KEYCODE;
-	    case topLevelTypes.topKeyPress:
-	    case topLevelTypes.topMouseDown:
-	    case topLevelTypes.topBlur:
+	    case 'topKeyPress':
+	    case 'topMouseDown':
+	    case 'topBlur':
 	      // Events are not possible without cancelling IME.
 	      return true;
 	    default:
@@ -5267,9 +5273,9 @@
 	 */
 	function getNativeBeforeInputChars(topLevelType, nativeEvent) {
 	  switch (topLevelType) {
-	    case topLevelTypes.topCompositionEnd:
+	    case 'topCompositionEnd':
 	      return getDataFromCustomEvent(nativeEvent);
-	    case topLevelTypes.topKeyPress:
+	    case 'topKeyPress':
 	      /**
 	       * If native `textInput` events are available, our goal is to make
 	       * use of them. However, there is a special case: the spacebar key.
@@ -5292,7 +5298,7 @@
 	      hasSpaceKeypress = true;
 	      return SPACEBAR_CHAR;
 	
-	    case topLevelTypes.topTextInput:
+	    case 'topTextInput':
 	      // Record the characters to be added to the DOM.
 	      var chars = nativeEvent.data;
 	
@@ -5322,8 +5328,10 @@
 	function getFallbackBeforeInputChars(topLevelType, nativeEvent) {
 	  // If we are currently composing (IME) and using a fallback to do so,
 	  // try to extract the composed characters from the fallback object.
+	  // If composition event is available, we extract a string only at
+	  // compositionevent, otherwise extract it at fallback events.
 	  if (currentComposition) {
-	    if (topLevelType === topLevelTypes.topCompositionEnd || isFallbackCompositionEnd(topLevelType, nativeEvent)) {
+	    if (topLevelType === 'topCompositionEnd' || !canUseCompositionEvent && isFallbackCompositionEnd(topLevelType, nativeEvent)) {
 	      var chars = currentComposition.getData();
 	      FallbackCompositionState.release(currentComposition);
 	      currentComposition = null;
@@ -5333,11 +5341,11 @@
 	  }
 	
 	  switch (topLevelType) {
-	    case topLevelTypes.topPaste:
+	    case 'topPaste':
 	      // If a paste event occurs after a keypress, throw out the input
 	      // chars. Paste events should not lead to BeforeInput events.
 	      return null;
-	    case topLevelTypes.topKeyPress:
+	    case 'topKeyPress':
 	      /**
 	       * As of v27, Firefox may fire keypress events even when no character
 	       * will be inserted. A few possibilities:
@@ -5358,7 +5366,7 @@
 	        return String.fromCharCode(nativeEvent.which);
 	      }
 	      return null;
-	    case topLevelTypes.topCompositionEnd:
+	    case 'topCompositionEnd':
 	      return useFallbackCompositionData ? null : nativeEvent.data;
 	    default:
 	      return null;
@@ -5424,114 +5432,9 @@
 
 /***/ },
 /* 41 */
-/*!***************************************!*\
-  !*** ./~/react/lib/EventConstants.js ***!
-  \***************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Copyright 2013-present, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 * @providesModule EventConstants
-	 */
-	
-	'use strict';
-	
-	var keyMirror = __webpack_require__(/*! fbjs/lib/keyMirror */ 23);
-	
-	var PropagationPhases = keyMirror({ bubbled: null, captured: null });
-	
-	/**
-	 * Types of raw signals from the browser caught at the top level.
-	 */
-	var topLevelTypes = keyMirror({
-	  topAbort: null,
-	  topAnimationEnd: null,
-	  topAnimationIteration: null,
-	  topAnimationStart: null,
-	  topBlur: null,
-	  topCanPlay: null,
-	  topCanPlayThrough: null,
-	  topChange: null,
-	  topClick: null,
-	  topCompositionEnd: null,
-	  topCompositionStart: null,
-	  topCompositionUpdate: null,
-	  topContextMenu: null,
-	  topCopy: null,
-	  topCut: null,
-	  topDoubleClick: null,
-	  topDrag: null,
-	  topDragEnd: null,
-	  topDragEnter: null,
-	  topDragExit: null,
-	  topDragLeave: null,
-	  topDragOver: null,
-	  topDragStart: null,
-	  topDrop: null,
-	  topDurationChange: null,
-	  topEmptied: null,
-	  topEncrypted: null,
-	  topEnded: null,
-	  topError: null,
-	  topFocus: null,
-	  topInput: null,
-	  topInvalid: null,
-	  topKeyDown: null,
-	  topKeyPress: null,
-	  topKeyUp: null,
-	  topLoad: null,
-	  topLoadedData: null,
-	  topLoadedMetadata: null,
-	  topLoadStart: null,
-	  topMouseDown: null,
-	  topMouseMove: null,
-	  topMouseOut: null,
-	  topMouseOver: null,
-	  topMouseUp: null,
-	  topPaste: null,
-	  topPause: null,
-	  topPlay: null,
-	  topPlaying: null,
-	  topProgress: null,
-	  topRateChange: null,
-	  topReset: null,
-	  topScroll: null,
-	  topSeeked: null,
-	  topSeeking: null,
-	  topSelectionChange: null,
-	  topStalled: null,
-	  topSubmit: null,
-	  topSuspend: null,
-	  topTextInput: null,
-	  topTimeUpdate: null,
-	  topTouchCancel: null,
-	  topTouchEnd: null,
-	  topTouchMove: null,
-	  topTouchStart: null,
-	  topTransitionEnd: null,
-	  topVolumeChange: null,
-	  topWaiting: null,
-	  topWheel: null
-	});
-	
-	var EventConstants = {
-	  topLevelTypes: topLevelTypes,
-	  PropagationPhases: PropagationPhases
-	};
-	
-	module.exports = EventConstants;
-
-/***/ },
-/* 42 */
-/*!*****************************************!*\
-  !*** ./~/react/lib/EventPropagators.js ***!
-  \*****************************************/
+/*!*********************************************!*\
+  !*** ./~/react-dom/lib/EventPropagators.js ***!
+  \*********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -5542,20 +5445,17 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule EventPropagators
 	 */
 	
 	'use strict';
 	
-	var EventConstants = __webpack_require__(/*! ./EventConstants */ 41);
-	var EventPluginHub = __webpack_require__(/*! ./EventPluginHub */ 43);
-	var EventPluginUtils = __webpack_require__(/*! ./EventPluginUtils */ 45);
+	var EventPluginHub = __webpack_require__(/*! ./EventPluginHub */ 42);
+	var EventPluginUtils = __webpack_require__(/*! ./EventPluginUtils */ 44);
 	
-	var accumulateInto = __webpack_require__(/*! ./accumulateInto */ 47);
-	var forEachAccumulated = __webpack_require__(/*! ./forEachAccumulated */ 48);
+	var accumulateInto = __webpack_require__(/*! ./accumulateInto */ 46);
+	var forEachAccumulated = __webpack_require__(/*! ./forEachAccumulated */ 47);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
-	var PropagationPhases = EventConstants.PropagationPhases;
 	var getListener = EventPluginHub.getListener;
 	
 	/**
@@ -5573,11 +5473,10 @@
 	 * Mutating the event's members allows us to not have to create a wrapping
 	 * "dispatch" object that pairs the event with the listener.
 	 */
-	function accumulateDirectionalDispatches(inst, upwards, event) {
+	function accumulateDirectionalDispatches(inst, phase, event) {
 	  if (process.env.NODE_ENV !== 'production') {
 	    process.env.NODE_ENV !== 'production' ? warning(inst, 'Dispatching inst must not be null') : void 0;
 	  }
-	  var phase = upwards ? PropagationPhases.bubbled : PropagationPhases.captured;
 	  var listener = listenerAtPhase(inst, event, phase);
 	  if (listener) {
 	    event._dispatchListeners = accumulateInto(event._dispatchListeners, listener);
@@ -5671,13 +5570,13 @@
 	};
 	
 	module.exports = EventPropagators;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 43 */
-/*!***************************************!*\
-  !*** ./~/react/lib/EventPluginHub.js ***!
-  \***************************************/
+/* 42 */
+/*!*******************************************!*\
+  !*** ./~/react-dom/lib/EventPluginHub.js ***!
+  \*******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -5688,19 +5587,18 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule EventPluginHub
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
-	var EventPluginRegistry = __webpack_require__(/*! ./EventPluginRegistry */ 44);
-	var EventPluginUtils = __webpack_require__(/*! ./EventPluginUtils */ 45);
-	var ReactErrorUtils = __webpack_require__(/*! ./ReactErrorUtils */ 46);
+	var EventPluginRegistry = __webpack_require__(/*! ./EventPluginRegistry */ 43);
+	var EventPluginUtils = __webpack_require__(/*! ./EventPluginUtils */ 44);
+	var ReactErrorUtils = __webpack_require__(/*! ./ReactErrorUtils */ 45);
 	
-	var accumulateInto = __webpack_require__(/*! ./accumulateInto */ 47);
-	var forEachAccumulated = __webpack_require__(/*! ./forEachAccumulated */ 48);
+	var accumulateInto = __webpack_require__(/*! ./accumulateInto */ 46);
+	var forEachAccumulated = __webpack_require__(/*! ./forEachAccumulated */ 47);
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	
 	/**
@@ -5742,6 +5640,28 @@
 	  // https://github.com/facebook/react/pull/7232
 	  return '.' + inst._rootNodeID;
 	};
+	
+	function isInteractive(tag) {
+	  return tag === 'button' || tag === 'input' || tag === 'select' || tag === 'textarea';
+	}
+	
+	function shouldPreventMouseEvent(name, type, props) {
+	  switch (name) {
+	    case 'onClick':
+	    case 'onClickCapture':
+	    case 'onDoubleClick':
+	    case 'onDoubleClickCapture':
+	    case 'onMouseDown':
+	    case 'onMouseDownCapture':
+	    case 'onMouseMove':
+	    case 'onMouseMoveCapture':
+	    case 'onMouseUp':
+	    case 'onMouseUpCapture':
+	      return !!(props.disabled && isInteractive(type));
+	    default:
+	      return false;
+	  }
+	}
 	
 	/**
 	 * This is a unified interface for event plugins to be installed and configured.
@@ -5811,7 +5731,12 @@
 	   * @return {?function} The stored callback.
 	   */
 	  getListener: function (inst, registrationName) {
+	    // TODO: shouldPreventMouseEvent is DOM-specific and definitely should not
+	    // live here; needs to be moved to a better place soon
 	    var bankForRegistrationName = listenerBank[registrationName];
+	    if (shouldPreventMouseEvent(registrationName, inst._currentElement.type, inst._currentElement.props)) {
+	      return null;
+	    }
 	    var key = getDictionaryKey(inst);
 	    return bankForRegistrationName && bankForRegistrationName[key];
 	  },
@@ -5931,13 +5856,13 @@
 	};
 	
 	module.exports = EventPluginHub;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 44 */
-/*!********************************************!*\
-  !*** ./~/react/lib/EventPluginRegistry.js ***!
-  \********************************************/
+/* 43 */
+/*!************************************************!*\
+  !*** ./~/react-dom/lib/EventPluginRegistry.js ***!
+  \************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -5948,19 +5873,19 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule EventPluginRegistry
+	 * 
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	
 	/**
 	 * Injectable ordering of event plugins.
 	 */
-	var EventPluginOrder = null;
+	var eventPluginOrder = null;
 	
 	/**
 	 * Injectable mapping from names to event plugin modules.
@@ -5973,22 +5898,22 @@
 	 * @private
 	 */
 	function recomputePluginOrdering() {
-	  if (!EventPluginOrder) {
-	    // Wait until an `EventPluginOrder` is injected.
+	  if (!eventPluginOrder) {
+	    // Wait until an `eventPluginOrder` is injected.
 	    return;
 	  }
 	  for (var pluginName in namesToPlugins) {
-	    var PluginModule = namesToPlugins[pluginName];
-	    var pluginIndex = EventPluginOrder.indexOf(pluginName);
+	    var pluginModule = namesToPlugins[pluginName];
+	    var pluginIndex = eventPluginOrder.indexOf(pluginName);
 	    !(pluginIndex > -1) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Cannot inject event plugins that do not exist in the plugin ordering, `%s`.', pluginName) : _prodInvariant('96', pluginName) : void 0;
 	    if (EventPluginRegistry.plugins[pluginIndex]) {
 	      continue;
 	    }
-	    !PluginModule.extractEvents ? process.env.NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Event plugins must implement an `extractEvents` method, but `%s` does not.', pluginName) : _prodInvariant('97', pluginName) : void 0;
-	    EventPluginRegistry.plugins[pluginIndex] = PluginModule;
-	    var publishedEvents = PluginModule.eventTypes;
+	    !pluginModule.extractEvents ? process.env.NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Event plugins must implement an `extractEvents` method, but `%s` does not.', pluginName) : _prodInvariant('97', pluginName) : void 0;
+	    EventPluginRegistry.plugins[pluginIndex] = pluginModule;
+	    var publishedEvents = pluginModule.eventTypes;
 	    for (var eventName in publishedEvents) {
-	      !publishEventForPlugin(publishedEvents[eventName], PluginModule, eventName) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Failed to publish event `%s` for plugin `%s`.', eventName, pluginName) : _prodInvariant('98', eventName, pluginName) : void 0;
+	      !publishEventForPlugin(publishedEvents[eventName], pluginModule, eventName) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Failed to publish event `%s` for plugin `%s`.', eventName, pluginName) : _prodInvariant('98', eventName, pluginName) : void 0;
 	    }
 	  }
 	}
@@ -6001,7 +5926,7 @@
 	 * @return {boolean} True if the event was successfully published.
 	 * @private
 	 */
-	function publishEventForPlugin(dispatchConfig, PluginModule, eventName) {
+	function publishEventForPlugin(dispatchConfig, pluginModule, eventName) {
 	  !!EventPluginRegistry.eventNameDispatchConfigs.hasOwnProperty(eventName) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'EventPluginHub: More than one plugin attempted to publish the same event name, `%s`.', eventName) : _prodInvariant('99', eventName) : void 0;
 	  EventPluginRegistry.eventNameDispatchConfigs[eventName] = dispatchConfig;
 	
@@ -6010,12 +5935,12 @@
 	    for (var phaseName in phasedRegistrationNames) {
 	      if (phasedRegistrationNames.hasOwnProperty(phaseName)) {
 	        var phasedRegistrationName = phasedRegistrationNames[phaseName];
-	        publishRegistrationName(phasedRegistrationName, PluginModule, eventName);
+	        publishRegistrationName(phasedRegistrationName, pluginModule, eventName);
 	      }
 	    }
 	    return true;
 	  } else if (dispatchConfig.registrationName) {
-	    publishRegistrationName(dispatchConfig.registrationName, PluginModule, eventName);
+	    publishRegistrationName(dispatchConfig.registrationName, pluginModule, eventName);
 	    return true;
 	  }
 	  return false;
@@ -6029,10 +5954,10 @@
 	 * @param {object} PluginModule Plugin publishing the event.
 	 * @private
 	 */
-	function publishRegistrationName(registrationName, PluginModule, eventName) {
+	function publishRegistrationName(registrationName, pluginModule, eventName) {
 	  !!EventPluginRegistry.registrationNameModules[registrationName] ? process.env.NODE_ENV !== 'production' ? invariant(false, 'EventPluginHub: More than one plugin attempted to publish the same registration name, `%s`.', registrationName) : _prodInvariant('100', registrationName) : void 0;
-	  EventPluginRegistry.registrationNameModules[registrationName] = PluginModule;
-	  EventPluginRegistry.registrationNameDependencies[registrationName] = PluginModule.eventTypes[eventName].dependencies;
+	  EventPluginRegistry.registrationNameModules[registrationName] = pluginModule;
+	  EventPluginRegistry.registrationNameDependencies[registrationName] = pluginModule.eventTypes[eventName].dependencies;
 	
 	  if (process.env.NODE_ENV !== 'production') {
 	    var lowerCasedName = registrationName.toLowerCase();
@@ -6078,6 +6003,7 @@
 	   * @type {Object}
 	   */
 	  possibleRegistrationNames: process.env.NODE_ENV !== 'production' ? {} : null,
+	  // Trust the developer to only use possibleRegistrationNames in __DEV__
 	
 	  /**
 	   * Injects an ordering of plugins (by plugin name). This allows the ordering
@@ -6088,10 +6014,10 @@
 	   * @internal
 	   * @see {EventPluginHub.injection.injectEventPluginOrder}
 	   */
-	  injectEventPluginOrder: function (InjectedEventPluginOrder) {
-	    !!EventPluginOrder ? process.env.NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Cannot inject event plugin ordering more than once. You are likely trying to load more than one copy of React.') : _prodInvariant('101') : void 0;
+	  injectEventPluginOrder: function (injectedEventPluginOrder) {
+	    !!eventPluginOrder ? process.env.NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Cannot inject event plugin ordering more than once. You are likely trying to load more than one copy of React.') : _prodInvariant('101') : void 0;
 	    // Clone the ordering so it cannot be dynamically mutated.
-	    EventPluginOrder = Array.prototype.slice.call(InjectedEventPluginOrder);
+	    eventPluginOrder = Array.prototype.slice.call(injectedEventPluginOrder);
 	    recomputePluginOrdering();
 	  },
 	
@@ -6111,10 +6037,10 @@
 	      if (!injectedNamesToPlugins.hasOwnProperty(pluginName)) {
 	        continue;
 	      }
-	      var PluginModule = injectedNamesToPlugins[pluginName];
-	      if (!namesToPlugins.hasOwnProperty(pluginName) || namesToPlugins[pluginName] !== PluginModule) {
+	      var pluginModule = injectedNamesToPlugins[pluginName];
+	      if (!namesToPlugins.hasOwnProperty(pluginName) || namesToPlugins[pluginName] !== pluginModule) {
 	        !!namesToPlugins[pluginName] ? process.env.NODE_ENV !== 'production' ? invariant(false, 'EventPluginRegistry: Cannot inject two different event plugins using the same name, `%s`.', pluginName) : _prodInvariant('102', pluginName) : void 0;
-	        namesToPlugins[pluginName] = PluginModule;
+	        namesToPlugins[pluginName] = pluginModule;
 	        isOrderingDirty = true;
 	      }
 	    }
@@ -6135,13 +6061,19 @@
 	    if (dispatchConfig.registrationName) {
 	      return EventPluginRegistry.registrationNameModules[dispatchConfig.registrationName] || null;
 	    }
-	    for (var phase in dispatchConfig.phasedRegistrationNames) {
-	      if (!dispatchConfig.phasedRegistrationNames.hasOwnProperty(phase)) {
-	        continue;
-	      }
-	      var PluginModule = EventPluginRegistry.registrationNameModules[dispatchConfig.phasedRegistrationNames[phase]];
-	      if (PluginModule) {
-	        return PluginModule;
+	    if (dispatchConfig.phasedRegistrationNames !== undefined) {
+	      // pulling phasedRegistrationNames out of dispatchConfig helps Flow see
+	      // that it is not undefined.
+	      var phasedRegistrationNames = dispatchConfig.phasedRegistrationNames;
+	
+	      for (var phase in phasedRegistrationNames) {
+	        if (!phasedRegistrationNames.hasOwnProperty(phase)) {
+	          continue;
+	        }
+	        var pluginModule = EventPluginRegistry.registrationNameModules[phasedRegistrationNames[phase]];
+	        if (pluginModule) {
+	          return pluginModule;
+	        }
 	      }
 	    }
 	    return null;
@@ -6152,7 +6084,7 @@
 	   * @private
 	   */
 	  _resetEventPlugins: function () {
-	    EventPluginOrder = null;
+	    eventPluginOrder = null;
 	    for (var pluginName in namesToPlugins) {
 	      if (namesToPlugins.hasOwnProperty(pluginName)) {
 	        delete namesToPlugins[pluginName];
@@ -6187,13 +6119,13 @@
 	};
 	
 	module.exports = EventPluginRegistry;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 45 */
-/*!*****************************************!*\
-  !*** ./~/react/lib/EventPluginUtils.js ***!
-  \*****************************************/
+/* 44 */
+/*!*********************************************!*\
+  !*** ./~/react-dom/lib/EventPluginUtils.js ***!
+  \*********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -6204,15 +6136,13 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule EventPluginUtils
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
-	var EventConstants = __webpack_require__(/*! ./EventConstants */ 41);
-	var ReactErrorUtils = __webpack_require__(/*! ./ReactErrorUtils */ 46);
+	var ReactErrorUtils = __webpack_require__(/*! ./ReactErrorUtils */ 45);
 	
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
@@ -6242,17 +6172,15 @@
 	  }
 	};
 	
-	var topLevelTypes = EventConstants.topLevelTypes;
-	
 	function isEndish(topLevelType) {
-	  return topLevelType === topLevelTypes.topMouseUp || topLevelType === topLevelTypes.topTouchEnd || topLevelType === topLevelTypes.topTouchCancel;
+	  return topLevelType === 'topMouseUp' || topLevelType === 'topTouchEnd' || topLevelType === 'topTouchCancel';
 	}
 	
 	function isMoveish(topLevelType) {
-	  return topLevelType === topLevelTypes.topMouseMove || topLevelType === topLevelTypes.topTouchMove;
+	  return topLevelType === 'topMouseMove' || topLevelType === 'topTouchMove';
 	}
 	function isStartish(topLevelType) {
-	  return topLevelType === topLevelTypes.topMouseDown || topLevelType === topLevelTypes.topTouchStart;
+	  return topLevelType === 'topMouseDown' || topLevelType === 'topTouchStart';
 	}
 	
 	var validateEventDispatches;
@@ -6425,13 +6353,13 @@
 	};
 	
 	module.exports = EventPluginUtils;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 46 */
-/*!****************************************!*\
-  !*** ./~/react/lib/ReactErrorUtils.js ***!
-  \****************************************/
+/* 45 */
+/*!********************************************!*\
+  !*** ./~/react-dom/lib/ReactErrorUtils.js ***!
+  \********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -6442,7 +6370,7 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactErrorUtils
+	 * 
 	 */
 	
 	'use strict';
@@ -6452,19 +6380,18 @@
 	/**
 	 * Call a function while guarding against errors that happens within it.
 	 *
-	 * @param {?String} name of the guard to use for logging or debugging
+	 * @param {String} name of the guard to use for logging or debugging
 	 * @param {Function} func The function to invoke
 	 * @param {*} a First argument
 	 * @param {*} b Second argument
 	 */
-	function invokeGuardedCallback(name, func, a, b) {
+	function invokeGuardedCallback(name, func, a) {
 	  try {
-	    return func(a, b);
+	    func(a);
 	  } catch (x) {
 	    if (caughtError === null) {
 	      caughtError = x;
 	    }
-	    return undefined;
 	  }
 	}
 	
@@ -6497,11 +6424,12 @@
 	   */
 	  if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function' && typeof document !== 'undefined' && typeof document.createEvent === 'function') {
 	    var fakeNode = document.createElement('react');
-	    ReactErrorUtils.invokeGuardedCallback = function (name, func, a, b) {
-	      var boundFunc = func.bind(null, a, b);
+	    ReactErrorUtils.invokeGuardedCallback = function (name, func, a) {
+	      var boundFunc = func.bind(null, a);
 	      var evtType = 'react-' + name;
 	      fakeNode.addEventListener(evtType, boundFunc, false);
 	      var evt = document.createEvent('Event');
+	      // $FlowFixMe https://github.com/facebook/flow/issues/2336
 	      evt.initEvent(evtType, false, false);
 	      fakeNode.dispatchEvent(evt);
 	      fakeNode.removeEventListener(evtType, boundFunc, false);
@@ -6510,13 +6438,13 @@
 	}
 	
 	module.exports = ReactErrorUtils;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 47 */
-/*!***************************************!*\
-  !*** ./~/react/lib/accumulateInto.js ***!
-  \***************************************/
+/* 46 */
+/*!*******************************************!*\
+  !*** ./~/react-dom/lib/accumulateInto.js ***!
+  \*******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -6527,13 +6455,12 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule accumulateInto
 	 * 
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	
@@ -6577,13 +6504,13 @@
 	}
 	
 	module.exports = accumulateInto;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 48 */
-/*!*******************************************!*\
-  !*** ./~/react/lib/forEachAccumulated.js ***!
-  \*******************************************/
+/* 47 */
+/*!***********************************************!*\
+  !*** ./~/react-dom/lib/forEachAccumulated.js ***!
+  \***********************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -6594,7 +6521,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule forEachAccumulated
 	 * 
 	 */
 	
@@ -6619,7 +6545,7 @@
 	module.exports = forEachAccumulated;
 
 /***/ },
-/* 49 */
+/* 48 */
 /*!********************************************!*\
   !*** ./~/fbjs/lib/ExecutionEnvironment.js ***!
   \********************************************/
@@ -6662,10 +6588,10 @@
 	module.exports = ExecutionEnvironment;
 
 /***/ },
-/* 50 */
-/*!*************************************************!*\
-  !*** ./~/react/lib/FallbackCompositionState.js ***!
-  \*************************************************/
+/* 49 */
+/*!*****************************************************!*\
+  !*** ./~/react-dom/lib/FallbackCompositionState.js ***!
+  \*****************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -6676,14 +6602,13 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule FallbackCompositionState
 	 */
 	
 	'use strict';
 	
 	var _assign = __webpack_require__(/*! object-assign */ 4);
 	
-	var PooledClass = __webpack_require__(/*! ./PooledClass */ 6);
+	var PooledClass = __webpack_require__(/*! ./PooledClass */ 50);
 	
 	var getTextContentAccessor = __webpack_require__(/*! ./getTextContentAccessor */ 51);
 	
@@ -6765,10 +6690,130 @@
 	module.exports = FallbackCompositionState;
 
 /***/ },
+/* 50 */
+/*!****************************************!*\
+  !*** ./~/react-dom/lib/PooledClass.js ***!
+  \****************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {/**
+	 * Copyright 2013-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * 
+	 */
+	
+	'use strict';
+	
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
+	
+	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
+	
+	/**
+	 * Static poolers. Several custom versions for each potential number of
+	 * arguments. A completely generic pooler is easy to implement, but would
+	 * require accessing the `arguments` object. In each of these, `this` refers to
+	 * the Class itself, not an instance. If any others are needed, simply add them
+	 * here, or in their own files.
+	 */
+	var oneArgumentPooler = function (copyFieldsFrom) {
+	  var Klass = this;
+	  if (Klass.instancePool.length) {
+	    var instance = Klass.instancePool.pop();
+	    Klass.call(instance, copyFieldsFrom);
+	    return instance;
+	  } else {
+	    return new Klass(copyFieldsFrom);
+	  }
+	};
+	
+	var twoArgumentPooler = function (a1, a2) {
+	  var Klass = this;
+	  if (Klass.instancePool.length) {
+	    var instance = Klass.instancePool.pop();
+	    Klass.call(instance, a1, a2);
+	    return instance;
+	  } else {
+	    return new Klass(a1, a2);
+	  }
+	};
+	
+	var threeArgumentPooler = function (a1, a2, a3) {
+	  var Klass = this;
+	  if (Klass.instancePool.length) {
+	    var instance = Klass.instancePool.pop();
+	    Klass.call(instance, a1, a2, a3);
+	    return instance;
+	  } else {
+	    return new Klass(a1, a2, a3);
+	  }
+	};
+	
+	var fourArgumentPooler = function (a1, a2, a3, a4) {
+	  var Klass = this;
+	  if (Klass.instancePool.length) {
+	    var instance = Klass.instancePool.pop();
+	    Klass.call(instance, a1, a2, a3, a4);
+	    return instance;
+	  } else {
+	    return new Klass(a1, a2, a3, a4);
+	  }
+	};
+	
+	var standardReleaser = function (instance) {
+	  var Klass = this;
+	  !(instance instanceof Klass) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Trying to release an instance into a pool of a different type.') : _prodInvariant('25') : void 0;
+	  instance.destructor();
+	  if (Klass.instancePool.length < Klass.poolSize) {
+	    Klass.instancePool.push(instance);
+	  }
+	};
+	
+	var DEFAULT_POOL_SIZE = 10;
+	var DEFAULT_POOLER = oneArgumentPooler;
+	
+	/**
+	 * Augments `CopyConstructor` to be a poolable class, augmenting only the class
+	 * itself (statically) not adding any prototypical fields. Any CopyConstructor
+	 * you give this may have a `poolSize` property, and will look for a
+	 * prototypical `destructor` on instances.
+	 *
+	 * @param {Function} CopyConstructor Constructor that can be used to reset.
+	 * @param {Function} pooler Customizable pooler.
+	 */
+	var addPoolingTo = function (CopyConstructor, pooler) {
+	  // Casting as any so that flow ignores the actual implementation and trusts
+	  // it to match the type we declared
+	  var NewKlass = CopyConstructor;
+	  NewKlass.instancePool = [];
+	  NewKlass.getPooled = pooler || DEFAULT_POOLER;
+	  if (!NewKlass.poolSize) {
+	    NewKlass.poolSize = DEFAULT_POOL_SIZE;
+	  }
+	  NewKlass.release = standardReleaser;
+	  return NewKlass;
+	};
+	
+	var PooledClass = {
+	  addPoolingTo: addPoolingTo,
+	  oneArgumentPooler: oneArgumentPooler,
+	  twoArgumentPooler: twoArgumentPooler,
+	  threeArgumentPooler: threeArgumentPooler,
+	  fourArgumentPooler: fourArgumentPooler
+	};
+	
+	module.exports = PooledClass;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
+
+/***/ },
 /* 51 */
-/*!***********************************************!*\
-  !*** ./~/react/lib/getTextContentAccessor.js ***!
-  \***********************************************/
+/*!***************************************************!*\
+  !*** ./~/react-dom/lib/getTextContentAccessor.js ***!
+  \***************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -6779,12 +6824,11 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule getTextContentAccessor
 	 */
 	
 	'use strict';
 	
-	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 49);
+	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 48);
 	
 	var contentKey = null;
 	
@@ -6807,9 +6851,9 @@
 
 /***/ },
 /* 52 */
-/*!**************************************************!*\
-  !*** ./~/react/lib/SyntheticCompositionEvent.js ***!
-  \**************************************************/
+/*!******************************************************!*\
+  !*** ./~/react-dom/lib/SyntheticCompositionEvent.js ***!
+  \******************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -6820,7 +6864,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule SyntheticCompositionEvent
 	 */
 	
 	'use strict';
@@ -6851,9 +6894,9 @@
 
 /***/ },
 /* 53 */
-/*!***************************************!*\
-  !*** ./~/react/lib/SyntheticEvent.js ***!
-  \***************************************/
+/*!*******************************************!*\
+  !*** ./~/react-dom/lib/SyntheticEvent.js ***!
+  \*******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -6864,14 +6907,13 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule SyntheticEvent
 	 */
 	
 	'use strict';
 	
 	var _assign = __webpack_require__(/*! object-assign */ 4);
 	
-	var PooledClass = __webpack_require__(/*! ./PooledClass */ 6);
+	var PooledClass = __webpack_require__(/*! ./PooledClass */ 50);
 	
 	var emptyFunction = __webpack_require__(/*! fbjs/lib/emptyFunction */ 12);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
@@ -6971,7 +7013,8 @@
 	
 	    if (event.preventDefault) {
 	      event.preventDefault();
-	    } else {
+	    } else if (typeof event.returnValue !== 'unknown') {
+	      // eslint-disable-line valid-typeof
 	      event.returnValue = false;
 	    }
 	    this.isDefaultPrevented = emptyFunction.thatReturnsTrue;
@@ -7123,13 +7166,13 @@
 	    process.env.NODE_ENV !== 'production' ? warning(warningCondition, 'This synthetic event is reused for performance reasons. If you\'re seeing this, ' + 'you\'re %s `%s` on a released/nullified synthetic event. %s. ' + 'If you must keep the original synthetic event around, use event.persist(). ' + 'See https://fb.me/react-event-pooling for more information.', action, propName, result) : void 0;
 	  }
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
 /* 54 */
-/*!********************************************!*\
-  !*** ./~/react/lib/SyntheticInputEvent.js ***!
-  \********************************************/
+/*!************************************************!*\
+  !*** ./~/react-dom/lib/SyntheticInputEvent.js ***!
+  \************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -7140,7 +7183,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule SyntheticInputEvent
 	 */
 	
 	'use strict';
@@ -7172,9 +7214,9 @@
 
 /***/ },
 /* 55 */
-/*!******************************************!*\
-  !*** ./~/react/lib/ChangeEventPlugin.js ***!
-  \******************************************/
+/*!**********************************************!*\
+  !*** ./~/react-dom/lib/ChangeEventPlugin.js ***!
+  \**********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -7185,33 +7227,28 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ChangeEventPlugin
 	 */
 	
 	'use strict';
 	
-	var EventConstants = __webpack_require__(/*! ./EventConstants */ 41);
-	var EventPluginHub = __webpack_require__(/*! ./EventPluginHub */ 43);
-	var EventPropagators = __webpack_require__(/*! ./EventPropagators */ 42);
-	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 49);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
+	var EventPluginHub = __webpack_require__(/*! ./EventPluginHub */ 42);
+	var EventPropagators = __webpack_require__(/*! ./EventPropagators */ 41);
+	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 48);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
 	var ReactUpdates = __webpack_require__(/*! ./ReactUpdates */ 56);
 	var SyntheticEvent = __webpack_require__(/*! ./SyntheticEvent */ 53);
 	
-	var getEventTarget = __webpack_require__(/*! ./getEventTarget */ 70);
-	var isEventSupported = __webpack_require__(/*! ./isEventSupported */ 71);
-	var isTextInputElement = __webpack_require__(/*! ./isTextInputElement */ 72);
-	var keyOf = __webpack_require__(/*! fbjs/lib/keyOf */ 25);
-	
-	var topLevelTypes = EventConstants.topLevelTypes;
+	var getEventTarget = __webpack_require__(/*! ./getEventTarget */ 69);
+	var isEventSupported = __webpack_require__(/*! ./isEventSupported */ 70);
+	var isTextInputElement = __webpack_require__(/*! ./isTextInputElement */ 71);
 	
 	var eventTypes = {
 	  change: {
 	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onChange: null }),
-	      captured: keyOf({ onChangeCapture: null })
+	      bubbled: 'onChange',
+	      captured: 'onChangeCapture'
 	    },
-	    dependencies: [topLevelTypes.topBlur, topLevelTypes.topChange, topLevelTypes.topClick, topLevelTypes.topFocus, topLevelTypes.topInput, topLevelTypes.topKeyDown, topLevelTypes.topKeyUp, topLevelTypes.topSelectionChange]
+	    dependencies: ['topBlur', 'topChange', 'topClick', 'topFocus', 'topInput', 'topKeyDown', 'topKeyUp', 'topSelectionChange']
 	  }
 	};
 	
@@ -7234,7 +7271,7 @@
 	var doesChangeEventBubble = false;
 	if (ExecutionEnvironment.canUseDOM) {
 	  // See `handleChange` comment below
-	  doesChangeEventBubble = isEventSupported('change') && (!('documentMode' in document) || document.documentMode > 8);
+	  doesChangeEventBubble = isEventSupported('change') && (!document.documentMode || document.documentMode > 8);
 	}
 	
 	function manualDispatchChangeEvent(nativeEvent) {
@@ -7276,17 +7313,17 @@
 	}
 	
 	function getTargetInstForChangeEvent(topLevelType, targetInst) {
-	  if (topLevelType === topLevelTypes.topChange) {
+	  if (topLevelType === 'topChange') {
 	    return targetInst;
 	  }
 	}
 	function handleEventsForChangeEventIE8(topLevelType, target, targetInst) {
-	  if (topLevelType === topLevelTypes.topFocus) {
+	  if (topLevelType === 'topFocus') {
 	    // stopWatching() should be a noop here but we call it just in case we
 	    // missed a blur event somehow.
 	    stopWatchingForChangeEventIE8();
 	    startWatchingForChangeEventIE8(target, targetInst);
-	  } else if (topLevelType === topLevelTypes.topBlur) {
+	  } else if (topLevelType === 'topBlur') {
 	    stopWatchingForChangeEventIE8();
 	  }
 	}
@@ -7300,7 +7337,7 @@
 	  // deleting text, so we ignore its input events.
 	  // IE10+ fire input events to often, such when a placeholder
 	  // changes or when an input with a placeholder is focused.
-	  isInputEventSupported = isEventSupported('input') && (!('documentMode' in document) || document.documentMode > 11);
+	  isInputEventSupported = isEventSupported('input') && (!document.documentMode || document.documentMode > 11);
 	}
 	
 	/**
@@ -7384,7 +7421,7 @@
 	 * If a `change` event should be fired, returns the target's ID.
 	 */
 	function getTargetInstForInputEvent(topLevelType, targetInst) {
-	  if (topLevelType === topLevelTypes.topInput) {
+	  if (topLevelType === 'topInput') {
 	    // In modern browsers (i.e., not IE8 or IE9), the input event is exactly
 	    // what we want so fall through here and trigger an abstract event
 	    return targetInst;
@@ -7392,7 +7429,7 @@
 	}
 	
 	function handleEventsForInputEventIE(topLevelType, target, targetInst) {
-	  if (topLevelType === topLevelTypes.topFocus) {
+	  if (topLevelType === 'topFocus') {
 	    // In IE8, we can capture almost all .value changes by adding a
 	    // propertychange handler and looking for events with propertyName
 	    // equal to 'value'
@@ -7408,14 +7445,14 @@
 	    // missed a blur event somehow.
 	    stopWatchingForValueChange();
 	    startWatchingForValueChange(target, targetInst);
-	  } else if (topLevelType === topLevelTypes.topBlur) {
+	  } else if (topLevelType === 'topBlur') {
 	    stopWatchingForValueChange();
 	  }
 	}
 	
 	// For IE8 and IE9.
 	function getTargetInstForInputEventIE(topLevelType, targetInst) {
-	  if (topLevelType === topLevelTypes.topSelectionChange || topLevelType === topLevelTypes.topKeyUp || topLevelType === topLevelTypes.topKeyDown) {
+	  if (topLevelType === 'topSelectionChange' || topLevelType === 'topKeyUp' || topLevelType === 'topKeyDown') {
 	    // On the selectionchange event, the target is just document which isn't
 	    // helpful for us so just check activeElement instead.
 	    //
@@ -7444,7 +7481,7 @@
 	}
 	
 	function getTargetInstForClickEvent(topLevelType, targetInst) {
-	  if (topLevelType === topLevelTypes.topClick) {
+	  if (topLevelType === 'topClick') {
 	    return targetInst;
 	  }
 	}
@@ -7505,9 +7542,9 @@
 
 /***/ },
 /* 56 */
-/*!*************************************!*\
-  !*** ./~/react/lib/ReactUpdates.js ***!
-  \*************************************/
+/*!*****************************************!*\
+  !*** ./~/react-dom/lib/ReactUpdates.js ***!
+  \*****************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -7518,19 +7555,18 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactUpdates
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7),
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35),
 	    _assign = __webpack_require__(/*! object-assign */ 4);
 	
 	var CallbackQueue = __webpack_require__(/*! ./CallbackQueue */ 57);
-	var PooledClass = __webpack_require__(/*! ./PooledClass */ 6);
+	var PooledClass = __webpack_require__(/*! ./PooledClass */ 50);
 	var ReactFeatureFlags = __webpack_require__(/*! ./ReactFeatureFlags */ 58);
 	var ReactReconciler = __webpack_require__(/*! ./ReactReconciler */ 59);
-	var Transaction = __webpack_require__(/*! ./Transaction */ 69);
+	var Transaction = __webpack_require__(/*! ./Transaction */ 68);
 	
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	
@@ -7583,7 +7619,7 @@
 	  /* useCreateElement */true);
 	}
 	
-	_assign(ReactUpdatesFlushTransaction.prototype, Transaction.Mixin, {
+	_assign(ReactUpdatesFlushTransaction.prototype, Transaction, {
 	  getTransactionWrappers: function () {
 	    return TRANSACTION_WRAPPERS;
 	  },
@@ -7599,7 +7635,7 @@
 	  perform: function (method, scope, a) {
 	    // Essentially calls `this.reconcileTransaction.perform(method, scope, a)`
 	    // with this transaction's wrappers around it.
-	    return Transaction.Mixin.perform.call(this, this.reconcileTransaction.perform, this.reconcileTransaction, method, scope, a);
+	    return Transaction.perform.call(this, this.reconcileTransaction.perform, this.reconcileTransaction, method, scope, a);
 	  }
 	});
 	
@@ -7607,7 +7643,7 @@
 	
 	function batchedUpdates(callback, a, b, c, d, e) {
 	  ensureInjected();
-	  batchingStrategy.batchedUpdates(callback, a, b, c, d, e);
+	  return batchingStrategy.batchedUpdates(callback, a, b, c, d, e);
 	}
 	
 	/**
@@ -7653,7 +7689,7 @@
 	    if (ReactFeatureFlags.logTopLevelRenders) {
 	      var namedComponent = component;
 	      // Duck type TopLevelWrapper. This is probably always true.
-	      if (component._currentElement.props === component._renderedComponent._currentElement) {
+	      if (component._currentElement.type.isReactTopLevelWrapper) {
 	        namedComponent = component._renderedComponent;
 	      }
 	      markerName = 'React update: ' + namedComponent.getName();
@@ -7761,13 +7797,13 @@
 	};
 	
 	module.exports = ReactUpdates;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
 /* 57 */
-/*!**************************************!*\
-  !*** ./~/react/lib/CallbackQueue.js ***!
-  \**************************************/
+/*!******************************************!*\
+  !*** ./~/react-dom/lib/CallbackQueue.js ***!
+  \******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -7778,15 +7814,16 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule CallbackQueue
+	 * 
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7),
-	    _assign = __webpack_require__(/*! object-assign */ 4);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
-	var PooledClass = __webpack_require__(/*! ./PooledClass */ 6);
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var PooledClass = __webpack_require__(/*! ./PooledClass */ 50);
 	
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	
@@ -7801,12 +7838,15 @@
 	 * @implements PooledClass
 	 * @internal
 	 */
-	function CallbackQueue() {
-	  this._callbacks = null;
-	  this._contexts = null;
-	}
 	
-	_assign(CallbackQueue.prototype, {
+	var CallbackQueue = function () {
+	  function CallbackQueue(arg) {
+	    _classCallCheck(this, CallbackQueue);
+	
+	    this._callbacks = null;
+	    this._contexts = null;
+	    this._arg = arg;
+	  }
 	
 	  /**
 	   * Enqueues a callback to be invoked when `notifyAll` is invoked.
@@ -7815,12 +7855,14 @@
 	   * @param {?object} context Context to call `callback` with.
 	   * @internal
 	   */
-	  enqueue: function (callback, context) {
+	
+	
+	  CallbackQueue.prototype.enqueue = function enqueue(callback, context) {
 	    this._callbacks = this._callbacks || [];
-	    this._contexts = this._contexts || [];
 	    this._callbacks.push(callback);
+	    this._contexts = this._contexts || [];
 	    this._contexts.push(context);
-	  },
+	  };
 	
 	  /**
 	   * Invokes all enqueued callbacks and clears the queue. This is invoked after
@@ -7828,61 +7870,67 @@
 	   *
 	   * @internal
 	   */
-	  notifyAll: function () {
+	
+	
+	  CallbackQueue.prototype.notifyAll = function notifyAll() {
 	    var callbacks = this._callbacks;
 	    var contexts = this._contexts;
-	    if (callbacks) {
+	    var arg = this._arg;
+	    if (callbacks && contexts) {
 	      !(callbacks.length === contexts.length) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Mismatched list of contexts in callback queue') : _prodInvariant('24') : void 0;
 	      this._callbacks = null;
 	      this._contexts = null;
 	      for (var i = 0; i < callbacks.length; i++) {
-	        callbacks[i].call(contexts[i]);
+	        callbacks[i].call(contexts[i], arg);
 	      }
 	      callbacks.length = 0;
 	      contexts.length = 0;
 	    }
-	  },
+	  };
 	
-	  checkpoint: function () {
+	  CallbackQueue.prototype.checkpoint = function checkpoint() {
 	    return this._callbacks ? this._callbacks.length : 0;
-	  },
+	  };
 	
-	  rollback: function (len) {
-	    if (this._callbacks) {
+	  CallbackQueue.prototype.rollback = function rollback(len) {
+	    if (this._callbacks && this._contexts) {
 	      this._callbacks.length = len;
 	      this._contexts.length = len;
 	    }
-	  },
+	  };
 	
 	  /**
 	   * Resets the internal queue.
 	   *
 	   * @internal
 	   */
-	  reset: function () {
+	
+	
+	  CallbackQueue.prototype.reset = function reset() {
 	    this._callbacks = null;
 	    this._contexts = null;
-	  },
+	  };
 	
 	  /**
 	   * `PooledClass` looks for this.
 	   */
-	  destructor: function () {
+	
+	
+	  CallbackQueue.prototype.destructor = function destructor() {
 	    this.reset();
-	  }
+	  };
 	
-	});
+	  return CallbackQueue;
+	}();
 	
-	PooledClass.addPoolingTo(CallbackQueue);
-	
-	module.exports = CallbackQueue;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	module.exports = PooledClass.addPoolingTo(CallbackQueue);
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
 /* 58 */
-/*!******************************************!*\
-  !*** ./~/react/lib/ReactFeatureFlags.js ***!
-  \******************************************/
+/*!**********************************************!*\
+  !*** ./~/react-dom/lib/ReactFeatureFlags.js ***!
+  \**********************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -7893,7 +7941,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactFeatureFlags
 	 * 
 	 */
 	
@@ -7910,9 +7957,9 @@
 
 /***/ },
 /* 59 */
-/*!****************************************!*\
-  !*** ./~/react/lib/ReactReconciler.js ***!
-  \****************************************/
+/*!********************************************!*\
+  !*** ./~/react-dom/lib/ReactReconciler.js ***!
+  \********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -7923,7 +7970,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactReconciler
 	 */
 	
 	'use strict';
@@ -8083,13 +8129,13 @@
 	};
 	
 	module.exports = ReactReconciler;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
 /* 60 */
-/*!*********************************!*\
-  !*** ./~/react/lib/ReactRef.js ***!
-  \*********************************/
+/*!*************************************!*\
+  !*** ./~/react-dom/lib/ReactRef.js ***!
+  \*************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -8100,7 +8146,7 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactRef
+	 * 
 	 */
 	
 	'use strict';
@@ -8128,7 +8174,7 @@
 	}
 	
 	ReactRef.attachRefs = function (instance, element) {
-	  if (element === null || element === false) {
+	  if (element === null || typeof element !== 'object') {
 	    return;
 	  }
 	  var ref = element.ref;
@@ -8150,19 +8196,27 @@
 	  // is made. It probably belongs where the key checking and
 	  // instantiateReactComponent is done.
 	
-	  var prevEmpty = prevElement === null || prevElement === false;
-	  var nextEmpty = nextElement === null || nextElement === false;
+	  var prevRef = null;
+	  var prevOwner = null;
+	  if (prevElement !== null && typeof prevElement === 'object') {
+	    prevRef = prevElement.ref;
+	    prevOwner = prevElement._owner;
+	  }
 	
-	  return (
-	    // This has a few false positives w/r/t empty components.
-	    prevEmpty || nextEmpty || nextElement.ref !== prevElement.ref ||
-	    // If owner changes but we have an unchanged function ref, don't update refs
-	    typeof nextElement.ref === 'string' && nextElement._owner !== prevElement._owner
-	  );
+	  var nextRef = null;
+	  var nextOwner = null;
+	  if (nextElement !== null && typeof nextElement === 'object') {
+	    nextRef = nextElement.ref;
+	    nextOwner = nextElement._owner;
+	  }
+	
+	  return prevRef !== nextRef ||
+	  // If owner changes but we have an unchanged function ref, don't update refs
+	  typeof nextRef === 'string' && nextOwner !== prevOwner;
 	};
 	
 	ReactRef.detachRefs = function (instance, element) {
-	  if (element === null || element === false) {
+	  if (element === null || typeof element !== 'object') {
 	    return;
 	  }
 	  var ref = element.ref;
@@ -8175,9 +8229,9 @@
 
 /***/ },
 /* 61 */
-/*!***********************************!*\
-  !*** ./~/react/lib/ReactOwner.js ***!
-  \***********************************/
+/*!***************************************!*\
+  !*** ./~/react-dom/lib/ReactOwner.js ***!
+  \***************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -8188,14 +8242,23 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactOwner
+	 * 
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
+	
+	/**
+	 * @param {?object} object
+	 * @return {boolean} True if `object` is a valid owner.
+	 * @final
+	 */
+	function isValidOwner(object) {
+	  return !!(object && typeof object.attachRef === 'function' && typeof object.detachRef === 'function');
+	}
 	
 	/**
 	 * ReactOwners are capable of storing references to owned components.
@@ -8228,16 +8291,6 @@
 	 * @class ReactOwner
 	 */
 	var ReactOwner = {
-	
-	  /**
-	   * @param {?object} object
-	   * @return {boolean} True if `object` is a valid owner.
-	   * @final
-	   */
-	  isValidOwner: function (object) {
-	    return !!(object && typeof object.attachRef === 'function' && typeof object.detachRef === 'function');
-	  },
-	
 	  /**
 	   * Adds a component by ref to an owner component.
 	   *
@@ -8248,7 +8301,7 @@
 	   * @internal
 	   */
 	  addComponentAsRefTo: function (component, ref, owner) {
-	    !ReactOwner.isValidOwner(owner) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'addComponentAsRefTo(...): Only a ReactOwner can have refs. You might be adding a ref to a component that was not created inside a component\'s `render` method, or you have multiple copies of React loaded (details: https://fb.me/react-refs-must-have-owner).') : _prodInvariant('119') : void 0;
+	    !isValidOwner(owner) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'addComponentAsRefTo(...): Only a ReactOwner can have refs. You might be adding a ref to a component that was not created inside a component\'s `render` method, or you have multiple copies of React loaded (details: https://fb.me/react-refs-must-have-owner).') : _prodInvariant('119') : void 0;
 	    owner.attachRef(ref, component);
 	  },
 	
@@ -8262,7 +8315,7 @@
 	   * @internal
 	   */
 	  removeComponentAsRefFrom: function (component, ref, owner) {
-	    !ReactOwner.isValidOwner(owner) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'removeComponentAsRefFrom(...): Only a ReactOwner can have refs. You might be removing a ref to a component that was not created inside a component\'s `render` method, or you have multiple copies of React loaded (details: https://fb.me/react-refs-must-have-owner).') : _prodInvariant('120') : void 0;
+	    !isValidOwner(owner) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'removeComponentAsRefFrom(...): Only a ReactOwner can have refs. You might be removing a ref to a component that was not created inside a component\'s `render` method, or you have multiple copies of React loaded (details: https://fb.me/react-refs-must-have-owner).') : _prodInvariant('120') : void 0;
 	    var ownerPublicInstance = owner.getPublicInstance();
 	    // Check that `component`'s owner is still alive and that `component` is still the current ref
 	    // because we do not want to detach the ref if another component stole it.
@@ -8274,13 +8327,13 @@
 	};
 	
 	module.exports = ReactOwner;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
 /* 62 */
-/*!*********************************************!*\
-  !*** ./~/react/lib/ReactInstrumentation.js ***!
-  \*********************************************/
+/*!*************************************************!*\
+  !*** ./~/react-dom/lib/ReactInstrumentation.js ***!
+  \*************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -8291,10 +8344,12 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactInstrumentation
+	 * 
 	 */
 	
 	'use strict';
+	
+	// Trust the developer to only use ReactInstrumentation with a __DEV__ check
 	
 	var debugTool = null;
 	
@@ -8304,13 +8359,13 @@
 	}
 	
 	module.exports = { debugTool: debugTool };
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
 /* 63 */
-/*!***************************************!*\
-  !*** ./~/react/lib/ReactDebugTool.js ***!
-  \***************************************/
+/*!*******************************************!*\
+  !*** ./~/react-dom/lib/ReactDebugTool.js ***!
+  \*******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -8321,18 +8376,17 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDebugTool
+	 * 
 	 */
 	
 	'use strict';
 	
 	var ReactInvalidSetStateWarningHook = __webpack_require__(/*! ./ReactInvalidSetStateWarningHook */ 64);
 	var ReactHostOperationHistoryHook = __webpack_require__(/*! ./ReactHostOperationHistoryHook */ 65);
-	var ReactComponentTreeHook = __webpack_require__(/*! ./ReactComponentTreeHook */ 28);
-	var ReactChildrenMutationWarningHook = __webpack_require__(/*! ./ReactChildrenMutationWarningHook */ 66);
-	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 49);
+	var ReactComponentTreeHook = __webpack_require__(/*! react/lib/ReactComponentTreeHook */ 26);
+	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 48);
 	
-	var performanceNow = __webpack_require__(/*! fbjs/lib/performanceNow */ 67);
+	var performanceNow = __webpack_require__(/*! fbjs/lib/performanceNow */ 66);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
 	var hooks = [];
@@ -8361,11 +8415,11 @@
 	var flushHistory = [];
 	var lifeCycleTimerStack = [];
 	var currentFlushNesting = 0;
-	var currentFlushMeasurements = null;
-	var currentFlushStartTime = null;
+	var currentFlushMeasurements = [];
+	var currentFlushStartTime = 0;
 	var currentTimerDebugID = null;
-	var currentTimerStartTime = null;
-	var currentTimerNestedFlushDuration = null;
+	var currentTimerStartTime = 0;
+	var currentTimerNestedFlushDuration = 0;
 	var currentTimerType = null;
 	
 	var lifeCycleTimerHasWarned = false;
@@ -8385,7 +8439,7 @@
 	      updateCount: ReactComponentTreeHook.getUpdateCount(id),
 	      childIDs: ReactComponentTreeHook.getChildIDs(id),
 	      // Text nodes don't have owners but this is close enough.
-	      ownerID: ownerID || ReactComponentTreeHook.getOwnerID(parentID),
+	      ownerID: ownerID || parentID && ReactComponentTreeHook.getOwnerID(parentID) || 0,
 	      parentID: parentID
 	    };
 	    return tree;
@@ -8394,12 +8448,12 @@
 	
 	function resetMeasurements() {
 	  var previousStartTime = currentFlushStartTime;
-	  var previousMeasurements = currentFlushMeasurements || [];
+	  var previousMeasurements = currentFlushMeasurements;
 	  var previousOperations = ReactHostOperationHistoryHook.getHistory();
 	
 	  if (currentFlushNesting === 0) {
-	    currentFlushStartTime = null;
-	    currentFlushMeasurements = null;
+	    currentFlushStartTime = 0;
+	    currentFlushMeasurements = [];
 	    clearHistory();
 	    return;
 	  }
@@ -8420,7 +8474,7 @@
 	}
 	
 	function checkDebugID(debugID) {
-	  var allowRoot = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+	  var allowRoot = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 	
 	  if (allowRoot && debugID === 0) {
 	    return;
@@ -8459,8 +8513,8 @@
 	      duration: performanceNow() - currentTimerStartTime - currentTimerNestedFlushDuration
 	    });
 	  }
-	  currentTimerStartTime = null;
-	  currentTimerNestedFlushDuration = null;
+	  currentTimerStartTime = 0;
+	  currentTimerNestedFlushDuration = 0;
 	  currentTimerDebugID = null;
 	  currentTimerType = null;
 	}
@@ -8473,25 +8527,78 @@
 	    timerType: currentTimerType
 	  };
 	  lifeCycleTimerStack.push(currentTimer);
-	  currentTimerStartTime = null;
-	  currentTimerNestedFlushDuration = null;
+	  currentTimerStartTime = 0;
+	  currentTimerNestedFlushDuration = 0;
 	  currentTimerDebugID = null;
 	  currentTimerType = null;
 	}
 	
 	function resumeCurrentLifeCycleTimer() {
-	  var _lifeCycleTimerStack$ = lifeCycleTimerStack.pop();
-	
-	  var startTime = _lifeCycleTimerStack$.startTime;
-	  var nestedFlushStartTime = _lifeCycleTimerStack$.nestedFlushStartTime;
-	  var debugID = _lifeCycleTimerStack$.debugID;
-	  var timerType = _lifeCycleTimerStack$.timerType;
+	  var _lifeCycleTimerStack$ = lifeCycleTimerStack.pop(),
+	      startTime = _lifeCycleTimerStack$.startTime,
+	      nestedFlushStartTime = _lifeCycleTimerStack$.nestedFlushStartTime,
+	      debugID = _lifeCycleTimerStack$.debugID,
+	      timerType = _lifeCycleTimerStack$.timerType;
 	
 	  var nestedFlushDuration = performanceNow() - nestedFlushStartTime;
 	  currentTimerStartTime = startTime;
 	  currentTimerNestedFlushDuration += nestedFlushDuration;
 	  currentTimerDebugID = debugID;
 	  currentTimerType = timerType;
+	}
+	
+	var lastMarkTimeStamp = 0;
+	var canUsePerformanceMeasure =
+	// $FlowFixMe https://github.com/facebook/flow/issues/2345
+	typeof performance !== 'undefined' && typeof performance.mark === 'function' && typeof performance.clearMarks === 'function' && typeof performance.measure === 'function' && typeof performance.clearMeasures === 'function';
+	
+	function shouldMark(debugID) {
+	  if (!isProfiling || !canUsePerformanceMeasure) {
+	    return false;
+	  }
+	  var element = ReactComponentTreeHook.getElement(debugID);
+	  if (element == null || typeof element !== 'object') {
+	    return false;
+	  }
+	  var isHostElement = typeof element.type === 'string';
+	  if (isHostElement) {
+	    return false;
+	  }
+	  return true;
+	}
+	
+	function markBegin(debugID, markType) {
+	  if (!shouldMark(debugID)) {
+	    return;
+	  }
+	
+	  var markName = debugID + '::' + markType;
+	  lastMarkTimeStamp = performanceNow();
+	  performance.mark(markName);
+	}
+	
+	function markEnd(debugID, markType) {
+	  if (!shouldMark(debugID)) {
+	    return;
+	  }
+	
+	  var markName = debugID + '::' + markType;
+	  var displayName = ReactComponentTreeHook.getDisplayName(debugID) || 'Unknown';
+	
+	  // Chrome has an issue of dropping markers recorded too fast:
+	  // https://bugs.chromium.org/p/chromium/issues/detail?id=640652
+	  // To work around this, we will not report very small measurements.
+	  // I determined the magic number by tweaking it back and forth.
+	  // 0.05ms was enough to prevent the issue, but I set it to 0.1ms to be safe.
+	  // When the bug is fixed, we can `measure()` unconditionally if we want to.
+	  var timeStamp = performanceNow();
+	  if (timeStamp - lastMarkTimeStamp > 0.1) {
+	    var measurementName = displayName + ' [' + markType + ']';
+	    performance.measure(measurementName, markName);
+	  }
+	
+	  performance.clearMarks(markName);
+	  performance.clearMeasures(measurementName);
 	}
 	
 	var ReactDebugTool = {
@@ -8546,18 +8653,14 @@
 	  onBeginLifeCycleTimer: function (debugID, timerType) {
 	    checkDebugID(debugID);
 	    emitEvent('onBeginLifeCycleTimer', debugID, timerType);
+	    markBegin(debugID, timerType);
 	    beginLifeCycleTimer(debugID, timerType);
 	  },
 	  onEndLifeCycleTimer: function (debugID, timerType) {
 	    checkDebugID(debugID);
 	    endLifeCycleTimer(debugID, timerType);
+	    markEnd(debugID, timerType);
 	    emitEvent('onEndLifeCycleTimer', debugID, timerType);
-	  },
-	  onError: function (debugID) {
-	    if (currentTimerDebugID != null) {
-	      endLifeCycleTimer(currentTimerDebugID, currentTimerType);
-	    }
-	    emitEvent('onError', debugID);
 	  },
 	  onBeginProcessingChildContext: function () {
 	    emitEvent('onBeginProcessingChildContext');
@@ -8565,9 +8668,9 @@
 	  onEndProcessingChildContext: function () {
 	    emitEvent('onEndProcessingChildContext');
 	  },
-	  onHostOperation: function (debugID, type, payload) {
-	    checkDebugID(debugID);
-	    emitEvent('onHostOperation', debugID, type, payload);
+	  onHostOperation: function (operation) {
+	    checkDebugID(operation.instanceID);
+	    emitEvent('onHostOperation', operation);
 	  },
 	  onSetState: function () {
 	    emitEvent('onSetState');
@@ -8581,25 +8684,31 @@
 	    checkDebugID(debugID);
 	    checkDebugID(parentDebugID, true);
 	    emitEvent('onBeforeMountComponent', debugID, element, parentDebugID);
+	    markBegin(debugID, 'mount');
 	  },
 	  onMountComponent: function (debugID) {
 	    checkDebugID(debugID);
+	    markEnd(debugID, 'mount');
 	    emitEvent('onMountComponent', debugID);
 	  },
 	  onBeforeUpdateComponent: function (debugID, element) {
 	    checkDebugID(debugID);
 	    emitEvent('onBeforeUpdateComponent', debugID, element);
+	    markBegin(debugID, 'update');
 	  },
 	  onUpdateComponent: function (debugID) {
 	    checkDebugID(debugID);
+	    markEnd(debugID, 'update');
 	    emitEvent('onUpdateComponent', debugID);
 	  },
 	  onBeforeUnmountComponent: function (debugID) {
 	    checkDebugID(debugID);
 	    emitEvent('onBeforeUnmountComponent', debugID);
+	    markBegin(debugID, 'unmount');
 	  },
 	  onUnmountComponent: function (debugID) {
 	    checkDebugID(debugID);
+	    markEnd(debugID, 'unmount');
 	    emitEvent('onUnmountComponent', debugID);
 	  },
 	  onTestEvent: function () {
@@ -8613,20 +8722,19 @@
 	
 	ReactDebugTool.addHook(ReactInvalidSetStateWarningHook);
 	ReactDebugTool.addHook(ReactComponentTreeHook);
-	ReactDebugTool.addHook(ReactChildrenMutationWarningHook);
 	var url = ExecutionEnvironment.canUseDOM && window.location.href || '';
 	if (/[?&]react_perf\b/.test(url)) {
 	  ReactDebugTool.beginProfiling();
 	}
 	
 	module.exports = ReactDebugTool;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
 /* 64 */
-/*!********************************************************!*\
-  !*** ./~/react/lib/ReactInvalidSetStateWarningHook.js ***!
-  \********************************************************/
+/*!************************************************************!*\
+  !*** ./~/react-dom/lib/ReactInvalidSetStateWarningHook.js ***!
+  \************************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -8637,7 +8745,7 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactInvalidSetStateWarningHook
+	 * 
 	 */
 	
 	'use strict';
@@ -8665,13 +8773,13 @@
 	};
 	
 	module.exports = ReactInvalidSetStateWarningHook;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
 /* 65 */
-/*!******************************************************!*\
-  !*** ./~/react/lib/ReactHostOperationHistoryHook.js ***!
-  \******************************************************/
+/*!**********************************************************!*\
+  !*** ./~/react-dom/lib/ReactHostOperationHistoryHook.js ***!
+  \**********************************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -8682,7 +8790,7 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactHostOperationHistoryHook
+	 * 
 	 */
 	
 	'use strict';
@@ -8690,12 +8798,8 @@
 	var history = [];
 	
 	var ReactHostOperationHistoryHook = {
-	  onHostOperation: function (debugID, type, payload) {
-	    history.push({
-	      instanceID: debugID,
-	      type: type,
-	      payload: payload
-	    });
+	  onHostOperation: function (operation) {
+	    history.push(operation);
 	  },
 	  clearHistory: function () {
 	    if (ReactHostOperationHistoryHook._preventClearing) {
@@ -8714,69 +8818,6 @@
 
 /***/ },
 /* 66 */
-/*!*********************************************************!*\
-  !*** ./~/react/lib/ReactChildrenMutationWarningHook.js ***!
-  \*********************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {/**
-	 * Copyright 2013-present, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 * @providesModule ReactChildrenMutationWarningHook
-	 */
-	
-	'use strict';
-	
-	var ReactComponentTreeHook = __webpack_require__(/*! ./ReactComponentTreeHook */ 28);
-	
-	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
-	
-	function handleElement(debugID, element) {
-	  if (element == null) {
-	    return;
-	  }
-	  if (element._shadowChildren === undefined) {
-	    return;
-	  }
-	  if (element._shadowChildren === element.props.children) {
-	    return;
-	  }
-	  var isMutated = false;
-	  if (Array.isArray(element._shadowChildren)) {
-	    if (element._shadowChildren.length === element.props.children.length) {
-	      for (var i = 0; i < element._shadowChildren.length; i++) {
-	        if (element._shadowChildren[i] !== element.props.children[i]) {
-	          isMutated = true;
-	        }
-	      }
-	    } else {
-	      isMutated = true;
-	    }
-	  }
-	  if (!Array.isArray(element._shadowChildren) || isMutated) {
-	    process.env.NODE_ENV !== 'production' ? warning(false, 'Component\'s children should not be mutated.%s', ReactComponentTreeHook.getStackAddendumByID(debugID)) : void 0;
-	  }
-	}
-	
-	var ReactChildrenMutationWarningHook = {
-	  onMountComponent: function (debugID) {
-	    handleElement(debugID, ReactComponentTreeHook.getElement(debugID));
-	  },
-	  onUpdateComponent: function (debugID) {
-	    handleElement(debugID, ReactComponentTreeHook.getElement(debugID));
-	  }
-	};
-	
-	module.exports = ReactChildrenMutationWarningHook;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
-
-/***/ },
-/* 67 */
 /*!**************************************!*\
   !*** ./~/fbjs/lib/performanceNow.js ***!
   \**************************************/
@@ -8795,7 +8836,7 @@
 	 * @typechecks
 	 */
 	
-	var performance = __webpack_require__(/*! ./performance */ 68);
+	var performance = __webpack_require__(/*! ./performance */ 67);
 	
 	var performanceNow;
 	
@@ -8817,7 +8858,7 @@
 	module.exports = performanceNow;
 
 /***/ },
-/* 68 */
+/* 67 */
 /*!***********************************!*\
   !*** ./~/fbjs/lib/performance.js ***!
   \***********************************/
@@ -8836,7 +8877,7 @@
 	
 	'use strict';
 	
-	var ExecutionEnvironment = __webpack_require__(/*! ./ExecutionEnvironment */ 49);
+	var ExecutionEnvironment = __webpack_require__(/*! ./ExecutionEnvironment */ 48);
 	
 	var performance;
 	
@@ -8847,10 +8888,10 @@
 	module.exports = performance || {};
 
 /***/ },
-/* 69 */
-/*!************************************!*\
-  !*** ./~/react/lib/Transaction.js ***!
-  \************************************/
+/* 68 */
+/*!****************************************!*\
+  !*** ./~/react-dom/lib/Transaction.js ***!
+  \****************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -8861,14 +8902,16 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule Transaction
+	 * 
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
+	
+	var OBSERVED_ERROR = {};
 	
 	/**
 	 * `Transaction` creates a black box that is able to wrap any method such that
@@ -8931,7 +8974,7 @@
 	 *
 	 * @class Transaction
 	 */
-	var Mixin = {
+	var TransactionImpl = {
 	  /**
 	   * Sets up this instance so that it is prepared for collecting metrics. Does
 	   * so such that this setup method may be used on an instance that is already
@@ -9021,10 +9064,10 @@
 	        // OBSERVED_ERROR state before overwriting it with the real return value
 	        // of initialize -- if it's still set to OBSERVED_ERROR in the finally
 	        // block, it means wrapper.initialize threw.
-	        this.wrapperInitData[i] = Transaction.OBSERVED_ERROR;
+	        this.wrapperInitData[i] = OBSERVED_ERROR;
 	        this.wrapperInitData[i] = wrapper.initialize ? wrapper.initialize.call(this) : null;
 	      } finally {
-	        if (this.wrapperInitData[i] === Transaction.OBSERVED_ERROR) {
+	        if (this.wrapperInitData[i] === OBSERVED_ERROR) {
 	          // The initializer for wrapper i threw an error; initialize the
 	          // remaining wrappers but silence any exceptions from them to ensure
 	          // that the first error is the one to bubble up.
@@ -9055,7 +9098,7 @@
 	        // close -- if it's still set to true in the finally block, it means
 	        // wrapper.close threw.
 	        errorThrown = true;
-	        if (initData !== Transaction.OBSERVED_ERROR && wrapper.close) {
+	        if (initData !== OBSERVED_ERROR && wrapper.close) {
 	          wrapper.close.call(this, initData);
 	        }
 	        errorThrown = false;
@@ -9074,25 +9117,14 @@
 	  }
 	};
 	
-	var Transaction = {
-	
-	  Mixin: Mixin,
-	
-	  /**
-	   * Token to look for to determine if an error occurred.
-	   */
-	  OBSERVED_ERROR: {}
-	
-	};
-	
-	module.exports = Transaction;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	module.exports = TransactionImpl;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 70 */
-/*!***************************************!*\
-  !*** ./~/react/lib/getEventTarget.js ***!
-  \***************************************/
+/* 69 */
+/*!*******************************************!*\
+  !*** ./~/react-dom/lib/getEventTarget.js ***!
+  \*******************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -9103,7 +9135,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule getEventTarget
 	 */
 	
 	'use strict';
@@ -9132,10 +9163,10 @@
 	module.exports = getEventTarget;
 
 /***/ },
-/* 71 */
-/*!*****************************************!*\
-  !*** ./~/react/lib/isEventSupported.js ***!
-  \*****************************************/
+/* 70 */
+/*!*********************************************!*\
+  !*** ./~/react-dom/lib/isEventSupported.js ***!
+  \*********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9146,12 +9177,11 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule isEventSupported
 	 */
 	
 	'use strict';
 	
-	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 49);
+	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 48);
 	
 	var useHasFeature;
 	if (ExecutionEnvironment.canUseDOM) {
@@ -9200,10 +9230,10 @@
 	module.exports = isEventSupported;
 
 /***/ },
-/* 72 */
-/*!*******************************************!*\
-  !*** ./~/react/lib/isTextInputElement.js ***!
-  \*******************************************/
+/* 71 */
+/*!***********************************************!*\
+  !*** ./~/react-dom/lib/isTextInputElement.js ***!
+  \***********************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -9214,7 +9244,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule isTextInputElement
 	 * 
 	 */
 	
@@ -9259,11 +9288,11 @@
 	module.exports = isTextInputElement;
 
 /***/ },
-/* 73 */
-/*!************************************************!*\
-  !*** ./~/react/lib/DefaultEventPluginOrder.js ***!
-  \************************************************/
-/***/ function(module, exports, __webpack_require__) {
+/* 72 */
+/*!****************************************************!*\
+  !*** ./~/react-dom/lib/DefaultEventPluginOrder.js ***!
+  \****************************************************/
+/***/ function(module, exports) {
 
 	/**
 	 * Copyright 2013-present, Facebook, Inc.
@@ -9273,12 +9302,9 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule DefaultEventPluginOrder
 	 */
 	
 	'use strict';
-	
-	var keyOf = __webpack_require__(/*! fbjs/lib/keyOf */ 25);
 	
 	/**
 	 * Module that is injectable into `EventPluginHub`, that specifies a
@@ -9289,15 +9315,16 @@
 	 * `ResponderEventPlugin` must occur before `SimpleEventPlugin` so that
 	 * preventing default on events is convenient in `SimpleEventPlugin` handlers.
 	 */
-	var DefaultEventPluginOrder = [keyOf({ ResponderEventPlugin: null }), keyOf({ SimpleEventPlugin: null }), keyOf({ TapEventPlugin: null }), keyOf({ EnterLeaveEventPlugin: null }), keyOf({ ChangeEventPlugin: null }), keyOf({ SelectEventPlugin: null }), keyOf({ BeforeInputEventPlugin: null })];
+	
+	var DefaultEventPluginOrder = ['ResponderEventPlugin', 'SimpleEventPlugin', 'TapEventPlugin', 'EnterLeaveEventPlugin', 'ChangeEventPlugin', 'SelectEventPlugin', 'BeforeInputEventPlugin'];
 	
 	module.exports = DefaultEventPluginOrder;
 
 /***/ },
-/* 74 */
-/*!**********************************************!*\
-  !*** ./~/react/lib/EnterLeaveEventPlugin.js ***!
-  \**********************************************/
+/* 73 */
+/*!**************************************************!*\
+  !*** ./~/react-dom/lib/EnterLeaveEventPlugin.js ***!
+  \**************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9308,28 +9335,22 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule EnterLeaveEventPlugin
 	 */
 	
 	'use strict';
 	
-	var EventConstants = __webpack_require__(/*! ./EventConstants */ 41);
-	var EventPropagators = __webpack_require__(/*! ./EventPropagators */ 42);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
-	var SyntheticMouseEvent = __webpack_require__(/*! ./SyntheticMouseEvent */ 75);
-	
-	var keyOf = __webpack_require__(/*! fbjs/lib/keyOf */ 25);
-	
-	var topLevelTypes = EventConstants.topLevelTypes;
+	var EventPropagators = __webpack_require__(/*! ./EventPropagators */ 41);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
+	var SyntheticMouseEvent = __webpack_require__(/*! ./SyntheticMouseEvent */ 74);
 	
 	var eventTypes = {
 	  mouseEnter: {
-	    registrationName: keyOf({ onMouseEnter: null }),
-	    dependencies: [topLevelTypes.topMouseOut, topLevelTypes.topMouseOver]
+	    registrationName: 'onMouseEnter',
+	    dependencies: ['topMouseOut', 'topMouseOver']
 	  },
 	  mouseLeave: {
-	    registrationName: keyOf({ onMouseLeave: null }),
-	    dependencies: [topLevelTypes.topMouseOut, topLevelTypes.topMouseOver]
+	    registrationName: 'onMouseLeave',
+	    dependencies: ['topMouseOut', 'topMouseOver']
 	  }
 	};
 	
@@ -9345,10 +9366,10 @@
 	   * the `mouseover` top-level event.
 	   */
 	  extractEvents: function (topLevelType, targetInst, nativeEvent, nativeEventTarget) {
-	    if (topLevelType === topLevelTypes.topMouseOver && (nativeEvent.relatedTarget || nativeEvent.fromElement)) {
+	    if (topLevelType === 'topMouseOver' && (nativeEvent.relatedTarget || nativeEvent.fromElement)) {
 	      return null;
 	    }
-	    if (topLevelType !== topLevelTypes.topMouseOut && topLevelType !== topLevelTypes.topMouseOver) {
+	    if (topLevelType !== 'topMouseOut' && topLevelType !== 'topMouseOver') {
 	      // Must not be a mouse in or mouse out - ignoring.
 	      return null;
 	    }
@@ -9369,7 +9390,7 @@
 	
 	    var from;
 	    var to;
-	    if (topLevelType === topLevelTypes.topMouseOut) {
+	    if (topLevelType === 'topMouseOut') {
 	      from = targetInst;
 	      var related = nativeEvent.relatedTarget || nativeEvent.toElement;
 	      to = related ? ReactDOMComponentTree.getClosestInstanceFromNode(related) : null;
@@ -9407,10 +9428,10 @@
 	module.exports = EnterLeaveEventPlugin;
 
 /***/ },
-/* 75 */
-/*!********************************************!*\
-  !*** ./~/react/lib/SyntheticMouseEvent.js ***!
-  \********************************************/
+/* 74 */
+/*!************************************************!*\
+  !*** ./~/react-dom/lib/SyntheticMouseEvent.js ***!
+  \************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9421,15 +9442,14 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule SyntheticMouseEvent
 	 */
 	
 	'use strict';
 	
-	var SyntheticUIEvent = __webpack_require__(/*! ./SyntheticUIEvent */ 76);
-	var ViewportMetrics = __webpack_require__(/*! ./ViewportMetrics */ 77);
+	var SyntheticUIEvent = __webpack_require__(/*! ./SyntheticUIEvent */ 75);
+	var ViewportMetrics = __webpack_require__(/*! ./ViewportMetrics */ 76);
 	
-	var getEventModifierState = __webpack_require__(/*! ./getEventModifierState */ 78);
+	var getEventModifierState = __webpack_require__(/*! ./getEventModifierState */ 77);
 	
 	/**
 	 * @interface MouseEvent
@@ -9487,10 +9507,10 @@
 	module.exports = SyntheticMouseEvent;
 
 /***/ },
-/* 76 */
-/*!*****************************************!*\
-  !*** ./~/react/lib/SyntheticUIEvent.js ***!
-  \*****************************************/
+/* 75 */
+/*!*********************************************!*\
+  !*** ./~/react-dom/lib/SyntheticUIEvent.js ***!
+  \*********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9501,14 +9521,13 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule SyntheticUIEvent
 	 */
 	
 	'use strict';
 	
 	var SyntheticEvent = __webpack_require__(/*! ./SyntheticEvent */ 53);
 	
-	var getEventTarget = __webpack_require__(/*! ./getEventTarget */ 70);
+	var getEventTarget = __webpack_require__(/*! ./getEventTarget */ 69);
 	
 	/**
 	 * @interface UIEvent
@@ -9554,10 +9573,10 @@
 	module.exports = SyntheticUIEvent;
 
 /***/ },
-/* 77 */
-/*!****************************************!*\
-  !*** ./~/react/lib/ViewportMetrics.js ***!
-  \****************************************/
+/* 76 */
+/*!********************************************!*\
+  !*** ./~/react-dom/lib/ViewportMetrics.js ***!
+  \********************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -9568,7 +9587,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ViewportMetrics
 	 */
 	
 	'use strict';
@@ -9589,10 +9607,10 @@
 	module.exports = ViewportMetrics;
 
 /***/ },
-/* 78 */
-/*!**********************************************!*\
-  !*** ./~/react/lib/getEventModifierState.js ***!
-  \**********************************************/
+/* 77 */
+/*!**************************************************!*\
+  !*** ./~/react-dom/lib/getEventModifierState.js ***!
+  \**************************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -9603,7 +9621,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule getEventModifierState
 	 */
 	
 	'use strict';
@@ -9640,10 +9657,10 @@
 	module.exports = getEventModifierState;
 
 /***/ },
-/* 79 */
-/*!**********************************************!*\
-  !*** ./~/react/lib/HTMLDOMPropertyConfig.js ***!
-  \**********************************************/
+/* 78 */
+/*!**************************************************!*\
+  !*** ./~/react-dom/lib/HTMLDOMPropertyConfig.js ***!
+  \**************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9654,12 +9671,11 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule HTMLDOMPropertyConfig
 	 */
 	
 	'use strict';
 	
-	var DOMProperty = __webpack_require__(/*! ./DOMProperty */ 37);
+	var DOMProperty = __webpack_require__(/*! ./DOMProperty */ 36);
 	
 	var MUST_USE_PROPERTY = DOMProperty.injection.MUST_USE_PROPERTY;
 	var HAS_BOOLEAN_VALUE = DOMProperty.injection.HAS_BOOLEAN_VALUE;
@@ -9680,6 +9696,8 @@
 	    allowFullScreen: HAS_BOOLEAN_VALUE,
 	    allowTransparency: 0,
 	    alt: 0,
+	    // specifies target context for links with `preload` type
+	    as: 0,
 	    async: HAS_BOOLEAN_VALUE,
 	    autoComplete: 0,
 	    // autoFocus is polyfilled/normalized by AutoFocusUtils
@@ -9760,6 +9778,7 @@
 	    optimum: 0,
 	    pattern: 0,
 	    placeholder: 0,
+	    playsInline: HAS_BOOLEAN_VALUE,
 	    poster: 0,
 	    preload: 0,
 	    profile: 0,
@@ -9857,10 +9876,10 @@
 	module.exports = HTMLDOMPropertyConfig;
 
 /***/ },
-/* 80 */
-/*!*********************************************************!*\
-  !*** ./~/react/lib/ReactComponentBrowserEnvironment.js ***!
-  \*********************************************************/
+/* 79 */
+/*!*************************************************************!*\
+  !*** ./~/react-dom/lib/ReactComponentBrowserEnvironment.js ***!
+  \*************************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9871,13 +9890,12 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactComponentBrowserEnvironment
 	 */
 	
 	'use strict';
 	
-	var DOMChildrenOperations = __webpack_require__(/*! ./DOMChildrenOperations */ 81);
-	var ReactDOMIDOperations = __webpack_require__(/*! ./ReactDOMIDOperations */ 93);
+	var DOMChildrenOperations = __webpack_require__(/*! ./DOMChildrenOperations */ 80);
+	var ReactDOMIDOperations = __webpack_require__(/*! ./ReactDOMIDOperations */ 91);
 	
 	/**
 	 * Abstracts away all functionality of the reconciler that requires knowledge of
@@ -9895,10 +9913,10 @@
 	module.exports = ReactComponentBrowserEnvironment;
 
 /***/ },
-/* 81 */
-/*!**********************************************!*\
-  !*** ./~/react/lib/DOMChildrenOperations.js ***!
-  \**********************************************/
+/* 80 */
+/*!**************************************************!*\
+  !*** ./~/react-dom/lib/DOMChildrenOperations.js ***!
+  \**************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -9909,20 +9927,18 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule DOMChildrenOperations
 	 */
 	
 	'use strict';
 	
-	var DOMLazyTree = __webpack_require__(/*! ./DOMLazyTree */ 82);
-	var Danger = __webpack_require__(/*! ./Danger */ 88);
-	var ReactMultiChildUpdateTypes = __webpack_require__(/*! ./ReactMultiChildUpdateTypes */ 92);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
+	var DOMLazyTree = __webpack_require__(/*! ./DOMLazyTree */ 81);
+	var Danger = __webpack_require__(/*! ./Danger */ 87);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
 	var ReactInstrumentation = __webpack_require__(/*! ./ReactInstrumentation */ 62);
 	
-	var createMicrosoftUnsafeLocalFunction = __webpack_require__(/*! ./createMicrosoftUnsafeLocalFunction */ 85);
-	var setInnerHTML = __webpack_require__(/*! ./setInnerHTML */ 84);
-	var setTextContent = __webpack_require__(/*! ./setTextContent */ 86);
+	var createMicrosoftUnsafeLocalFunction = __webpack_require__(/*! ./createMicrosoftUnsafeLocalFunction */ 84);
+	var setInnerHTML = __webpack_require__(/*! ./setInnerHTML */ 83);
+	var setTextContent = __webpack_require__(/*! ./setTextContent */ 85);
 	
 	function getNodeAfter(parentNode, node) {
 	  // Special case for text components, which return [open, close] comments
@@ -10015,7 +10031,11 @@
 	  }
 	
 	  if (process.env.NODE_ENV !== 'production') {
-	    ReactInstrumentation.debugTool.onHostOperation(ReactDOMComponentTree.getInstanceFromNode(openingComment)._debugID, 'replace text', stringText);
+	    ReactInstrumentation.debugTool.onHostOperation({
+	      instanceID: ReactDOMComponentTree.getInstanceFromNode(openingComment)._debugID,
+	      type: 'replace text',
+	      payload: stringText
+	    });
 	  }
 	}
 	
@@ -10024,11 +10044,19 @@
 	  dangerouslyReplaceNodeWithMarkup = function (oldChild, markup, prevInstance) {
 	    Danger.dangerouslyReplaceNodeWithMarkup(oldChild, markup);
 	    if (prevInstance._debugID !== 0) {
-	      ReactInstrumentation.debugTool.onHostOperation(prevInstance._debugID, 'replace with', markup.toString());
+	      ReactInstrumentation.debugTool.onHostOperation({
+	        instanceID: prevInstance._debugID,
+	        type: 'replace with',
+	        payload: markup.toString()
+	      });
 	    } else {
 	      var nextInstance = ReactDOMComponentTree.getInstanceFromNode(markup.node);
 	      if (nextInstance._debugID !== 0) {
-	        ReactInstrumentation.debugTool.onHostOperation(nextInstance._debugID, 'mount', markup.toString());
+	        ReactInstrumentation.debugTool.onHostOperation({
+	          instanceID: nextInstance._debugID,
+	          type: 'mount',
+	          payload: markup.toString()
+	        });
 	      }
 	    }
 	  };
@@ -10058,34 +10086,54 @@
 	    for (var k = 0; k < updates.length; k++) {
 	      var update = updates[k];
 	      switch (update.type) {
-	        case ReactMultiChildUpdateTypes.INSERT_MARKUP:
+	        case 'INSERT_MARKUP':
 	          insertLazyTreeChildAt(parentNode, update.content, getNodeAfter(parentNode, update.afterNode));
 	          if (process.env.NODE_ENV !== 'production') {
-	            ReactInstrumentation.debugTool.onHostOperation(parentNodeDebugID, 'insert child', { toIndex: update.toIndex, content: update.content.toString() });
+	            ReactInstrumentation.debugTool.onHostOperation({
+	              instanceID: parentNodeDebugID,
+	              type: 'insert child',
+	              payload: { toIndex: update.toIndex, content: update.content.toString() }
+	            });
 	          }
 	          break;
-	        case ReactMultiChildUpdateTypes.MOVE_EXISTING:
+	        case 'MOVE_EXISTING':
 	          moveChild(parentNode, update.fromNode, getNodeAfter(parentNode, update.afterNode));
 	          if (process.env.NODE_ENV !== 'production') {
-	            ReactInstrumentation.debugTool.onHostOperation(parentNodeDebugID, 'move child', { fromIndex: update.fromIndex, toIndex: update.toIndex });
+	            ReactInstrumentation.debugTool.onHostOperation({
+	              instanceID: parentNodeDebugID,
+	              type: 'move child',
+	              payload: { fromIndex: update.fromIndex, toIndex: update.toIndex }
+	            });
 	          }
 	          break;
-	        case ReactMultiChildUpdateTypes.SET_MARKUP:
+	        case 'SET_MARKUP':
 	          setInnerHTML(parentNode, update.content);
 	          if (process.env.NODE_ENV !== 'production') {
-	            ReactInstrumentation.debugTool.onHostOperation(parentNodeDebugID, 'replace children', update.content.toString());
+	            ReactInstrumentation.debugTool.onHostOperation({
+	              instanceID: parentNodeDebugID,
+	              type: 'replace children',
+	              payload: update.content.toString()
+	            });
 	          }
 	          break;
-	        case ReactMultiChildUpdateTypes.TEXT_CONTENT:
+	        case 'TEXT_CONTENT':
 	          setTextContent(parentNode, update.content);
 	          if (process.env.NODE_ENV !== 'production') {
-	            ReactInstrumentation.debugTool.onHostOperation(parentNodeDebugID, 'replace text', update.content.toString());
+	            ReactInstrumentation.debugTool.onHostOperation({
+	              instanceID: parentNodeDebugID,
+	              type: 'replace text',
+	              payload: update.content.toString()
+	            });
 	          }
 	          break;
-	        case ReactMultiChildUpdateTypes.REMOVE_NODE:
+	        case 'REMOVE_NODE':
 	          removeChild(parentNode, update.fromNode);
 	          if (process.env.NODE_ENV !== 'production') {
-	            ReactInstrumentation.debugTool.onHostOperation(parentNodeDebugID, 'remove child', { fromIndex: update.fromIndex });
+	            ReactInstrumentation.debugTool.onHostOperation({
+	              instanceID: parentNodeDebugID,
+	              type: 'remove child',
+	              payload: { fromIndex: update.fromIndex }
+	            });
 	          }
 	          break;
 	      }
@@ -10095,13 +10143,13 @@
 	};
 	
 	module.exports = DOMChildrenOperations;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 82 */
-/*!************************************!*\
-  !*** ./~/react/lib/DOMLazyTree.js ***!
-  \************************************/
+/* 81 */
+/*!****************************************!*\
+  !*** ./~/react-dom/lib/DOMLazyTree.js ***!
+  \****************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -10112,16 +10160,15 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule DOMLazyTree
 	 */
 	
 	'use strict';
 	
-	var DOMNamespaces = __webpack_require__(/*! ./DOMNamespaces */ 83);
-	var setInnerHTML = __webpack_require__(/*! ./setInnerHTML */ 84);
+	var DOMNamespaces = __webpack_require__(/*! ./DOMNamespaces */ 82);
+	var setInnerHTML = __webpack_require__(/*! ./setInnerHTML */ 83);
 	
-	var createMicrosoftUnsafeLocalFunction = __webpack_require__(/*! ./createMicrosoftUnsafeLocalFunction */ 85);
-	var setTextContent = __webpack_require__(/*! ./setTextContent */ 86);
+	var createMicrosoftUnsafeLocalFunction = __webpack_require__(/*! ./createMicrosoftUnsafeLocalFunction */ 84);
+	var setTextContent = __webpack_require__(/*! ./setTextContent */ 85);
 	
 	var ELEMENT_NODE_TYPE = 1;
 	var DOCUMENT_FRAGMENT_NODE_TYPE = 11;
@@ -10224,10 +10271,10 @@
 	module.exports = DOMLazyTree;
 
 /***/ },
-/* 83 */
-/*!**************************************!*\
-  !*** ./~/react/lib/DOMNamespaces.js ***!
-  \**************************************/
+/* 82 */
+/*!******************************************!*\
+  !*** ./~/react-dom/lib/DOMNamespaces.js ***!
+  \******************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -10238,7 +10285,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule DOMNamespaces
 	 */
 	
 	'use strict';
@@ -10252,10 +10298,10 @@
 	module.exports = DOMNamespaces;
 
 /***/ },
-/* 84 */
-/*!*************************************!*\
-  !*** ./~/react/lib/setInnerHTML.js ***!
-  \*************************************/
+/* 83 */
+/*!*****************************************!*\
+  !*** ./~/react-dom/lib/setInnerHTML.js ***!
+  \*****************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -10266,18 +10312,17 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule setInnerHTML
 	 */
 	
 	'use strict';
 	
-	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 49);
-	var DOMNamespaces = __webpack_require__(/*! ./DOMNamespaces */ 83);
+	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 48);
+	var DOMNamespaces = __webpack_require__(/*! ./DOMNamespaces */ 82);
 	
 	var WHITESPACE_TEST = /^[ \r\n\t\f]/;
 	var NONVISIBLE_TEST = /<(!--|link|noscript|meta|script|style)[ \r\n\t\f\/>]/;
 	
-	var createMicrosoftUnsafeLocalFunction = __webpack_require__(/*! ./createMicrosoftUnsafeLocalFunction */ 85);
+	var createMicrosoftUnsafeLocalFunction = __webpack_require__(/*! ./createMicrosoftUnsafeLocalFunction */ 84);
 	
 	// SVG temp container for IE lacking innerHTML
 	var reusableSVGContainer;
@@ -10297,9 +10342,9 @@
 	  if (node.namespaceURI === DOMNamespaces.svg && !('innerHTML' in node)) {
 	    reusableSVGContainer = reusableSVGContainer || document.createElement('div');
 	    reusableSVGContainer.innerHTML = '<svg>' + html + '</svg>';
-	    var newNodes = reusableSVGContainer.firstChild.childNodes;
-	    for (var i = 0; i < newNodes.length; i++) {
-	      node.appendChild(newNodes[i]);
+	    var svgNode = reusableSVGContainer.firstChild;
+	    while (svgNode.firstChild) {
+	      node.appendChild(svgNode.firstChild);
 	    }
 	  } else {
 	    node.innerHTML = html;
@@ -10358,10 +10403,10 @@
 	module.exports = setInnerHTML;
 
 /***/ },
-/* 85 */
-/*!***********************************************************!*\
-  !*** ./~/react/lib/createMicrosoftUnsafeLocalFunction.js ***!
-  \***********************************************************/
+/* 84 */
+/*!***************************************************************!*\
+  !*** ./~/react-dom/lib/createMicrosoftUnsafeLocalFunction.js ***!
+  \***************************************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -10372,7 +10417,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule createMicrosoftUnsafeLocalFunction
 	 */
 	
 	/* globals MSApp */
@@ -10398,10 +10442,10 @@
 	module.exports = createMicrosoftUnsafeLocalFunction;
 
 /***/ },
-/* 86 */
-/*!***************************************!*\
-  !*** ./~/react/lib/setTextContent.js ***!
-  \***************************************/
+/* 85 */
+/*!*******************************************!*\
+  !*** ./~/react-dom/lib/setTextContent.js ***!
+  \*******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -10412,14 +10456,13 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule setTextContent
 	 */
 	
 	'use strict';
 	
-	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 49);
-	var escapeTextContentForBrowser = __webpack_require__(/*! ./escapeTextContentForBrowser */ 87);
-	var setInnerHTML = __webpack_require__(/*! ./setInnerHTML */ 84);
+	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 48);
+	var escapeTextContentForBrowser = __webpack_require__(/*! ./escapeTextContentForBrowser */ 86);
+	var setInnerHTML = __webpack_require__(/*! ./setInnerHTML */ 83);
 	
 	/**
 	 * Set the textContent property of a node, ensuring that whitespace is preserved
@@ -10446,6 +10489,10 @@
 	if (ExecutionEnvironment.canUseDOM) {
 	  if (!('textContent' in document.documentElement)) {
 	    setTextContent = function (node, text) {
+	      if (node.nodeType === 3) {
+	        node.nodeValue = text;
+	        return;
+	      }
 	      setInnerHTML(node, escapeTextContentForBrowser(text));
 	    };
 	  }
@@ -10454,10 +10501,10 @@
 	module.exports = setTextContent;
 
 /***/ },
-/* 87 */
-/*!****************************************************!*\
-  !*** ./~/react/lib/escapeTextContentForBrowser.js ***!
-  \****************************************************/
+/* 86 */
+/*!********************************************************!*\
+  !*** ./~/react-dom/lib/escapeTextContentForBrowser.js ***!
+  \********************************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -10493,7 +10540,6 @@
 	 * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 	 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	 *
-	 * @providesModule escapeTextContentForBrowser
 	 */
 	
 	'use strict';
@@ -10585,10 +10631,10 @@
 	module.exports = escapeTextContentForBrowser;
 
 /***/ },
-/* 88 */
-/*!*******************************!*\
-  !*** ./~/react/lib/Danger.js ***!
-  \*******************************/
+/* 87 */
+/*!***********************************!*\
+  !*** ./~/react-dom/lib/Danger.js ***!
+  \***********************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -10599,17 +10645,16 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule Danger
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
-	var DOMLazyTree = __webpack_require__(/*! ./DOMLazyTree */ 82);
-	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 49);
+	var DOMLazyTree = __webpack_require__(/*! ./DOMLazyTree */ 81);
+	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 48);
 	
-	var createNodesFromMarkup = __webpack_require__(/*! fbjs/lib/createNodesFromMarkup */ 89);
+	var createNodesFromMarkup = __webpack_require__(/*! fbjs/lib/createNodesFromMarkup */ 88);
 	var emptyFunction = __webpack_require__(/*! fbjs/lib/emptyFunction */ 12);
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	
@@ -10639,10 +10684,10 @@
 	};
 	
 	module.exports = Danger;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 89 */
+/* 88 */
 /*!*********************************************!*\
   !*** ./~/fbjs/lib/createNodesFromMarkup.js ***!
   \*********************************************/
@@ -10663,10 +10708,10 @@
 	
 	/*eslint-disable fb-www/unsafe-html*/
 	
-	var ExecutionEnvironment = __webpack_require__(/*! ./ExecutionEnvironment */ 49);
+	var ExecutionEnvironment = __webpack_require__(/*! ./ExecutionEnvironment */ 48);
 	
-	var createArrayFromMixed = __webpack_require__(/*! ./createArrayFromMixed */ 90);
-	var getMarkupWrap = __webpack_require__(/*! ./getMarkupWrap */ 91);
+	var createArrayFromMixed = __webpack_require__(/*! ./createArrayFromMixed */ 89);
+	var getMarkupWrap = __webpack_require__(/*! ./getMarkupWrap */ 90);
 	var invariant = __webpack_require__(/*! ./invariant */ 8);
 	
 	/**
@@ -10731,10 +10776,10 @@
 	}
 	
 	module.exports = createNodesFromMarkup;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 90 */
+/* 89 */
 /*!********************************************!*\
   !*** ./~/fbjs/lib/createArrayFromMixed.js ***!
   \********************************************/
@@ -10866,10 +10911,10 @@
 	}
 	
 	module.exports = createArrayFromMixed;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 91 */
+/* 90 */
 /*!*************************************!*\
   !*** ./~/fbjs/lib/getMarkupWrap.js ***!
   \*************************************/
@@ -10889,7 +10934,7 @@
 	
 	/*eslint-disable fb-www/unsafe-html */
 	
-	var ExecutionEnvironment = __webpack_require__(/*! ./ExecutionEnvironment */ 49);
+	var ExecutionEnvironment = __webpack_require__(/*! ./ExecutionEnvironment */ 48);
 	
 	var invariant = __webpack_require__(/*! ./invariant */ 8);
 	
@@ -10969,13 +11014,13 @@
 	}
 	
 	module.exports = getMarkupWrap;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 92 */
-/*!***************************************************!*\
-  !*** ./~/react/lib/ReactMultiChildUpdateTypes.js ***!
-  \***************************************************/
+/* 91 */
+/*!*************************************************!*\
+  !*** ./~/react-dom/lib/ReactDOMIDOperations.js ***!
+  \*************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -10986,53 +11031,12 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactMultiChildUpdateTypes
 	 */
 	
 	'use strict';
 	
-	var keyMirror = __webpack_require__(/*! fbjs/lib/keyMirror */ 23);
-	
-	/**
-	 * When a component's children are updated, a series of update configuration
-	 * objects are created in order to batch and serialize the required changes.
-	 *
-	 * Enumerates all the possible types of update configurations.
-	 *
-	 * @internal
-	 */
-	var ReactMultiChildUpdateTypes = keyMirror({
-	  INSERT_MARKUP: null,
-	  MOVE_EXISTING: null,
-	  REMOVE_NODE: null,
-	  SET_MARKUP: null,
-	  TEXT_CONTENT: null
-	});
-	
-	module.exports = ReactMultiChildUpdateTypes;
-
-/***/ },
-/* 93 */
-/*!*********************************************!*\
-  !*** ./~/react/lib/ReactDOMIDOperations.js ***!
-  \*********************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Copyright 2013-present, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 * @providesModule ReactDOMIDOperations
-	 */
-	
-	'use strict';
-	
-	var DOMChildrenOperations = __webpack_require__(/*! ./DOMChildrenOperations */ 81);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
+	var DOMChildrenOperations = __webpack_require__(/*! ./DOMChildrenOperations */ 80);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
 	
 	/**
 	 * Operations used to process updates to DOM nodes.
@@ -11054,10 +11058,10 @@
 	module.exports = ReactDOMIDOperations;
 
 /***/ },
-/* 94 */
-/*!******************************************!*\
-  !*** ./~/react/lib/ReactDOMComponent.js ***!
-  \******************************************/
+/* 92 */
+/*!**********************************************!*\
+  !*** ./~/react-dom/lib/ReactDOMComponent.js ***!
+  \**********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -11068,44 +11072,40 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDOMComponent
 	 */
 	
 	/* global hasOwnProperty:true */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7),
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35),
 	    _assign = __webpack_require__(/*! object-assign */ 4);
 	
-	var AutoFocusUtils = __webpack_require__(/*! ./AutoFocusUtils */ 95);
-	var CSSPropertyOperations = __webpack_require__(/*! ./CSSPropertyOperations */ 97);
-	var DOMLazyTree = __webpack_require__(/*! ./DOMLazyTree */ 82);
-	var DOMNamespaces = __webpack_require__(/*! ./DOMNamespaces */ 83);
-	var DOMProperty = __webpack_require__(/*! ./DOMProperty */ 37);
-	var DOMPropertyOperations = __webpack_require__(/*! ./DOMPropertyOperations */ 105);
-	var EventConstants = __webpack_require__(/*! ./EventConstants */ 41);
-	var EventPluginHub = __webpack_require__(/*! ./EventPluginHub */ 43);
-	var EventPluginRegistry = __webpack_require__(/*! ./EventPluginRegistry */ 44);
-	var ReactBrowserEventEmitter = __webpack_require__(/*! ./ReactBrowserEventEmitter */ 107);
-	var ReactDOMButton = __webpack_require__(/*! ./ReactDOMButton */ 110);
-	var ReactDOMComponentFlags = __webpack_require__(/*! ./ReactDOMComponentFlags */ 38);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
-	var ReactDOMInput = __webpack_require__(/*! ./ReactDOMInput */ 112);
-	var ReactDOMOption = __webpack_require__(/*! ./ReactDOMOption */ 114);
-	var ReactDOMSelect = __webpack_require__(/*! ./ReactDOMSelect */ 115);
-	var ReactDOMTextarea = __webpack_require__(/*! ./ReactDOMTextarea */ 116);
+	var AutoFocusUtils = __webpack_require__(/*! ./AutoFocusUtils */ 93);
+	var CSSPropertyOperations = __webpack_require__(/*! ./CSSPropertyOperations */ 95);
+	var DOMLazyTree = __webpack_require__(/*! ./DOMLazyTree */ 81);
+	var DOMNamespaces = __webpack_require__(/*! ./DOMNamespaces */ 82);
+	var DOMProperty = __webpack_require__(/*! ./DOMProperty */ 36);
+	var DOMPropertyOperations = __webpack_require__(/*! ./DOMPropertyOperations */ 103);
+	var EventPluginHub = __webpack_require__(/*! ./EventPluginHub */ 42);
+	var EventPluginRegistry = __webpack_require__(/*! ./EventPluginRegistry */ 43);
+	var ReactBrowserEventEmitter = __webpack_require__(/*! ./ReactBrowserEventEmitter */ 105);
+	var ReactDOMComponentFlags = __webpack_require__(/*! ./ReactDOMComponentFlags */ 37);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
+	var ReactDOMInput = __webpack_require__(/*! ./ReactDOMInput */ 108);
+	var ReactDOMOption = __webpack_require__(/*! ./ReactDOMOption */ 111);
+	var ReactDOMSelect = __webpack_require__(/*! ./ReactDOMSelect */ 112);
+	var ReactDOMTextarea = __webpack_require__(/*! ./ReactDOMTextarea */ 113);
 	var ReactInstrumentation = __webpack_require__(/*! ./ReactInstrumentation */ 62);
-	var ReactMultiChild = __webpack_require__(/*! ./ReactMultiChild */ 117);
-	var ReactServerRenderingTransaction = __webpack_require__(/*! ./ReactServerRenderingTransaction */ 129);
+	var ReactMultiChild = __webpack_require__(/*! ./ReactMultiChild */ 114);
+	var ReactServerRenderingTransaction = __webpack_require__(/*! ./ReactServerRenderingTransaction */ 133);
 	
 	var emptyFunction = __webpack_require__(/*! fbjs/lib/emptyFunction */ 12);
-	var escapeTextContentForBrowser = __webpack_require__(/*! ./escapeTextContentForBrowser */ 87);
+	var escapeTextContentForBrowser = __webpack_require__(/*! ./escapeTextContentForBrowser */ 86);
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
-	var isEventSupported = __webpack_require__(/*! ./isEventSupported */ 71);
-	var keyOf = __webpack_require__(/*! fbjs/lib/keyOf */ 25);
-	var shallowEqual = __webpack_require__(/*! fbjs/lib/shallowEqual */ 124);
-	var validateDOMNesting = __webpack_require__(/*! ./validateDOMNesting */ 132);
+	var isEventSupported = __webpack_require__(/*! ./isEventSupported */ 70);
+	var shallowEqual = __webpack_require__(/*! fbjs/lib/shallowEqual */ 123);
+	var validateDOMNesting = __webpack_require__(/*! ./validateDOMNesting */ 136);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
 	var Flags = ReactDOMComponentFlags;
@@ -11117,8 +11117,8 @@
 	// For quickly matching children type, to test if can be treated as content.
 	var CONTENT_TYPES = { 'string': true, 'number': true };
 	
-	var STYLE = keyOf({ style: null });
-	var HTML = keyOf({ __html: null });
+	var STYLE = 'style';
+	var HTML = '__html';
 	var RESERVED_PROPS = {
 	  children: null,
 	  dangerouslySetInnerHTML: null,
@@ -11257,9 +11257,9 @@
 	  ReactDOMOption.postMountWrapper(inst);
 	}
 	
-	var setContentChildForInstrumentation = emptyFunction;
+	var setAndValidateContentChildDev = emptyFunction;
 	if (process.env.NODE_ENV !== 'production') {
-	  setContentChildForInstrumentation = function (content) {
+	  setAndValidateContentChildDev = function (content) {
 	    var hasExistingContent = this._contentDebugID != null;
 	    var debugID = this._debugID;
 	    // This ID represents the inlined child that has no backing instance:
@@ -11273,6 +11273,7 @@
 	      return;
 	    }
 	
+	    validateDOMNesting(null, String(content), this, this._ancestorInfo);
 	    this._contentDebugID = contentDebugID;
 	    if (hasExistingContent) {
 	      ReactInstrumentation.debugTool.onBeforeUpdateComponent(contentDebugID, content);
@@ -11324,7 +11325,7 @@
 	  switch (inst._tag) {
 	    case 'iframe':
 	    case 'object':
-	      inst._wrapperState.listeners = [ReactBrowserEventEmitter.trapBubbledEvent(EventConstants.topLevelTypes.topLoad, 'load', node)];
+	      inst._wrapperState.listeners = [ReactBrowserEventEmitter.trapBubbledEvent('topLoad', 'load', node)];
 	      break;
 	    case 'video':
 	    case 'audio':
@@ -11333,23 +11334,23 @@
 	      // Create listener for each media event
 	      for (var event in mediaEvents) {
 	        if (mediaEvents.hasOwnProperty(event)) {
-	          inst._wrapperState.listeners.push(ReactBrowserEventEmitter.trapBubbledEvent(EventConstants.topLevelTypes[event], mediaEvents[event], node));
+	          inst._wrapperState.listeners.push(ReactBrowserEventEmitter.trapBubbledEvent(event, mediaEvents[event], node));
 	        }
 	      }
 	      break;
 	    case 'source':
-	      inst._wrapperState.listeners = [ReactBrowserEventEmitter.trapBubbledEvent(EventConstants.topLevelTypes.topError, 'error', node)];
+	      inst._wrapperState.listeners = [ReactBrowserEventEmitter.trapBubbledEvent('topError', 'error', node)];
 	      break;
 	    case 'img':
-	      inst._wrapperState.listeners = [ReactBrowserEventEmitter.trapBubbledEvent(EventConstants.topLevelTypes.topError, 'error', node), ReactBrowserEventEmitter.trapBubbledEvent(EventConstants.topLevelTypes.topLoad, 'load', node)];
+	      inst._wrapperState.listeners = [ReactBrowserEventEmitter.trapBubbledEvent('topError', 'error', node), ReactBrowserEventEmitter.trapBubbledEvent('topLoad', 'load', node)];
 	      break;
 	    case 'form':
-	      inst._wrapperState.listeners = [ReactBrowserEventEmitter.trapBubbledEvent(EventConstants.topLevelTypes.topReset, 'reset', node), ReactBrowserEventEmitter.trapBubbledEvent(EventConstants.topLevelTypes.topSubmit, 'submit', node)];
+	      inst._wrapperState.listeners = [ReactBrowserEventEmitter.trapBubbledEvent('topReset', 'reset', node), ReactBrowserEventEmitter.trapBubbledEvent('topSubmit', 'submit', node)];
 	      break;
 	    case 'input':
 	    case 'select':
 	    case 'textarea':
-	      inst._wrapperState.listeners = [ReactBrowserEventEmitter.trapBubbledEvent(EventConstants.topLevelTypes.topInvalid, 'invalid', node)];
+	      inst._wrapperState.listeners = [ReactBrowserEventEmitter.trapBubbledEvent('topInvalid', 'invalid', node)];
 	      break;
 	  }
 	}
@@ -11379,7 +11380,6 @@
 	  'wbr': true
 	};
 	
-	// NOTE: menuitem's close tag should be omitted, but that causes problems.
 	var newlineEatingTags = {
 	  'listing': true,
 	  'pre': true,
@@ -11447,7 +11447,7 @@
 	  this._flags = 0;
 	  if (process.env.NODE_ENV !== 'production') {
 	    this._ancestorInfo = null;
-	    setContentChildForInstrumentation.call(this, null);
+	    setAndValidateContentChildDev.call(this, null);
 	  }
 	}
 	
@@ -11487,9 +11487,6 @@
 	          listeners: null
 	        };
 	        transaction.getReactMountReady().enqueue(trapBubbledEventsLocal, this);
-	        break;
-	      case 'button':
-	        props = ReactDOMButton.getHostProps(this, props, hostParent);
 	        break;
 	      case 'input':
 	        ReactDOMInput.mountWrapper(this, props, hostParent);
@@ -11547,7 +11544,7 @@
 	      if (parentInfo) {
 	        // parentInfo should always be present except for the top-level
 	        // component when server rendering
-	        validateDOMNesting(this._tag, this, parentInfo);
+	        validateDOMNesting(this._tag, null, this, parentInfo);
 	      }
 	      this._ancestorInfo = validateDOMNesting.updatedAncestorInfo(parentInfo, this._tag, this);
 	    }
@@ -11716,7 +11713,7 @@
 	        // TODO: Validate that text is allowed as a child of this node
 	        ret = escapeTextContentForBrowser(contentToUse);
 	        if (process.env.NODE_ENV !== 'production') {
-	          setContentChildForInstrumentation.call(this, contentToUse);
+	          setAndValidateContentChildDev.call(this, contentToUse);
 	        }
 	      } else if (childrenToUse != null) {
 	        var mountImages = this.mountChildren(childrenToUse, transaction, context);
@@ -11750,12 +11747,18 @@
 	    } else {
 	      var contentToUse = CONTENT_TYPES[typeof props.children] ? props.children : null;
 	      var childrenToUse = contentToUse != null ? null : props.children;
+	      // TODO: Validate that text is allowed as a child of this node
 	      if (contentToUse != null) {
-	        // TODO: Validate that text is allowed as a child of this node
-	        if (process.env.NODE_ENV !== 'production') {
-	          setContentChildForInstrumentation.call(this, contentToUse);
+	        // Avoid setting textContent when the text is empty. In IE11 setting
+	        // textContent on a text area will cause the placeholder to not
+	        // show within the textarea until it has been focused and blurred again.
+	        // https://github.com/facebook/react/issues/6731#issuecomment-254874553
+	        if (contentToUse !== '') {
+	          if (process.env.NODE_ENV !== 'production') {
+	            setAndValidateContentChildDev.call(this, contentToUse);
+	          }
+	          DOMLazyTree.queueText(lazyTree, contentToUse);
 	        }
-	        DOMLazyTree.queueText(lazyTree, contentToUse);
 	      } else if (childrenToUse != null) {
 	        var mountImages = this.mountChildren(childrenToUse, transaction, context);
 	        for (var i = 0; i < mountImages.length; i++) {
@@ -11794,10 +11797,6 @@
 	    var nextProps = this._currentElement.props;
 	
 	    switch (this._tag) {
-	      case 'button':
-	        lastProps = ReactDOMButton.getHostProps(this, lastProps);
-	        nextProps = ReactDOMButton.getHostProps(this, nextProps);
-	        break;
 	      case 'input':
 	        lastProps = ReactDOMInput.getHostProps(this, lastProps);
 	        nextProps = ReactDOMInput.getHostProps(this, nextProps);
@@ -11985,7 +11984,7 @@
 	      if (lastContent !== nextContent) {
 	        this.updateTextContent('' + nextContent);
 	        if (process.env.NODE_ENV !== 'production') {
-	          setContentChildForInstrumentation.call(this, nextContent);
+	          setAndValidateContentChildDev.call(this, nextContent);
 	        }
 	      }
 	    } else if (nextHtml != null) {
@@ -11997,7 +11996,7 @@
 	      }
 	    } else if (nextChildren != null) {
 	      if (process.env.NODE_ENV !== 'production') {
-	        setContentChildForInstrumentation.call(this, null);
+	        setAndValidateContentChildDev.call(this, null);
 	      }
 	
 	      this.updateChildren(nextChildren, transaction, context);
@@ -12052,7 +12051,7 @@
 	    this._wrapperState = null;
 	
 	    if (process.env.NODE_ENV !== 'production') {
-	      setContentChildForInstrumentation.call(this, null);
+	      setAndValidateContentChildDev.call(this, null);
 	    }
 	  },
 	
@@ -12065,13 +12064,13 @@
 	_assign(ReactDOMComponent.prototype, ReactDOMComponent.Mixin, ReactMultiChild.Mixin);
 	
 	module.exports = ReactDOMComponent;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 95 */
-/*!***************************************!*\
-  !*** ./~/react/lib/AutoFocusUtils.js ***!
-  \***************************************/
+/* 93 */
+/*!*******************************************!*\
+  !*** ./~/react-dom/lib/AutoFocusUtils.js ***!
+  \*******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -12082,14 +12081,13 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule AutoFocusUtils
 	 */
 	
 	'use strict';
 	
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
 	
-	var focusNode = __webpack_require__(/*! fbjs/lib/focusNode */ 96);
+	var focusNode = __webpack_require__(/*! fbjs/lib/focusNode */ 94);
 	
 	var AutoFocusUtils = {
 	  focusDOMComponent: function () {
@@ -12100,7 +12098,7 @@
 	module.exports = AutoFocusUtils;
 
 /***/ },
-/* 96 */
+/* 94 */
 /*!*********************************!*\
   !*** ./~/fbjs/lib/focusNode.js ***!
   \*********************************/
@@ -12134,10 +12132,10 @@
 	module.exports = focusNode;
 
 /***/ },
-/* 97 */
-/*!**********************************************!*\
-  !*** ./~/react/lib/CSSPropertyOperations.js ***!
-  \**********************************************/
+/* 95 */
+/*!**************************************************!*\
+  !*** ./~/react-dom/lib/CSSPropertyOperations.js ***!
+  \**************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -12148,19 +12146,18 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule CSSPropertyOperations
 	 */
 	
 	'use strict';
 	
-	var CSSProperty = __webpack_require__(/*! ./CSSProperty */ 98);
-	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 49);
+	var CSSProperty = __webpack_require__(/*! ./CSSProperty */ 96);
+	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 48);
 	var ReactInstrumentation = __webpack_require__(/*! ./ReactInstrumentation */ 62);
 	
-	var camelizeStyleName = __webpack_require__(/*! fbjs/lib/camelizeStyleName */ 99);
-	var dangerousStyleValue = __webpack_require__(/*! ./dangerousStyleValue */ 101);
-	var hyphenateStyleName = __webpack_require__(/*! fbjs/lib/hyphenateStyleName */ 102);
-	var memoizeStringOnly = __webpack_require__(/*! fbjs/lib/memoizeStringOnly */ 104);
+	var camelizeStyleName = __webpack_require__(/*! fbjs/lib/camelizeStyleName */ 97);
+	var dangerousStyleValue = __webpack_require__(/*! ./dangerousStyleValue */ 99);
+	var hyphenateStyleName = __webpack_require__(/*! fbjs/lib/hyphenateStyleName */ 100);
+	var memoizeStringOnly = __webpack_require__(/*! fbjs/lib/memoizeStringOnly */ 102);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
 	var processStyleName = memoizeStringOnly(function (styleName) {
@@ -12310,7 +12307,11 @@
 	   */
 	  setValueForStyles: function (node, styles, component) {
 	    if (process.env.NODE_ENV !== 'production') {
-	      ReactInstrumentation.debugTool.onHostOperation(component._debugID, 'update styles', styles);
+	      ReactInstrumentation.debugTool.onHostOperation({
+	        instanceID: component._debugID,
+	        type: 'update styles',
+	        payload: styles
+	      });
 	    }
 	
 	    var style = node.style;
@@ -12345,13 +12346,13 @@
 	};
 	
 	module.exports = CSSPropertyOperations;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 98 */
-/*!************************************!*\
-  !*** ./~/react/lib/CSSProperty.js ***!
-  \************************************/
+/* 96 */
+/*!****************************************!*\
+  !*** ./~/react-dom/lib/CSSProperty.js ***!
+  \****************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -12362,7 +12363,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule CSSProperty
 	 */
 	
 	'use strict';
@@ -12504,7 +12504,7 @@
 	module.exports = CSSProperty;
 
 /***/ },
-/* 99 */
+/* 97 */
 /*!*****************************************!*\
   !*** ./~/fbjs/lib/camelizeStyleName.js ***!
   \*****************************************/
@@ -12523,7 +12523,7 @@
 	
 	'use strict';
 	
-	var camelize = __webpack_require__(/*! ./camelize */ 100);
+	var camelize = __webpack_require__(/*! ./camelize */ 98);
 	
 	var msPattern = /^-ms-/;
 	
@@ -12551,7 +12551,7 @@
 	module.exports = camelizeStyleName;
 
 /***/ },
-/* 100 */
+/* 98 */
 /*!********************************!*\
   !*** ./~/fbjs/lib/camelize.js ***!
   \********************************/
@@ -12590,10 +12590,10 @@
 	module.exports = camelize;
 
 /***/ },
-/* 101 */
-/*!********************************************!*\
-  !*** ./~/react/lib/dangerousStyleValue.js ***!
-  \********************************************/
+/* 99 */
+/*!************************************************!*\
+  !*** ./~/react-dom/lib/dangerousStyleValue.js ***!
+  \************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -12604,12 +12604,11 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule dangerousStyleValue
 	 */
 	
 	'use strict';
 	
-	var CSSProperty = __webpack_require__(/*! ./CSSProperty */ 98);
+	var CSSProperty = __webpack_require__(/*! ./CSSProperty */ 96);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
 	var isUnitlessNumber = CSSProperty.isUnitlessNumber;
@@ -12675,10 +12674,10 @@
 	}
 	
 	module.exports = dangerousStyleValue;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 102 */
+/* 100 */
 /*!******************************************!*\
   !*** ./~/fbjs/lib/hyphenateStyleName.js ***!
   \******************************************/
@@ -12697,7 +12696,7 @@
 	
 	'use strict';
 	
-	var hyphenate = __webpack_require__(/*! ./hyphenate */ 103);
+	var hyphenate = __webpack_require__(/*! ./hyphenate */ 101);
 	
 	var msPattern = /^ms-/;
 	
@@ -12724,7 +12723,7 @@
 	module.exports = hyphenateStyleName;
 
 /***/ },
-/* 103 */
+/* 101 */
 /*!*********************************!*\
   !*** ./~/fbjs/lib/hyphenate.js ***!
   \*********************************/
@@ -12764,7 +12763,7 @@
 	module.exports = hyphenate;
 
 /***/ },
-/* 104 */
+/* 102 */
 /*!*****************************************!*\
   !*** ./~/fbjs/lib/memoizeStringOnly.js ***!
   \*****************************************/
@@ -12801,10 +12800,10 @@
 	module.exports = memoizeStringOnly;
 
 /***/ },
-/* 105 */
-/*!**********************************************!*\
-  !*** ./~/react/lib/DOMPropertyOperations.js ***!
-  \**********************************************/
+/* 103 */
+/*!**************************************************!*\
+  !*** ./~/react-dom/lib/DOMPropertyOperations.js ***!
+  \**************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -12815,16 +12814,15 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule DOMPropertyOperations
 	 */
 	
 	'use strict';
 	
-	var DOMProperty = __webpack_require__(/*! ./DOMProperty */ 37);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
+	var DOMProperty = __webpack_require__(/*! ./DOMProperty */ 36);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
 	var ReactInstrumentation = __webpack_require__(/*! ./ReactInstrumentation */ 62);
 	
-	var quoteAttributeValueForBrowser = __webpack_require__(/*! ./quoteAttributeValueForBrowser */ 106);
+	var quoteAttributeValueForBrowser = __webpack_require__(/*! ./quoteAttributeValueForBrowser */ 104);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
 	var VALID_ATTRIBUTE_NAME_REGEX = new RegExp('^[' + DOMProperty.ATTRIBUTE_NAME_START_CHAR + '][' + DOMProperty.ATTRIBUTE_NAME_CHAR + ']*$');
@@ -12960,7 +12958,11 @@
 	    if (process.env.NODE_ENV !== 'production') {
 	      var payload = {};
 	      payload[name] = value;
-	      ReactInstrumentation.debugTool.onHostOperation(ReactDOMComponentTree.getInstanceFromNode(node)._debugID, 'update attribute', payload);
+	      ReactInstrumentation.debugTool.onHostOperation({
+	        instanceID: ReactDOMComponentTree.getInstanceFromNode(node)._debugID,
+	        type: 'update attribute',
+	        payload: payload
+	      });
 	    }
 	  },
 	
@@ -12977,7 +12979,11 @@
 	    if (process.env.NODE_ENV !== 'production') {
 	      var payload = {};
 	      payload[name] = value;
-	      ReactInstrumentation.debugTool.onHostOperation(ReactDOMComponentTree.getInstanceFromNode(node)._debugID, 'update attribute', payload);
+	      ReactInstrumentation.debugTool.onHostOperation({
+	        instanceID: ReactDOMComponentTree.getInstanceFromNode(node)._debugID,
+	        type: 'update attribute',
+	        payload: payload
+	      });
 	    }
 	  },
 	
@@ -12990,7 +12996,11 @@
 	  deleteValueForAttribute: function (node, name) {
 	    node.removeAttribute(name);
 	    if (process.env.NODE_ENV !== 'production') {
-	      ReactInstrumentation.debugTool.onHostOperation(ReactDOMComponentTree.getInstanceFromNode(node)._debugID, 'remove attribute', name);
+	      ReactInstrumentation.debugTool.onHostOperation({
+	        instanceID: ReactDOMComponentTree.getInstanceFromNode(node)._debugID,
+	        type: 'remove attribute',
+	        payload: name
+	      });
 	    }
 	  },
 	
@@ -13021,20 +13031,24 @@
 	    }
 	
 	    if (process.env.NODE_ENV !== 'production') {
-	      ReactInstrumentation.debugTool.onHostOperation(ReactDOMComponentTree.getInstanceFromNode(node)._debugID, 'remove attribute', name);
+	      ReactInstrumentation.debugTool.onHostOperation({
+	        instanceID: ReactDOMComponentTree.getInstanceFromNode(node)._debugID,
+	        type: 'remove attribute',
+	        payload: name
+	      });
 	    }
 	  }
 	
 	};
 	
 	module.exports = DOMPropertyOperations;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 106 */
-/*!******************************************************!*\
-  !*** ./~/react/lib/quoteAttributeValueForBrowser.js ***!
-  \******************************************************/
+/* 104 */
+/*!**********************************************************!*\
+  !*** ./~/react-dom/lib/quoteAttributeValueForBrowser.js ***!
+  \**********************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -13045,12 +13059,11 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule quoteAttributeValueForBrowser
 	 */
 	
 	'use strict';
 	
-	var escapeTextContentForBrowser = __webpack_require__(/*! ./escapeTextContentForBrowser */ 87);
+	var escapeTextContentForBrowser = __webpack_require__(/*! ./escapeTextContentForBrowser */ 86);
 	
 	/**
 	 * Escapes attribute value to prevent scripting attacks.
@@ -13065,10 +13078,10 @@
 	module.exports = quoteAttributeValueForBrowser;
 
 /***/ },
-/* 107 */
-/*!*************************************************!*\
-  !*** ./~/react/lib/ReactBrowserEventEmitter.js ***!
-  \*************************************************/
+/* 105 */
+/*!*****************************************************!*\
+  !*** ./~/react-dom/lib/ReactBrowserEventEmitter.js ***!
+  \*****************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -13079,20 +13092,18 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactBrowserEventEmitter
 	 */
 	
 	'use strict';
 	
 	var _assign = __webpack_require__(/*! object-assign */ 4);
 	
-	var EventConstants = __webpack_require__(/*! ./EventConstants */ 41);
-	var EventPluginRegistry = __webpack_require__(/*! ./EventPluginRegistry */ 44);
-	var ReactEventEmitterMixin = __webpack_require__(/*! ./ReactEventEmitterMixin */ 108);
-	var ViewportMetrics = __webpack_require__(/*! ./ViewportMetrics */ 77);
+	var EventPluginRegistry = __webpack_require__(/*! ./EventPluginRegistry */ 43);
+	var ReactEventEmitterMixin = __webpack_require__(/*! ./ReactEventEmitterMixin */ 106);
+	var ViewportMetrics = __webpack_require__(/*! ./ViewportMetrics */ 76);
 	
-	var getVendorPrefixedEventName = __webpack_require__(/*! ./getVendorPrefixedEventName */ 109);
-	var isEventSupported = __webpack_require__(/*! ./isEventSupported */ 71);
+	var getVendorPrefixedEventName = __webpack_require__(/*! ./getVendorPrefixedEventName */ 107);
+	var isEventSupported = __webpack_require__(/*! ./isEventSupported */ 70);
 	
 	/**
 	 * Summary of `ReactBrowserEventEmitter` event handling:
@@ -13310,42 +13321,41 @@
 	    var isListening = getListeningForDocument(mountAt);
 	    var dependencies = EventPluginRegistry.registrationNameDependencies[registrationName];
 	
-	    var topLevelTypes = EventConstants.topLevelTypes;
 	    for (var i = 0; i < dependencies.length; i++) {
 	      var dependency = dependencies[i];
 	      if (!(isListening.hasOwnProperty(dependency) && isListening[dependency])) {
-	        if (dependency === topLevelTypes.topWheel) {
+	        if (dependency === 'topWheel') {
 	          if (isEventSupported('wheel')) {
-	            ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent(topLevelTypes.topWheel, 'wheel', mountAt);
+	            ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent('topWheel', 'wheel', mountAt);
 	          } else if (isEventSupported('mousewheel')) {
-	            ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent(topLevelTypes.topWheel, 'mousewheel', mountAt);
+	            ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent('topWheel', 'mousewheel', mountAt);
 	          } else {
 	            // Firefox needs to capture a different mouse scroll event.
 	            // @see http://www.quirksmode.org/dom/events/tests/scroll.html
-	            ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent(topLevelTypes.topWheel, 'DOMMouseScroll', mountAt);
+	            ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent('topWheel', 'DOMMouseScroll', mountAt);
 	          }
-	        } else if (dependency === topLevelTypes.topScroll) {
+	        } else if (dependency === 'topScroll') {
 	
 	          if (isEventSupported('scroll', true)) {
-	            ReactBrowserEventEmitter.ReactEventListener.trapCapturedEvent(topLevelTypes.topScroll, 'scroll', mountAt);
+	            ReactBrowserEventEmitter.ReactEventListener.trapCapturedEvent('topScroll', 'scroll', mountAt);
 	          } else {
-	            ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent(topLevelTypes.topScroll, 'scroll', ReactBrowserEventEmitter.ReactEventListener.WINDOW_HANDLE);
+	            ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent('topScroll', 'scroll', ReactBrowserEventEmitter.ReactEventListener.WINDOW_HANDLE);
 	          }
-	        } else if (dependency === topLevelTypes.topFocus || dependency === topLevelTypes.topBlur) {
+	        } else if (dependency === 'topFocus' || dependency === 'topBlur') {
 	
 	          if (isEventSupported('focus', true)) {
-	            ReactBrowserEventEmitter.ReactEventListener.trapCapturedEvent(topLevelTypes.topFocus, 'focus', mountAt);
-	            ReactBrowserEventEmitter.ReactEventListener.trapCapturedEvent(topLevelTypes.topBlur, 'blur', mountAt);
+	            ReactBrowserEventEmitter.ReactEventListener.trapCapturedEvent('topFocus', 'focus', mountAt);
+	            ReactBrowserEventEmitter.ReactEventListener.trapCapturedEvent('topBlur', 'blur', mountAt);
 	          } else if (isEventSupported('focusin')) {
 	            // IE has `focusin` and `focusout` events which bubble.
 	            // @see http://www.quirksmode.org/blog/archives/2008/04/delegating_the.html
-	            ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent(topLevelTypes.topFocus, 'focusin', mountAt);
-	            ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent(topLevelTypes.topBlur, 'focusout', mountAt);
+	            ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent('topFocus', 'focusin', mountAt);
+	            ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent('topBlur', 'focusout', mountAt);
 	          }
 	
 	          // to make sure blur and focus event listeners are only attached once
-	          isListening[topLevelTypes.topBlur] = true;
-	          isListening[topLevelTypes.topFocus] = true;
+	          isListening.topBlur = true;
+	          isListening.topFocus = true;
 	        } else if (topEventMapping.hasOwnProperty(dependency)) {
 	          ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent(dependency, topEventMapping[dependency], mountAt);
 	        }
@@ -13364,6 +13374,19 @@
 	  },
 	
 	  /**
+	   * Protect against document.createEvent() returning null
+	   * Some popup blocker extensions appear to do this:
+	   * https://github.com/facebook/react/issues/6887
+	   */
+	  supportsEventPageXY: function () {
+	    if (!document.createEvent) {
+	      return false;
+	    }
+	    var ev = document.createEvent('MouseEvent');
+	    return ev != null && 'pageX' in ev;
+	  },
+	
+	  /**
 	   * Listens to window scroll and resize events. We cache scroll values so that
 	   * application code can access them without triggering reflows.
 	   *
@@ -13376,7 +13399,7 @@
 	   */
 	  ensureScrollValueMonitoring: function () {
 	    if (hasEventPageXY === undefined) {
-	      hasEventPageXY = document.createEvent && 'pageX' in document.createEvent('MouseEvent');
+	      hasEventPageXY = ReactBrowserEventEmitter.supportsEventPageXY();
 	    }
 	    if (!hasEventPageXY && !isMonitoringScrollValue) {
 	      var refresh = ViewportMetrics.refreshScrollValues;
@@ -13390,10 +13413,10 @@
 	module.exports = ReactBrowserEventEmitter;
 
 /***/ },
-/* 108 */
-/*!***********************************************!*\
-  !*** ./~/react/lib/ReactEventEmitterMixin.js ***!
-  \***********************************************/
+/* 106 */
+/*!***************************************************!*\
+  !*** ./~/react-dom/lib/ReactEventEmitterMixin.js ***!
+  \***************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -13404,12 +13427,11 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactEventEmitterMixin
 	 */
 	
 	'use strict';
 	
-	var EventPluginHub = __webpack_require__(/*! ./EventPluginHub */ 43);
+	var EventPluginHub = __webpack_require__(/*! ./EventPluginHub */ 42);
 	
 	function runEventQueueInBatch(events) {
 	  EventPluginHub.enqueueEvents(events);
@@ -13431,10 +13453,10 @@
 	module.exports = ReactEventEmitterMixin;
 
 /***/ },
-/* 109 */
-/*!***************************************************!*\
-  !*** ./~/react/lib/getVendorPrefixedEventName.js ***!
-  \***************************************************/
+/* 107 */
+/*!*******************************************************!*\
+  !*** ./~/react-dom/lib/getVendorPrefixedEventName.js ***!
+  \*******************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -13445,12 +13467,11 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule getVendorPrefixedEventName
 	 */
 	
 	'use strict';
 	
-	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 49);
+	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 48);
 	
 	/**
 	 * Generate a mapping of standard vendor prefixes using the defined style property and event name.
@@ -13540,100 +13561,10 @@
 	module.exports = getVendorPrefixedEventName;
 
 /***/ },
-/* 110 */
-/*!***************************************!*\
-  !*** ./~/react/lib/ReactDOMButton.js ***!
-  \***************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Copyright 2013-present, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 * @providesModule ReactDOMButton
-	 */
-	
-	'use strict';
-	
-	var DisabledInputUtils = __webpack_require__(/*! ./DisabledInputUtils */ 111);
-	
-	/**
-	 * Implements a <button> host component that does not receive mouse events
-	 * when `disabled` is set.
-	 */
-	var ReactDOMButton = {
-	  getHostProps: DisabledInputUtils.getHostProps
-	};
-	
-	module.exports = ReactDOMButton;
-
-/***/ },
-/* 111 */
-/*!*******************************************!*\
-  !*** ./~/react/lib/DisabledInputUtils.js ***!
-  \*******************************************/
-/***/ function(module, exports) {
-
-	/**
-	 * Copyright 2013-present, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 * @providesModule DisabledInputUtils
-	 */
-	
-	'use strict';
-	
-	var disableableMouseListenerNames = {
-	  onClick: true,
-	  onDoubleClick: true,
-	  onMouseDown: true,
-	  onMouseMove: true,
-	  onMouseUp: true,
-	
-	  onClickCapture: true,
-	  onDoubleClickCapture: true,
-	  onMouseDownCapture: true,
-	  onMouseMoveCapture: true,
-	  onMouseUpCapture: true
-	};
-	
-	/**
-	 * Implements a host component that does not receive mouse events
-	 * when `disabled` is set.
-	 */
-	var DisabledInputUtils = {
-	  getHostProps: function (inst, props) {
-	    if (!props.disabled) {
-	      return props;
-	    }
-	
-	    // Copy the props, except the mouse listeners
-	    var hostProps = {};
-	    for (var key in props) {
-	      if (!disableableMouseListenerNames[key] && props.hasOwnProperty(key)) {
-	        hostProps[key] = props[key];
-	      }
-	    }
-	
-	    return hostProps;
-	  }
-	};
-	
-	module.exports = DisabledInputUtils;
-
-/***/ },
-/* 112 */
-/*!**************************************!*\
-  !*** ./~/react/lib/ReactDOMInput.js ***!
-  \**************************************/
+/* 108 */
+/*!******************************************!*\
+  !*** ./~/react-dom/lib/ReactDOMInput.js ***!
+  \******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -13644,18 +13575,16 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDOMInput
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7),
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35),
 	    _assign = __webpack_require__(/*! object-assign */ 4);
 	
-	var DisabledInputUtils = __webpack_require__(/*! ./DisabledInputUtils */ 111);
-	var DOMPropertyOperations = __webpack_require__(/*! ./DOMPropertyOperations */ 105);
-	var LinkedValueUtils = __webpack_require__(/*! ./LinkedValueUtils */ 113);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
+	var DOMPropertyOperations = __webpack_require__(/*! ./DOMPropertyOperations */ 103);
+	var LinkedValueUtils = __webpack_require__(/*! ./LinkedValueUtils */ 109);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
 	var ReactUpdates = __webpack_require__(/*! ./ReactUpdates */ 56);
 	
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
@@ -13677,7 +13606,7 @@
 	
 	function isControlled(props) {
 	  var usesChecked = props.type === 'checkbox' || props.type === 'radio';
-	  return usesChecked ? props.checked !== undefined : props.value !== undefined;
+	  return usesChecked ? props.checked != null : props.value != null;
 	}
 	
 	/**
@@ -13712,7 +13641,7 @@
 	      // in corner cases such as min or max deriving from value, e.g. Issue #7170)
 	      min: undefined,
 	      max: undefined
-	    }, DisabledInputUtils.getHostProps(inst, props), {
+	    }, props, {
 	      defaultChecked: undefined,
 	      defaultValue: undefined,
 	      value: value != null ? value : inst._wrapperState.initialValue,
@@ -13797,7 +13726,17 @@
 	      }
 	    } else {
 	      if (props.value == null && props.defaultValue != null) {
-	        node.defaultValue = '' + props.defaultValue;
+	        // In Chrome, assigning defaultValue to certain input types triggers input validation.
+	        // For number inputs, the display value loses trailing decimal points. For email inputs,
+	        // Chrome raises "The specified value <x> is not a valid email address".
+	        //
+	        // Here we check to see if the defaultValue has actually changed, avoiding these problems
+	        // when the user is inputting text
+	        //
+	        // https://github.com/facebook/react/issues/7253
+	        if (node.defaultValue !== '' + props.defaultValue) {
+	          node.defaultValue = '' + props.defaultValue;
+	        }
 	      }
 	      if (props.checked == null && props.defaultChecked != null) {
 	        node.defaultChecked = !!props.defaultChecked;
@@ -13905,13 +13844,13 @@
 	}
 	
 	module.exports = ReactDOMInput;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 113 */
-/*!*****************************************!*\
-  !*** ./~/react/lib/LinkedValueUtils.js ***!
-  \*****************************************/
+/* 109 */
+/*!*********************************************!*\
+  !*** ./~/react-dom/lib/LinkedValueUtils.js ***!
+  \*********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -13922,16 +13861,14 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule LinkedValueUtils
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
-	var ReactPropTypes = __webpack_require__(/*! ./ReactPropTypes */ 31);
-	var ReactPropTypeLocations = __webpack_require__(/*! ./ReactPropTypeLocations */ 22);
-	var ReactPropTypesSecret = __webpack_require__(/*! ./ReactPropTypesSecret */ 30);
+	var React = __webpack_require__(/*! react/lib/React */ 2);
+	var ReactPropTypesSecret = __webpack_require__(/*! ./ReactPropTypesSecret */ 110);
 	
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
@@ -13972,7 +13909,7 @@
 	    }
 	    return new Error('You provided a `checked` prop to a form field without an ' + '`onChange` handler. This will render a read-only field. If ' + 'the field should be mutable use `defaultChecked`. Otherwise, ' + 'set either `onChange` or `readOnly`.');
 	  },
-	  onChange: ReactPropTypes.func
+	  onChange: React.PropTypes.func
 	};
 	
 	var loggedTypeFailures = {};
@@ -13994,7 +13931,7 @@
 	  checkPropTypes: function (tagName, props, owner) {
 	    for (var propName in propTypes) {
 	      if (propTypes.hasOwnProperty(propName)) {
-	        var error = propTypes[propName](props, propName, tagName, ReactPropTypeLocations.prop, null, ReactPropTypesSecret);
+	        var error = propTypes[propName](props, propName, tagName, 'prop', null, ReactPropTypesSecret);
 	      }
 	      if (error instanceof Error && !(error.message in loggedTypeFailures)) {
 	        // Only monitor this failure once because there tends to be a lot of the
@@ -14050,13 +13987,37 @@
 	};
 	
 	module.exports = LinkedValueUtils;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 114 */
-/*!***************************************!*\
-  !*** ./~/react/lib/ReactDOMOption.js ***!
-  \***************************************/
+/* 110 */
+/*!*************************************************!*\
+  !*** ./~/react-dom/lib/ReactPropTypesSecret.js ***!
+  \*************************************************/
+/***/ function(module, exports) {
+
+	/**
+	 * Copyright 2013-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * 
+	 */
+	
+	'use strict';
+	
+	var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
+	
+	module.exports = ReactPropTypesSecret;
+
+/***/ },
+/* 111 */
+/*!*******************************************!*\
+  !*** ./~/react-dom/lib/ReactDOMOption.js ***!
+  \*******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -14067,16 +14028,15 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDOMOption
 	 */
 	
 	'use strict';
 	
 	var _assign = __webpack_require__(/*! object-assign */ 4);
 	
-	var ReactChildren = __webpack_require__(/*! ./ReactChildren */ 5);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
-	var ReactDOMSelect = __webpack_require__(/*! ./ReactDOMSelect */ 115);
+	var React = __webpack_require__(/*! react/lib/React */ 2);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
+	var ReactDOMSelect = __webpack_require__(/*! ./ReactDOMSelect */ 112);
 	
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	var didWarnInvalidOptionChildren = false;
@@ -14086,7 +14046,7 @@
 	
 	  // Flatten children and warn if they aren't strings or numbers;
 	  // invalid types are ignored.
-	  ReactChildren.forEach(children, function (child) {
+	  React.Children.forEach(children, function (child) {
 	    if (child == null) {
 	      return;
 	    }
@@ -14182,13 +14142,13 @@
 	};
 	
 	module.exports = ReactDOMOption;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 115 */
-/*!***************************************!*\
-  !*** ./~/react/lib/ReactDOMSelect.js ***!
-  \***************************************/
+/* 112 */
+/*!*******************************************!*\
+  !*** ./~/react-dom/lib/ReactDOMSelect.js ***!
+  \*******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -14199,16 +14159,14 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDOMSelect
 	 */
 	
 	'use strict';
 	
 	var _assign = __webpack_require__(/*! object-assign */ 4);
 	
-	var DisabledInputUtils = __webpack_require__(/*! ./DisabledInputUtils */ 111);
-	var LinkedValueUtils = __webpack_require__(/*! ./LinkedValueUtils */ 113);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
+	var LinkedValueUtils = __webpack_require__(/*! ./LinkedValueUtils */ 109);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
 	var ReactUpdates = __webpack_require__(/*! ./ReactUpdates */ 56);
 	
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
@@ -14322,7 +14280,7 @@
 	 */
 	var ReactDOMSelect = {
 	  getHostProps: function (inst, props) {
-	    return _assign({}, DisabledInputUtils.getHostProps(inst, props), {
+	    return _assign({}, props, {
 	      onChange: inst._wrapperState.onChange,
 	      value: undefined
 	    });
@@ -14392,13 +14350,13 @@
 	}
 	
 	module.exports = ReactDOMSelect;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 116 */
-/*!*****************************************!*\
-  !*** ./~/react/lib/ReactDOMTextarea.js ***!
-  \*****************************************/
+/* 113 */
+/*!*********************************************!*\
+  !*** ./~/react-dom/lib/ReactDOMTextarea.js ***!
+  \*********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -14409,17 +14367,15 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDOMTextarea
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7),
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35),
 	    _assign = __webpack_require__(/*! object-assign */ 4);
 	
-	var DisabledInputUtils = __webpack_require__(/*! ./DisabledInputUtils */ 111);
-	var LinkedValueUtils = __webpack_require__(/*! ./LinkedValueUtils */ 113);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
+	var LinkedValueUtils = __webpack_require__(/*! ./LinkedValueUtils */ 109);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
 	var ReactUpdates = __webpack_require__(/*! ./ReactUpdates */ 56);
 	
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
@@ -14459,7 +14415,7 @@
 	    // to only set the value if/when the value differs from the node value (which would
 	    // completely solve this IE9 bug), but Sebastian+Ben seemed to like this solution.
 	    // The value can be a boolean or object so that's why it's forced to be a string.
-	    var hostProps = _assign({}, DisabledInputUtils.getHostProps(inst, props), {
+	    var hostProps = _assign({}, props, {
 	      value: undefined,
 	      defaultValue: undefined,
 	      children: '' + inst._wrapperState.initialValue,
@@ -14542,9 +14498,15 @@
 	    // This is in postMount because we need access to the DOM node, which is not
 	    // available until after the component has mounted.
 	    var node = ReactDOMComponentTree.getNodeFromInstance(inst);
+	    var textContent = node.textContent;
 	
-	    // Warning: node.value may be the empty string at this point (IE11) if placeholder is set.
-	    node.value = node.textContent; // Detach value from defaultValue
+	    // Only set node.value if textContent is equal to the expected
+	    // initial value. In IE10/IE11 there is a bug where the placeholder attribute
+	    // will populate textContent as well.
+	    // https://developer.microsoft.com/microsoft-edge/platform/issues/101525/
+	    if (textContent === inst._wrapperState.initialValue) {
+	      node.value = textContent;
+	    }
 	  }
 	};
 	
@@ -14556,13 +14518,13 @@
 	}
 	
 	module.exports = ReactDOMTextarea;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 117 */
-/*!****************************************!*\
-  !*** ./~/react/lib/ReactMultiChild.js ***!
-  \****************************************/
+/* 114 */
+/*!********************************************!*\
+  !*** ./~/react-dom/lib/ReactMultiChild.js ***!
+  \********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -14573,24 +14535,22 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactMultiChild
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
-	var ReactComponentEnvironment = __webpack_require__(/*! ./ReactComponentEnvironment */ 118);
-	var ReactInstanceMap = __webpack_require__(/*! ./ReactInstanceMap */ 119);
+	var ReactComponentEnvironment = __webpack_require__(/*! ./ReactComponentEnvironment */ 115);
+	var ReactInstanceMap = __webpack_require__(/*! ./ReactInstanceMap */ 116);
 	var ReactInstrumentation = __webpack_require__(/*! ./ReactInstrumentation */ 62);
-	var ReactMultiChildUpdateTypes = __webpack_require__(/*! ./ReactMultiChildUpdateTypes */ 92);
 	
-	var ReactCurrentOwner = __webpack_require__(/*! ./ReactCurrentOwner */ 10);
+	var ReactCurrentOwner = __webpack_require__(/*! react/lib/ReactCurrentOwner */ 10);
 	var ReactReconciler = __webpack_require__(/*! ./ReactReconciler */ 59);
-	var ReactChildReconciler = __webpack_require__(/*! ./ReactChildReconciler */ 120);
+	var ReactChildReconciler = __webpack_require__(/*! ./ReactChildReconciler */ 117);
 	
 	var emptyFunction = __webpack_require__(/*! fbjs/lib/emptyFunction */ 12);
-	var flattenChildren = __webpack_require__(/*! ./flattenChildren */ 128);
+	var flattenChildren = __webpack_require__(/*! ./flattenChildren */ 132);
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	
 	/**
@@ -14603,7 +14563,7 @@
 	function makeInsertMarkup(markup, afterNode, toIndex) {
 	  // NOTE: Null values reduce hidden classes.
 	  return {
-	    type: ReactMultiChildUpdateTypes.INSERT_MARKUP,
+	    type: 'INSERT_MARKUP',
 	    content: markup,
 	    fromIndex: null,
 	    fromNode: null,
@@ -14622,7 +14582,7 @@
 	function makeMove(child, afterNode, toIndex) {
 	  // NOTE: Null values reduce hidden classes.
 	  return {
-	    type: ReactMultiChildUpdateTypes.MOVE_EXISTING,
+	    type: 'MOVE_EXISTING',
 	    content: null,
 	    fromIndex: child._mountIndex,
 	    fromNode: ReactReconciler.getHostNode(child),
@@ -14640,7 +14600,7 @@
 	function makeRemove(child, node) {
 	  // NOTE: Null values reduce hidden classes.
 	  return {
-	    type: ReactMultiChildUpdateTypes.REMOVE_NODE,
+	    type: 'REMOVE_NODE',
 	    content: null,
 	    fromIndex: child._mountIndex,
 	    fromNode: node,
@@ -14658,7 +14618,7 @@
 	function makeSetMarkup(markup) {
 	  // NOTE: Null values reduce hidden classes.
 	  return {
-	    type: ReactMultiChildUpdateTypes.SET_MARKUP,
+	    type: 'SET_MARKUP',
 	    content: markup,
 	    fromIndex: null,
 	    fromNode: null,
@@ -14676,7 +14636,7 @@
 	function makeTextContent(textContent) {
 	  // NOTE: Null values reduce hidden classes.
 	  return {
-	    type: ReactMultiChildUpdateTypes.TEXT_CONTENT,
+	    type: 'TEXT_CONTENT',
 	    content: textContent,
 	    fromIndex: null,
 	    fromNode: null,
@@ -15016,13 +14976,13 @@
 	};
 	
 	module.exports = ReactMultiChild;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 118 */
-/*!**************************************************!*\
-  !*** ./~/react/lib/ReactComponentEnvironment.js ***!
-  \**************************************************/
+/* 115 */
+/*!******************************************************!*\
+  !*** ./~/react-dom/lib/ReactComponentEnvironment.js ***!
+  \******************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -15033,12 +14993,12 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactComponentEnvironment
+	 * 
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	
@@ -15070,13 +15030,13 @@
 	};
 	
 	module.exports = ReactComponentEnvironment;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 119 */
-/*!*****************************************!*\
-  !*** ./~/react/lib/ReactInstanceMap.js ***!
-  \*****************************************/
+/* 116 */
+/*!*********************************************!*\
+  !*** ./~/react-dom/lib/ReactInstanceMap.js ***!
+  \*********************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -15087,7 +15047,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactInstanceMap
 	 */
 	
 	'use strict';
@@ -15129,10 +15088,10 @@
 	module.exports = ReactInstanceMap;
 
 /***/ },
-/* 120 */
-/*!*********************************************!*\
-  !*** ./~/react/lib/ReactChildReconciler.js ***!
-  \*********************************************/
+/* 117 */
+/*!*************************************************!*\
+  !*** ./~/react-dom/lib/ReactChildReconciler.js ***!
+  \*************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -15143,17 +15102,16 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactChildReconciler
 	 */
 	
 	'use strict';
 	
 	var ReactReconciler = __webpack_require__(/*! ./ReactReconciler */ 59);
 	
-	var instantiateReactComponent = __webpack_require__(/*! ./instantiateReactComponent */ 121);
-	var KeyEscapeUtils = __webpack_require__(/*! ./KeyEscapeUtils */ 16);
-	var shouldUpdateReactComponent = __webpack_require__(/*! ./shouldUpdateReactComponent */ 125);
-	var traverseAllChildren = __webpack_require__(/*! ./traverseAllChildren */ 14);
+	var instantiateReactComponent = __webpack_require__(/*! ./instantiateReactComponent */ 118);
+	var KeyEscapeUtils = __webpack_require__(/*! ./KeyEscapeUtils */ 128);
+	var shouldUpdateReactComponent = __webpack_require__(/*! ./shouldUpdateReactComponent */ 124);
+	var traverseAllChildren = __webpack_require__(/*! ./traverseAllChildren */ 129);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
 	var ReactComponentTreeHook;
@@ -15164,7 +15122,7 @@
 	  // https://github.com/facebook/react/issues/7240
 	  // Remove the inline requires when we don't need them anymore:
 	  // https://github.com/facebook/react/pull/7178
-	  ReactComponentTreeHook = __webpack_require__(/*! ./ReactComponentTreeHook */ 28);
+	  ReactComponentTreeHook = __webpack_require__(/*! react/lib/ReactComponentTreeHook */ 26);
 	}
 	
 	function instantiateChild(childInstances, child, name, selfDebugID) {
@@ -15172,7 +15130,7 @@
 	  var keyUnique = childInstances[name] === undefined;
 	  if (process.env.NODE_ENV !== 'production') {
 	    if (!ReactComponentTreeHook) {
-	      ReactComponentTreeHook = __webpack_require__(/*! ./ReactComponentTreeHook */ 28);
+	      ReactComponentTreeHook = __webpack_require__(/*! react/lib/ReactComponentTreeHook */ 26);
 	    }
 	    if (!keyUnique) {
 	      process.env.NODE_ENV !== 'production' ? warning(false, 'flattenChildren(...): Encountered two children with the same key, ' + '`%s`. Child keys must be unique; when two children share a key, only ' + 'the first child will be used.%s', KeyEscapeUtils.unescape(name), ReactComponentTreeHook.getStackAddendumByID(selfDebugID)) : void 0;
@@ -15289,13 +15247,13 @@
 	};
 	
 	module.exports = ReactChildReconciler;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 121 */
-/*!**************************************************!*\
-  !*** ./~/react/lib/instantiateReactComponent.js ***!
-  \**************************************************/
+/* 118 */
+/*!******************************************************!*\
+  !*** ./~/react-dom/lib/instantiateReactComponent.js ***!
+  \******************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -15306,18 +15264,18 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule instantiateReactComponent
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7),
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35),
 	    _assign = __webpack_require__(/*! object-assign */ 4);
 	
-	var ReactCompositeComponent = __webpack_require__(/*! ./ReactCompositeComponent */ 122);
-	var ReactEmptyComponent = __webpack_require__(/*! ./ReactEmptyComponent */ 126);
-	var ReactHostComponent = __webpack_require__(/*! ./ReactHostComponent */ 127);
+	var ReactCompositeComponent = __webpack_require__(/*! ./ReactCompositeComponent */ 119);
+	var ReactEmptyComponent = __webpack_require__(/*! ./ReactEmptyComponent */ 125);
+	var ReactHostComponent = __webpack_require__(/*! ./ReactHostComponent */ 126);
 	
+	var getNextDebugID = __webpack_require__(/*! ./getNextDebugID */ 127);
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
@@ -15325,7 +15283,7 @@
 	var ReactCompositeComponentWrapper = function (element) {
 	  this.construct(element);
 	};
-	_assign(ReactCompositeComponentWrapper.prototype, ReactCompositeComponent.Mixin, {
+	_assign(ReactCompositeComponentWrapper.prototype, ReactCompositeComponent, {
 	  _instantiateReactComponent: instantiateReactComponent
 	});
 	
@@ -15350,8 +15308,6 @@
 	  return typeof type === 'function' && typeof type.prototype !== 'undefined' && typeof type.prototype.mountComponent === 'function' && typeof type.prototype.receiveComponent === 'function';
 	}
 	
-	var nextDebugID = 1;
-	
 	/**
 	 * Given a ReactNode, create an instance that will actually be mounted.
 	 *
@@ -15367,7 +15323,17 @@
 	    instance = ReactEmptyComponent.create(instantiateReactComponent);
 	  } else if (typeof node === 'object') {
 	    var element = node;
-	    !(element && (typeof element.type === 'function' || typeof element.type === 'string')) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s', element.type == null ? element.type : typeof element.type, getDeclarationErrorAddendum(element._owner)) : _prodInvariant('130', element.type == null ? element.type : typeof element.type, getDeclarationErrorAddendum(element._owner)) : void 0;
+	    var type = element.type;
+	    if (typeof type !== 'function' && typeof type !== 'string') {
+	      var info = '';
+	      if (process.env.NODE_ENV !== 'production') {
+	        if (type === undefined || typeof type === 'object' && type !== null && Object.keys(type).length === 0) {
+	          info += ' You likely forgot to export your component from the file ' + 'it\'s defined in.';
+	        }
+	      }
+	      info += getDeclarationErrorAddendum(element._owner);
+	       true ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s', type == null ? type : typeof type, info) : _prodInvariant('130', type == null ? type : typeof type, info) : void 0;
+	    }
 	
 	    // Special case string values
 	    if (typeof element.type === 'string') {
@@ -15402,7 +15368,7 @@
 	  instance._mountImage = null;
 	
 	  if (process.env.NODE_ENV !== 'production') {
-	    instance._debugID = shouldHaveDebugID ? nextDebugID++ : 0;
+	    instance._debugID = shouldHaveDebugID ? getNextDebugID() : 0;
 	  }
 	
 	  // Internal instances should fully constructed at this point, so they should
@@ -15417,13 +15383,13 @@
 	}
 	
 	module.exports = instantiateReactComponent;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 122 */
-/*!************************************************!*\
-  !*** ./~/react/lib/ReactCompositeComponent.js ***!
-  \************************************************/
+/* 119 */
+/*!****************************************************!*\
+  !*** ./~/react-dom/lib/ReactCompositeComponent.js ***!
+  \****************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -15434,29 +15400,30 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactCompositeComponent
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7),
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35),
 	    _assign = __webpack_require__(/*! object-assign */ 4);
 	
-	var ReactComponentEnvironment = __webpack_require__(/*! ./ReactComponentEnvironment */ 118);
-	var ReactCurrentOwner = __webpack_require__(/*! ./ReactCurrentOwner */ 10);
-	var ReactElement = __webpack_require__(/*! ./ReactElement */ 9);
-	var ReactErrorUtils = __webpack_require__(/*! ./ReactErrorUtils */ 46);
-	var ReactInstanceMap = __webpack_require__(/*! ./ReactInstanceMap */ 119);
+	var React = __webpack_require__(/*! react/lib/React */ 2);
+	var ReactComponentEnvironment = __webpack_require__(/*! ./ReactComponentEnvironment */ 115);
+	var ReactCurrentOwner = __webpack_require__(/*! react/lib/ReactCurrentOwner */ 10);
+	var ReactErrorUtils = __webpack_require__(/*! ./ReactErrorUtils */ 45);
+	var ReactInstanceMap = __webpack_require__(/*! ./ReactInstanceMap */ 116);
 	var ReactInstrumentation = __webpack_require__(/*! ./ReactInstrumentation */ 62);
-	var ReactNodeTypes = __webpack_require__(/*! ./ReactNodeTypes */ 123);
-	var ReactPropTypeLocations = __webpack_require__(/*! ./ReactPropTypeLocations */ 22);
+	var ReactNodeTypes = __webpack_require__(/*! ./ReactNodeTypes */ 120);
 	var ReactReconciler = __webpack_require__(/*! ./ReactReconciler */ 59);
 	
-	var checkReactTypeSpec = __webpack_require__(/*! ./checkReactTypeSpec */ 29);
-	var emptyObject = __webpack_require__(/*! fbjs/lib/emptyObject */ 19);
+	if (process.env.NODE_ENV !== 'production') {
+	  var checkReactTypeSpec = __webpack_require__(/*! ./checkReactTypeSpec */ 121);
+	}
+	
+	var emptyObject = __webpack_require__(/*! fbjs/lib/emptyObject */ 20);
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
-	var shallowEqual = __webpack_require__(/*! fbjs/lib/shallowEqual */ 124);
-	var shouldUpdateReactComponent = __webpack_require__(/*! ./shouldUpdateReactComponent */ 125);
+	var shallowEqual = __webpack_require__(/*! fbjs/lib/shallowEqual */ 123);
+	var shouldUpdateReactComponent = __webpack_require__(/*! ./shouldUpdateReactComponent */ 124);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
 	var CompositeTypes = {
@@ -15475,30 +15442,8 @@
 	
 	function warnIfInvalidElement(Component, element) {
 	  if (process.env.NODE_ENV !== 'production') {
-	    process.env.NODE_ENV !== 'production' ? warning(element === null || element === false || ReactElement.isValidElement(element), '%s(...): A valid React element (or null) must be returned. You may have ' + 'returned undefined, an array or some other invalid object.', Component.displayName || Component.name || 'Component') : void 0;
+	    process.env.NODE_ENV !== 'production' ? warning(element === null || element === false || React.isValidElement(element), '%s(...): A valid React element (or null) must be returned. You may have ' + 'returned undefined, an array or some other invalid object.', Component.displayName || Component.name || 'Component') : void 0;
 	    process.env.NODE_ENV !== 'production' ? warning(!Component.childContextTypes, '%s(...): childContextTypes cannot be defined on a functional component.', Component.displayName || Component.name || 'Component') : void 0;
-	  }
-	}
-	
-	function invokeComponentDidMountWithTimer() {
-	  var publicInstance = this._instance;
-	  if (this._debugID !== 0) {
-	    ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentDidMount');
-	  }
-	  publicInstance.componentDidMount();
-	  if (this._debugID !== 0) {
-	    ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentDidMount');
-	  }
-	}
-	
-	function invokeComponentDidUpdateWithTimer(prevProps, prevState, prevContext) {
-	  var publicInstance = this._instance;
-	  if (this._debugID !== 0) {
-	    ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentDidUpdate');
-	  }
-	  publicInstance.componentDidUpdate(prevProps, prevState, prevContext);
-	  if (this._debugID !== 0) {
-	    ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentDidUpdate');
 	  }
 	}
 	
@@ -15508,6 +15453,23 @@
 	
 	function isPureComponent(Component) {
 	  return !!(Component.prototype && Component.prototype.isPureReactComponent);
+	}
+	
+	// Separated into a function to contain deoptimizations caused by try/finally.
+	function measureLifeCyclePerf(fn, debugID, timerType) {
+	  if (debugID === 0) {
+	    // Top-level wrappers (see ReactMount) and empty components (see
+	    // ReactDOMEmptyComponent) are invisible to hooks and devtools.
+	    // Both are implementation details that should go away in the future.
+	    return fn();
+	  }
+	
+	  ReactInstrumentation.debugTool.onBeginLifeCycleTimer(debugID, timerType);
+	  try {
+	    return fn();
+	  } finally {
+	    ReactInstrumentation.debugTool.onEndLifeCycleTimer(debugID, timerType);
+	  }
 	}
 	
 	/**
@@ -15548,7 +15510,7 @@
 	/**
 	 * @lends {ReactCompositeComponent.prototype}
 	 */
-	var ReactCompositeComponentMixin = {
+	var ReactCompositeComponent = {
 	
 	  /**
 	   * Base constructor for all composite component.
@@ -15601,6 +15563,8 @@
 	   * @internal
 	   */
 	  mountComponent: function (transaction, hostParent, hostContainerInfo, context) {
+	    var _this = this;
+	
 	    this._context = context;
 	    this._mountOrder = nextMountID++;
 	    this._hostParent = hostParent;
@@ -15622,7 +15586,7 @@
 	    if (!doConstruct && (inst == null || inst.render == null)) {
 	      renderedElement = inst;
 	      warnIfInvalidElement(Component, renderedElement);
-	      !(inst === null || inst === false || ReactElement.isValidElement(inst)) ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s(...): A valid React element (or null) must be returned. You may have returned undefined, an array or some other invalid object.', Component.displayName || Component.name || 'Component') : _prodInvariant('105', Component.displayName || Component.name || 'Component') : void 0;
+	      !(inst === null || inst === false || React.isValidElement(inst)) ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s(...): A valid React element (or null) must be returned. You may have returned undefined, an array or some other invalid object.', Component.displayName || Component.name || 'Component') : _prodInvariant('105', Component.displayName || Component.name || 'Component') : void 0;
 	      inst = new StatelessComponent(Component);
 	      this._compositeType = CompositeTypes.StatelessFunctional;
 	    } else {
@@ -15662,7 +15626,7 @@
 	      // Since plain JS classes are defined without any special initialization
 	      // logic, we can not catch common errors early. Therefore, we have to
 	      // catch them here, at initialization time, instead.
-	      process.env.NODE_ENV !== 'production' ? warning(!inst.getInitialState || inst.getInitialState.isReactClassApproved, 'getInitialState was defined on %s, a plain JavaScript class. ' + 'This is only supported for classes created using React.createClass. ' + 'Did you mean to define a state property instead?', this.getName() || 'a component') : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(!inst.getInitialState || inst.getInitialState.isReactClassApproved || inst.state, 'getInitialState was defined on %s, a plain JavaScript class. ' + 'This is only supported for classes created using React.createClass. ' + 'Did you mean to define a state property instead?', this.getName() || 'a component') : void 0;
 	      process.env.NODE_ENV !== 'production' ? warning(!inst.getDefaultProps || inst.getDefaultProps.isReactClassApproved, 'getDefaultProps was defined on %s, a plain JavaScript class. ' + 'This is only supported for classes created using React.createClass. ' + 'Use a static property to define defaultProps instead.', this.getName() || 'a component') : void 0;
 	      process.env.NODE_ENV !== 'production' ? warning(!inst.propTypes, 'propTypes was defined as an instance property on %s. Use a static ' + 'property to define propTypes instead.', this.getName() || 'a component') : void 0;
 	      process.env.NODE_ENV !== 'production' ? warning(!inst.contextTypes, 'contextTypes was defined as an instance property on %s. Use a ' + 'static property to define contextTypes instead.', this.getName() || 'a component') : void 0;
@@ -15690,7 +15654,11 @@
 	
 	    if (inst.componentDidMount) {
 	      if (process.env.NODE_ENV !== 'production') {
-	        transaction.getReactMountReady().enqueue(invokeComponentDidMountWithTimer, this);
+	        transaction.getReactMountReady().enqueue(function () {
+	          measureLifeCyclePerf(function () {
+	            return inst.componentDidMount();
+	          }, _this._debugID, 'componentDidMount');
+	        });
 	      } else {
 	        transaction.getReactMountReady().enqueue(inst.componentDidMount, inst);
 	      }
@@ -15714,35 +15682,26 @@
 	
 	  _constructComponentWithoutOwner: function (doConstruct, publicProps, publicContext, updateQueue) {
 	    var Component = this._currentElement.type;
-	    var instanceOrElement;
+	
 	    if (doConstruct) {
 	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'ctor');
-	        }
-	      }
-	      instanceOrElement = new Component(publicProps, publicContext, updateQueue);
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'ctor');
-	        }
-	      }
-	    } else {
-	      // This can still be an instance in case of factory components
-	      // but we'll count this as time spent rendering as the more common case.
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'render');
-	        }
-	      }
-	      instanceOrElement = Component(publicProps, publicContext, updateQueue);
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'render');
-	        }
+	        return measureLifeCyclePerf(function () {
+	          return new Component(publicProps, publicContext, updateQueue);
+	        }, this._debugID, 'ctor');
+	      } else {
+	        return new Component(publicProps, publicContext, updateQueue);
 	      }
 	    }
-	    return instanceOrElement;
+	
+	    // This can still be an instance in case of factory components
+	    // but we'll count this as time spent rendering as the more common case.
+	    if (process.env.NODE_ENV !== 'production') {
+	      return measureLifeCyclePerf(function () {
+	        return Component(publicProps, publicContext, updateQueue);
+	      }, this._debugID, 'render');
+	    } else {
+	      return Component(publicProps, publicContext, updateQueue);
+	    }
 	  },
 	
 	  performInitialMountWithErrorHandling: function (renderedElement, hostParent, hostContainerInfo, transaction, context) {
@@ -15751,11 +15710,6 @@
 	    try {
 	      markup = this.performInitialMount(renderedElement, hostParent, hostContainerInfo, transaction, context);
 	    } catch (e) {
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onError();
-	        }
-	      }
 	      // Roll back to checkpoint, handle error (which may add items to the transaction), and take a new checkpoint
 	      transaction.rollback(checkpoint);
 	      this._instance.unstable_handleError(e);
@@ -15776,17 +15730,19 @@
 	
 	  performInitialMount: function (renderedElement, hostParent, hostContainerInfo, transaction, context) {
 	    var inst = this._instance;
+	
+	    var debugID = 0;
+	    if (process.env.NODE_ENV !== 'production') {
+	      debugID = this._debugID;
+	    }
+	
 	    if (inst.componentWillMount) {
 	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentWillMount');
-	        }
-	      }
-	      inst.componentWillMount();
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentWillMount');
-	        }
+	        measureLifeCyclePerf(function () {
+	          return inst.componentWillMount();
+	        }, debugID, 'componentWillMount');
+	      } else {
+	        inst.componentWillMount();
 	      }
 	      // When mounting, calls to `setState` by `componentWillMount` will set
 	      // `this._pendingStateQueue` without triggering a re-render.
@@ -15806,15 +15762,12 @@
 	    );
 	    this._renderedComponent = child;
 	
-	    var selfDebugID = 0;
-	    if (process.env.NODE_ENV !== 'production') {
-	      selfDebugID = this._debugID;
-	    }
-	    var markup = ReactReconciler.mountComponent(child, transaction, hostParent, hostContainerInfo, this._processChildContext(context), selfDebugID);
+	    var markup = ReactReconciler.mountComponent(child, transaction, hostParent, hostContainerInfo, this._processChildContext(context), debugID);
 	
 	    if (process.env.NODE_ENV !== 'production') {
-	      if (this._debugID !== 0) {
-	        ReactInstrumentation.debugTool.onSetChildren(this._debugID, child._debugID !== 0 ? [child._debugID] : []);
+	      if (debugID !== 0) {
+	        var childDebugIDs = child._debugID !== 0 ? [child._debugID] : [];
+	        ReactInstrumentation.debugTool.onSetChildren(debugID, childDebugIDs);
 	      }
 	    }
 	
@@ -15835,24 +15788,22 @@
 	    if (!this._renderedComponent) {
 	      return;
 	    }
+	
 	    var inst = this._instance;
 	
 	    if (inst.componentWillUnmount && !inst._calledComponentWillUnmount) {
 	      inst._calledComponentWillUnmount = true;
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentWillUnmount');
-	        }
-	      }
+	
 	      if (safely) {
 	        var name = this.getName() + '.componentWillUnmount()';
 	        ReactErrorUtils.invokeGuardedCallback(name, inst.componentWillUnmount.bind(inst));
 	      } else {
-	        inst.componentWillUnmount();
-	      }
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentWillUnmount');
+	        if (process.env.NODE_ENV !== 'production') {
+	          measureLifeCyclePerf(function () {
+	            return inst.componentWillUnmount();
+	          }, this._debugID, 'componentWillUnmount');
+	        } else {
+	          inst.componentWillUnmount();
 	        }
 	      }
 	    }
@@ -15925,7 +15876,7 @@
 	    if (process.env.NODE_ENV !== 'production') {
 	      var Component = this._currentElement.type;
 	      if (Component.contextTypes) {
-	        this._checkContextTypes(Component.contextTypes, maskedContext, ReactPropTypeLocations.context);
+	        this._checkContextTypes(Component.contextTypes, maskedContext, 'context');
 	      }
 	    }
 	    return maskedContext;
@@ -15939,17 +15890,25 @@
 	  _processChildContext: function (currentContext) {
 	    var Component = this._currentElement.type;
 	    var inst = this._instance;
-	    if (process.env.NODE_ENV !== 'production') {
-	      ReactInstrumentation.debugTool.onBeginProcessingChildContext();
+	    var childContext;
+	
+	    if (inst.getChildContext) {
+	      if (process.env.NODE_ENV !== 'production') {
+	        ReactInstrumentation.debugTool.onBeginProcessingChildContext();
+	        try {
+	          childContext = inst.getChildContext();
+	        } finally {
+	          ReactInstrumentation.debugTool.onEndProcessingChildContext();
+	        }
+	      } else {
+	        childContext = inst.getChildContext();
+	      }
 	    }
-	    var childContext = inst.getChildContext && inst.getChildContext();
-	    if (process.env.NODE_ENV !== 'production') {
-	      ReactInstrumentation.debugTool.onEndProcessingChildContext();
-	    }
+	
 	    if (childContext) {
 	      !(typeof Component.childContextTypes === 'object') ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s.getChildContext(): childContextTypes must be defined in order to use getChildContext().', this.getName() || 'ReactCompositeComponent') : _prodInvariant('107', this.getName() || 'ReactCompositeComponent') : void 0;
 	      if (process.env.NODE_ENV !== 'production') {
-	        this._checkContextTypes(Component.childContextTypes, childContext, ReactPropTypeLocations.childContext);
+	        this._checkContextTypes(Component.childContextTypes, childContext, 'childContext');
 	      }
 	      for (var name in childContext) {
 	        !(name in Component.childContextTypes) ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s.getChildContext(): key "%s" is not defined in childContextTypes.', this.getName() || 'ReactCompositeComponent', name) : _prodInvariant('108', this.getName() || 'ReactCompositeComponent', name) : void 0;
@@ -15968,7 +15927,9 @@
 	   * @private
 	   */
 	  _checkContextTypes: function (typeSpecs, values, location) {
-	    checkReactTypeSpec(typeSpecs, values, location, this.getName(), null, this._debugID);
+	    if (process.env.NODE_ENV !== 'production') {
+	      checkReactTypeSpec(typeSpecs, values, location, this.getName(), null, this._debugID);
+	    }
 	  },
 	
 	  receiveComponent: function (nextElement, transaction, nextContext) {
@@ -16040,15 +16001,11 @@
 	    // immediately reconciled instead of waiting for the next batch.
 	    if (willReceive && inst.componentWillReceiveProps) {
 	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentWillReceiveProps');
-	        }
-	      }
-	      inst.componentWillReceiveProps(nextProps, nextContext);
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentWillReceiveProps');
-	        }
+	        measureLifeCyclePerf(function () {
+	          return inst.componentWillReceiveProps(nextProps, nextContext);
+	        }, this._debugID, 'componentWillReceiveProps');
+	      } else {
+	        inst.componentWillReceiveProps(nextProps, nextContext);
 	      }
 	    }
 	
@@ -16058,15 +16015,11 @@
 	    if (!this._pendingForceUpdate) {
 	      if (inst.shouldComponentUpdate) {
 	        if (process.env.NODE_ENV !== 'production') {
-	          if (this._debugID !== 0) {
-	            ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'shouldComponentUpdate');
-	          }
-	        }
-	        shouldUpdate = inst.shouldComponentUpdate(nextProps, nextState, nextContext);
-	        if (process.env.NODE_ENV !== 'production') {
-	          if (this._debugID !== 0) {
-	            ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'shouldComponentUpdate');
-	          }
+	          shouldUpdate = measureLifeCyclePerf(function () {
+	            return inst.shouldComponentUpdate(nextProps, nextState, nextContext);
+	          }, this._debugID, 'shouldComponentUpdate');
+	        } else {
+	          shouldUpdate = inst.shouldComponentUpdate(nextProps, nextState, nextContext);
 	        }
 	      } else {
 	        if (this._compositeType === CompositeTypes.PureClass) {
@@ -16132,6 +16085,8 @@
 	   * @private
 	   */
 	  _performComponentUpdate: function (nextElement, nextProps, nextState, nextContext, transaction, unmaskedContext) {
+	    var _this2 = this;
+	
 	    var inst = this._instance;
 	
 	    var hasComponentDidUpdate = Boolean(inst.componentDidUpdate);
@@ -16146,15 +16101,11 @@
 	
 	    if (inst.componentWillUpdate) {
 	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'componentWillUpdate');
-	        }
-	      }
-	      inst.componentWillUpdate(nextProps, nextState, nextContext);
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'componentWillUpdate');
-	        }
+	        measureLifeCyclePerf(function () {
+	          return inst.componentWillUpdate(nextProps, nextState, nextContext);
+	        }, this._debugID, 'componentWillUpdate');
+	      } else {
+	        inst.componentWillUpdate(nextProps, nextState, nextContext);
 	      }
 	    }
 	
@@ -16168,7 +16119,9 @@
 	
 	    if (hasComponentDidUpdate) {
 	      if (process.env.NODE_ENV !== 'production') {
-	        transaction.getReactMountReady().enqueue(invokeComponentDidUpdateWithTimer.bind(this, prevProps, prevState, prevContext), this);
+	        transaction.getReactMountReady().enqueue(function () {
+	          measureLifeCyclePerf(inst.componentDidUpdate.bind(inst, prevProps, prevState, prevContext), _this2._debugID, 'componentDidUpdate');
+	        });
 	      } else {
 	        transaction.getReactMountReady().enqueue(inst.componentDidUpdate.bind(inst, prevProps, prevState, prevContext), inst);
 	      }
@@ -16185,6 +16138,12 @@
 	    var prevComponentInstance = this._renderedComponent;
 	    var prevRenderedElement = prevComponentInstance._currentElement;
 	    var nextRenderedElement = this._renderValidatedComponent();
+	
+	    var debugID = 0;
+	    if (process.env.NODE_ENV !== 'production') {
+	      debugID = this._debugID;
+	    }
+	
 	    if (shouldUpdateReactComponent(prevRenderedElement, nextRenderedElement)) {
 	      ReactReconciler.receiveComponent(prevComponentInstance, nextRenderedElement, transaction, this._processChildContext(context));
 	    } else {
@@ -16197,15 +16156,12 @@
 	      );
 	      this._renderedComponent = child;
 	
-	      var selfDebugID = 0;
-	      if (process.env.NODE_ENV !== 'production') {
-	        selfDebugID = this._debugID;
-	      }
-	      var nextMarkup = ReactReconciler.mountComponent(child, transaction, this._hostParent, this._hostContainerInfo, this._processChildContext(context), selfDebugID);
+	      var nextMarkup = ReactReconciler.mountComponent(child, transaction, this._hostParent, this._hostContainerInfo, this._processChildContext(context), debugID);
 	
 	      if (process.env.NODE_ENV !== 'production') {
-	        if (this._debugID !== 0) {
-	          ReactInstrumentation.debugTool.onSetChildren(this._debugID, child._debugID !== 0 ? [child._debugID] : []);
+	        if (debugID !== 0) {
+	          var childDebugIDs = child._debugID !== 0 ? [child._debugID] : [];
+	          ReactInstrumentation.debugTool.onSetChildren(debugID, childDebugIDs);
 	        }
 	      }
 	
@@ -16227,51 +16183,48 @@
 	   */
 	  _renderValidatedComponentWithoutOwnerOrContext: function () {
 	    var inst = this._instance;
+	    var renderedElement;
 	
 	    if (process.env.NODE_ENV !== 'production') {
-	      if (this._debugID !== 0) {
-	        ReactInstrumentation.debugTool.onBeginLifeCycleTimer(this._debugID, 'render');
-	      }
-	    }
-	    var renderedComponent = inst.render();
-	    if (process.env.NODE_ENV !== 'production') {
-	      if (this._debugID !== 0) {
-	        ReactInstrumentation.debugTool.onEndLifeCycleTimer(this._debugID, 'render');
-	      }
+	      renderedElement = measureLifeCyclePerf(function () {
+	        return inst.render();
+	      }, this._debugID, 'render');
+	    } else {
+	      renderedElement = inst.render();
 	    }
 	
 	    if (process.env.NODE_ENV !== 'production') {
 	      // We allow auto-mocks to proceed as if they're returning null.
-	      if (renderedComponent === undefined && inst.render._isMockFunction) {
+	      if (renderedElement === undefined && inst.render._isMockFunction) {
 	        // This is probably bad practice. Consider warning here and
 	        // deprecating this convenience.
-	        renderedComponent = null;
+	        renderedElement = null;
 	      }
 	    }
 	
-	    return renderedComponent;
+	    return renderedElement;
 	  },
 	
 	  /**
 	   * @private
 	   */
 	  _renderValidatedComponent: function () {
-	    var renderedComponent;
+	    var renderedElement;
 	    if (process.env.NODE_ENV !== 'production' || this._compositeType !== CompositeTypes.StatelessFunctional) {
 	      ReactCurrentOwner.current = this;
 	      try {
-	        renderedComponent = this._renderValidatedComponentWithoutOwnerOrContext();
+	        renderedElement = this._renderValidatedComponentWithoutOwnerOrContext();
 	      } finally {
 	        ReactCurrentOwner.current = null;
 	      }
 	    } else {
-	      renderedComponent = this._renderValidatedComponentWithoutOwnerOrContext();
+	      renderedElement = this._renderValidatedComponentWithoutOwnerOrContext();
 	    }
 	    !(
 	    // TODO: An `isValidNode` function would probably be more appropriate
-	    renderedComponent === null || renderedComponent === false || ReactElement.isValidElement(renderedComponent)) ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s.render(): A valid React element (or null) must be returned. You may have returned undefined, an array or some other invalid object.', this.getName() || 'ReactCompositeComponent') : _prodInvariant('109', this.getName() || 'ReactCompositeComponent') : void 0;
+	    renderedElement === null || renderedElement === false || React.isValidElement(renderedElement)) ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s.render(): A valid React element (or null) must be returned. You may have returned undefined, an array or some other invalid object.', this.getName() || 'ReactCompositeComponent') : _prodInvariant('109', this.getName() || 'ReactCompositeComponent') : void 0;
 	
-	    return renderedComponent;
+	    return renderedElement;
 	  },
 	
 	  /**
@@ -16288,7 +16241,7 @@
 	    var publicComponentInstance = component.getPublicInstance();
 	    if (process.env.NODE_ENV !== 'production') {
 	      var componentName = component && component.getName ? component.getName() : 'a component';
-	      process.env.NODE_ENV !== 'production' ? warning(publicComponentInstance != null, 'Stateless function components cannot be given refs ' + '(See ref "%s" in %s created by %s). ' + 'Attempts to access this ref will fail.', ref, componentName, this.getName()) : void 0;
+	      process.env.NODE_ENV !== 'production' ? warning(publicComponentInstance != null || component._compositeType !== CompositeTypes.StatelessFunctional, 'Stateless function components cannot be given refs ' + '(See ref "%s" in %s created by %s). ' + 'Attempts to access this ref will fail.', ref, componentName, this.getName()) : void 0;
 	    }
 	    var refs = inst.refs === emptyObject ? inst.refs = {} : inst.refs;
 	    refs[ref] = publicComponentInstance;
@@ -16339,20 +16292,14 @@
 	
 	};
 	
-	var ReactCompositeComponent = {
-	
-	  Mixin: ReactCompositeComponentMixin
-	
-	};
-	
 	module.exports = ReactCompositeComponent;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 123 */
-/*!***************************************!*\
-  !*** ./~/react/lib/ReactNodeTypes.js ***!
-  \***************************************/
+/* 120 */
+/*!*******************************************!*\
+  !*** ./~/react-dom/lib/ReactNodeTypes.js ***!
+  \*******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -16363,15 +16310,14 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactNodeTypes
 	 * 
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
-	var ReactElement = __webpack_require__(/*! ./ReactElement */ 9);
+	var React = __webpack_require__(/*! react/lib/React */ 2);
 	
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	
@@ -16383,7 +16329,7 @@
 	  getType: function (node) {
 	    if (node === null || node === false) {
 	      return ReactNodeTypes.EMPTY;
-	    } else if (ReactElement.isValidElement(node)) {
+	    } else if (React.isValidElement(node)) {
 	      if (typeof node.type === 'function') {
 	        return ReactNodeTypes.COMPOSITE;
 	      } else {
@@ -16395,10 +16341,138 @@
 	};
 	
 	module.exports = ReactNodeTypes;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 124 */
+/* 121 */
+/*!***********************************************!*\
+  !*** ./~/react-dom/lib/checkReactTypeSpec.js ***!
+  \***********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {/**
+	 * Copyright 2013-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 */
+	
+	'use strict';
+	
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
+	
+	var ReactPropTypeLocationNames = __webpack_require__(/*! ./ReactPropTypeLocationNames */ 122);
+	var ReactPropTypesSecret = __webpack_require__(/*! ./ReactPropTypesSecret */ 110);
+	
+	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
+	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
+	
+	var ReactComponentTreeHook;
+	
+	if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test') {
+	  // Temporary hack.
+	  // Inline requires don't work well with Jest:
+	  // https://github.com/facebook/react/issues/7240
+	  // Remove the inline requires when we don't need them anymore:
+	  // https://github.com/facebook/react/pull/7178
+	  ReactComponentTreeHook = __webpack_require__(/*! react/lib/ReactComponentTreeHook */ 26);
+	}
+	
+	var loggedTypeFailures = {};
+	
+	/**
+	 * Assert that the values match with the type specs.
+	 * Error messages are memorized and will only be shown once.
+	 *
+	 * @param {object} typeSpecs Map of name to a ReactPropType
+	 * @param {object} values Runtime values that need to be type-checked
+	 * @param {string} location e.g. "prop", "context", "child context"
+	 * @param {string} componentName Name of the component for error messages.
+	 * @param {?object} element The React element that is being type-checked
+	 * @param {?number} debugID The React component instance that is being type-checked
+	 * @private
+	 */
+	function checkReactTypeSpec(typeSpecs, values, location, componentName, element, debugID) {
+	  for (var typeSpecName in typeSpecs) {
+	    if (typeSpecs.hasOwnProperty(typeSpecName)) {
+	      var error;
+	      // Prop type validation may throw. In case they do, we don't want to
+	      // fail the render phase where it didn't fail before. So we log it.
+	      // After these have been cleaned up, we'll let them throw.
+	      try {
+	        // This is intentionally an invariant that gets caught. It's the same
+	        // behavior as without this statement except with a better message.
+	        !(typeof typeSpecs[typeSpecName] === 'function') ? process.env.NODE_ENV !== 'production' ? invariant(false, '%s: %s type `%s` is invalid; it must be a function, usually from React.PropTypes.', componentName || 'React class', ReactPropTypeLocationNames[location], typeSpecName) : _prodInvariant('84', componentName || 'React class', ReactPropTypeLocationNames[location], typeSpecName) : void 0;
+	        error = typeSpecs[typeSpecName](values, typeSpecName, componentName, location, null, ReactPropTypesSecret);
+	      } catch (ex) {
+	        error = ex;
+	      }
+	      process.env.NODE_ENV !== 'production' ? warning(!error || error instanceof Error, '%s: type specification of %s `%s` is invalid; the type checker ' + 'function must return `null` or an `Error` but returned a %s. ' + 'You may have forgotten to pass an argument to the type checker ' + 'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' + 'shape all require an argument).', componentName || 'React class', ReactPropTypeLocationNames[location], typeSpecName, typeof error) : void 0;
+	      if (error instanceof Error && !(error.message in loggedTypeFailures)) {
+	        // Only monitor this failure once because there tends to be a lot of the
+	        // same error.
+	        loggedTypeFailures[error.message] = true;
+	
+	        var componentStackInfo = '';
+	
+	        if (process.env.NODE_ENV !== 'production') {
+	          if (!ReactComponentTreeHook) {
+	            ReactComponentTreeHook = __webpack_require__(/*! react/lib/ReactComponentTreeHook */ 26);
+	          }
+	          if (debugID !== null) {
+	            componentStackInfo = ReactComponentTreeHook.getStackAddendumByID(debugID);
+	          } else if (element !== null) {
+	            componentStackInfo = ReactComponentTreeHook.getCurrentStackAddendum(element);
+	          }
+	        }
+	
+	        process.env.NODE_ENV !== 'production' ? warning(false, 'Failed %s type: %s%s', location, error.message, componentStackInfo) : void 0;
+	      }
+	    }
+	  }
+	}
+	
+	module.exports = checkReactTypeSpec;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
+
+/***/ },
+/* 122 */
+/*!*******************************************************!*\
+  !*** ./~/react-dom/lib/ReactPropTypeLocationNames.js ***!
+  \*******************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {/**
+	 * Copyright 2013-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * 
+	 */
+	
+	'use strict';
+	
+	var ReactPropTypeLocationNames = {};
+	
+	if (process.env.NODE_ENV !== 'production') {
+	  ReactPropTypeLocationNames = {
+	    prop: 'prop',
+	    context: 'context',
+	    childContext: 'child context'
+	  };
+	}
+	
+	module.exports = ReactPropTypeLocationNames;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
+
+/***/ },
+/* 123 */
 /*!************************************!*\
   !*** ./~/fbjs/lib/shallowEqual.js ***!
   \************************************/
@@ -16431,7 +16505,8 @@
 	  if (x === y) {
 	    // Steps 1-5, 7-10
 	    // Steps 6.b-6.e: +0 != -0
-	    return x !== 0 || 1 / x === 1 / y;
+	    // Added the nonzero y check to make Flow happy, but it is redundant
+	    return x !== 0 || y !== 0 || 1 / x === 1 / y;
 	  } else {
 	    // Step 6.a: NaN == NaN
 	    return x !== x && y !== y;
@@ -16472,10 +16547,10 @@
 	module.exports = shallowEqual;
 
 /***/ },
-/* 125 */
-/*!***************************************************!*\
-  !*** ./~/react/lib/shouldUpdateReactComponent.js ***!
-  \***************************************************/
+/* 124 */
+/*!*******************************************************!*\
+  !*** ./~/react-dom/lib/shouldUpdateReactComponent.js ***!
+  \*******************************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -16486,7 +16561,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule shouldUpdateReactComponent
 	 */
 	
 	'use strict';
@@ -16522,10 +16596,10 @@
 	module.exports = shouldUpdateReactComponent;
 
 /***/ },
-/* 126 */
-/*!********************************************!*\
-  !*** ./~/react/lib/ReactEmptyComponent.js ***!
-  \********************************************/
+/* 125 */
+/*!************************************************!*\
+  !*** ./~/react-dom/lib/ReactEmptyComponent.js ***!
+  \************************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -16536,7 +16610,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactEmptyComponent
 	 */
 	
 	'use strict';
@@ -16560,10 +16633,10 @@
 	module.exports = ReactEmptyComponent;
 
 /***/ },
-/* 127 */
-/*!*******************************************!*\
-  !*** ./~/react/lib/ReactHostComponent.js ***!
-  \*******************************************/
+/* 126 */
+/*!***********************************************!*\
+  !*** ./~/react-dom/lib/ReactHostComponent.js ***!
+  \***********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -16574,19 +16647,15 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactHostComponent
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7),
-	    _assign = __webpack_require__(/*! object-assign */ 4);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	
 	var genericComponentClass = null;
-	// This registry keeps track of wrapper classes around host tags.
-	var tagToComponentClass = {};
 	var textComponentClass = null;
 	
 	var ReactHostComponentInjection = {
@@ -16599,11 +16668,6 @@
 	  // rendered as props.
 	  injectTextComponentClass: function (componentClass) {
 	    textComponentClass = componentClass;
-	  },
-	  // This accepts a keyed object with classes as values. Each key represents a
-	  // tag. That particular tag will use this class instead of the generic one.
-	  injectComponentClasses: function (componentClasses) {
-	    _assign(tagToComponentClass, componentClasses);
 	  }
 	};
 	
@@ -16642,13 +16706,107 @@
 	};
 	
 	module.exports = ReactHostComponent;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
+
+/***/ },
+/* 127 */
+/*!*******************************************!*\
+  !*** ./~/react-dom/lib/getNextDebugID.js ***!
+  \*******************************************/
+/***/ function(module, exports) {
+
+	/**
+	 * Copyright 2013-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * 
+	 */
+	
+	'use strict';
+	
+	var nextDebugID = 1;
+	
+	function getNextDebugID() {
+	  return nextDebugID++;
+	}
+	
+	module.exports = getNextDebugID;
 
 /***/ },
 /* 128 */
-/*!****************************************!*\
-  !*** ./~/react/lib/flattenChildren.js ***!
-  \****************************************/
+/*!*******************************************!*\
+  !*** ./~/react-dom/lib/KeyEscapeUtils.js ***!
+  \*******************************************/
+/***/ function(module, exports) {
+
+	/**
+	 * Copyright 2013-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * 
+	 */
+	
+	'use strict';
+	
+	/**
+	 * Escape and wrap key so it is safe to use as a reactid
+	 *
+	 * @param {string} key to be escaped.
+	 * @return {string} the escaped key.
+	 */
+	
+	function escape(key) {
+	  var escapeRegex = /[=:]/g;
+	  var escaperLookup = {
+	    '=': '=0',
+	    ':': '=2'
+	  };
+	  var escapedString = ('' + key).replace(escapeRegex, function (match) {
+	    return escaperLookup[match];
+	  });
+	
+	  return '$' + escapedString;
+	}
+	
+	/**
+	 * Unescape and unwrap key for human-readable display
+	 *
+	 * @param {string} key to unescape.
+	 * @return {string} the unescaped key.
+	 */
+	function unescape(key) {
+	  var unescapeRegex = /(=0|=2)/g;
+	  var unescaperLookup = {
+	    '=0': '=',
+	    '=2': ':'
+	  };
+	  var keySubstring = key[0] === '.' && key[1] === '$' ? key.substring(2) : key.substring(1);
+	
+	  return ('' + keySubstring).replace(unescapeRegex, function (match) {
+	    return unescaperLookup[match];
+	  });
+	}
+	
+	var KeyEscapeUtils = {
+	  escape: escape,
+	  unescape: unescape
+	};
+	
+	module.exports = KeyEscapeUtils;
+
+/***/ },
+/* 129 */
+/*!************************************************!*\
+  !*** ./~/react-dom/lib/traverseAllChildren.js ***!
+  \************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -16659,14 +16817,272 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule flattenChildren
+	 */
+	
+	'use strict';
+	
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
+	
+	var ReactCurrentOwner = __webpack_require__(/*! react/lib/ReactCurrentOwner */ 10);
+	var REACT_ELEMENT_TYPE = __webpack_require__(/*! ./ReactElementSymbol */ 130);
+	
+	var getIteratorFn = __webpack_require__(/*! ./getIteratorFn */ 131);
+	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
+	var KeyEscapeUtils = __webpack_require__(/*! ./KeyEscapeUtils */ 128);
+	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
+	
+	var SEPARATOR = '.';
+	var SUBSEPARATOR = ':';
+	
+	/**
+	 * This is inlined from ReactElement since this file is shared between
+	 * isomorphic and renderers. We could extract this to a
+	 *
+	 */
+	
+	/**
+	 * TODO: Test that a single child and an array with one item have the same key
+	 * pattern.
+	 */
+	
+	var didWarnAboutMaps = false;
+	
+	/**
+	 * Generate a key string that identifies a component within a set.
+	 *
+	 * @param {*} component A component that could contain a manual key.
+	 * @param {number} index Index that is used if a manual key is not provided.
+	 * @return {string}
+	 */
+	function getComponentKey(component, index) {
+	  // Do some typechecking here since we call this blindly. We want to ensure
+	  // that we don't block potential future ES APIs.
+	  if (component && typeof component === 'object' && component.key != null) {
+	    // Explicit key
+	    return KeyEscapeUtils.escape(component.key);
+	  }
+	  // Implicit key determined by the index in the set
+	  return index.toString(36);
+	}
+	
+	/**
+	 * @param {?*} children Children tree container.
+	 * @param {!string} nameSoFar Name of the key path so far.
+	 * @param {!function} callback Callback to invoke with each child found.
+	 * @param {?*} traverseContext Used to pass information throughout the traversal
+	 * process.
+	 * @return {!number} The number of children in this subtree.
+	 */
+	function traverseAllChildrenImpl(children, nameSoFar, callback, traverseContext) {
+	  var type = typeof children;
+	
+	  if (type === 'undefined' || type === 'boolean') {
+	    // All of the above are perceived as null.
+	    children = null;
+	  }
+	
+	  if (children === null || type === 'string' || type === 'number' ||
+	  // The following is inlined from ReactElement. This means we can optimize
+	  // some checks. React Fiber also inlines this logic for similar purposes.
+	  type === 'object' && children.$$typeof === REACT_ELEMENT_TYPE) {
+	    callback(traverseContext, children,
+	    // If it's the only child, treat the name as if it was wrapped in an array
+	    // so that it's consistent if the number of children grows.
+	    nameSoFar === '' ? SEPARATOR + getComponentKey(children, 0) : nameSoFar);
+	    return 1;
+	  }
+	
+	  var child;
+	  var nextName;
+	  var subtreeCount = 0; // Count of children found in the current subtree.
+	  var nextNamePrefix = nameSoFar === '' ? SEPARATOR : nameSoFar + SUBSEPARATOR;
+	
+	  if (Array.isArray(children)) {
+	    for (var i = 0; i < children.length; i++) {
+	      child = children[i];
+	      nextName = nextNamePrefix + getComponentKey(child, i);
+	      subtreeCount += traverseAllChildrenImpl(child, nextName, callback, traverseContext);
+	    }
+	  } else {
+	    var iteratorFn = getIteratorFn(children);
+	    if (iteratorFn) {
+	      var iterator = iteratorFn.call(children);
+	      var step;
+	      if (iteratorFn !== children.entries) {
+	        var ii = 0;
+	        while (!(step = iterator.next()).done) {
+	          child = step.value;
+	          nextName = nextNamePrefix + getComponentKey(child, ii++);
+	          subtreeCount += traverseAllChildrenImpl(child, nextName, callback, traverseContext);
+	        }
+	      } else {
+	        if (process.env.NODE_ENV !== 'production') {
+	          var mapsAsChildrenAddendum = '';
+	          if (ReactCurrentOwner.current) {
+	            var mapsAsChildrenOwnerName = ReactCurrentOwner.current.getName();
+	            if (mapsAsChildrenOwnerName) {
+	              mapsAsChildrenAddendum = ' Check the render method of `' + mapsAsChildrenOwnerName + '`.';
+	            }
+	          }
+	          process.env.NODE_ENV !== 'production' ? warning(didWarnAboutMaps, 'Using Maps as children is not yet fully supported. It is an ' + 'experimental feature that might be removed. Convert it to a ' + 'sequence / iterable of keyed ReactElements instead.%s', mapsAsChildrenAddendum) : void 0;
+	          didWarnAboutMaps = true;
+	        }
+	        // Iterator will provide entry [k,v] tuples rather than values.
+	        while (!(step = iterator.next()).done) {
+	          var entry = step.value;
+	          if (entry) {
+	            child = entry[1];
+	            nextName = nextNamePrefix + KeyEscapeUtils.escape(entry[0]) + SUBSEPARATOR + getComponentKey(child, 0);
+	            subtreeCount += traverseAllChildrenImpl(child, nextName, callback, traverseContext);
+	          }
+	        }
+	      }
+	    } else if (type === 'object') {
+	      var addendum = '';
+	      if (process.env.NODE_ENV !== 'production') {
+	        addendum = ' If you meant to render a collection of children, use an array ' + 'instead or wrap the object using createFragment(object) from the ' + 'React add-ons.';
+	        if (children._isReactElement) {
+	          addendum = ' It looks like you\'re using an element created by a different ' + 'version of React. Make sure to use only one copy of React.';
+	        }
+	        if (ReactCurrentOwner.current) {
+	          var name = ReactCurrentOwner.current.getName();
+	          if (name) {
+	            addendum += ' Check the render method of `' + name + '`.';
+	          }
+	        }
+	      }
+	      var childrenString = String(children);
+	       true ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Objects are not valid as a React child (found: %s).%s', childrenString === '[object Object]' ? 'object with keys {' + Object.keys(children).join(', ') + '}' : childrenString, addendum) : _prodInvariant('31', childrenString === '[object Object]' ? 'object with keys {' + Object.keys(children).join(', ') + '}' : childrenString, addendum) : void 0;
+	    }
+	  }
+	
+	  return subtreeCount;
+	}
+	
+	/**
+	 * Traverses children that are typically specified as `props.children`, but
+	 * might also be specified through attributes:
+	 *
+	 * - `traverseAllChildren(this.props.children, ...)`
+	 * - `traverseAllChildren(this.props.leftPanelChildren, ...)`
+	 *
+	 * The `traverseContext` is an optional argument that is passed through the
+	 * entire traversal. It can be used to store accumulations or anything else that
+	 * the callback might find relevant.
+	 *
+	 * @param {?*} children Children tree object.
+	 * @param {!function} callback To invoke upon traversing each child.
+	 * @param {?*} traverseContext Context for traversal.
+	 * @return {!number} The number of children in this subtree.
+	 */
+	function traverseAllChildren(children, callback, traverseContext) {
+	  if (children == null) {
+	    return 0;
+	  }
+	
+	  return traverseAllChildrenImpl(children, '', callback, traverseContext);
+	}
+	
+	module.exports = traverseAllChildren;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
+
+/***/ },
+/* 130 */
+/*!***********************************************!*\
+  !*** ./~/react-dom/lib/ReactElementSymbol.js ***!
+  \***********************************************/
+/***/ function(module, exports) {
+
+	/**
+	 * Copyright 2014-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
 	 * 
 	 */
 	
 	'use strict';
 	
-	var KeyEscapeUtils = __webpack_require__(/*! ./KeyEscapeUtils */ 16);
-	var traverseAllChildren = __webpack_require__(/*! ./traverseAllChildren */ 14);
+	// The Symbol used to tag the ReactElement type. If there is no native Symbol
+	// nor polyfill, then a plain number is used for performance.
+	
+	var REACT_ELEMENT_TYPE = typeof Symbol === 'function' && Symbol['for'] && Symbol['for']('react.element') || 0xeac7;
+	
+	module.exports = REACT_ELEMENT_TYPE;
+
+/***/ },
+/* 131 */
+/*!******************************************!*\
+  !*** ./~/react-dom/lib/getIteratorFn.js ***!
+  \******************************************/
+/***/ function(module, exports) {
+
+	/**
+	 * Copyright 2013-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * 
+	 */
+	
+	'use strict';
+	
+	/* global Symbol */
+	
+	var ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
+	var FAUX_ITERATOR_SYMBOL = '@@iterator'; // Before Symbol spec.
+	
+	/**
+	 * Returns the iterator method function contained on the iterable object.
+	 *
+	 * Be sure to invoke the function with the iterable as context:
+	 *
+	 *     var iteratorFn = getIteratorFn(myIterable);
+	 *     if (iteratorFn) {
+	 *       var iterator = iteratorFn.call(myIterable);
+	 *       ...
+	 *     }
+	 *
+	 * @param {?object} maybeIterable
+	 * @return {?function}
+	 */
+	function getIteratorFn(maybeIterable) {
+	  var iteratorFn = maybeIterable && (ITERATOR_SYMBOL && maybeIterable[ITERATOR_SYMBOL] || maybeIterable[FAUX_ITERATOR_SYMBOL]);
+	  if (typeof iteratorFn === 'function') {
+	    return iteratorFn;
+	  }
+	}
+	
+	module.exports = getIteratorFn;
+
+/***/ },
+/* 132 */
+/*!********************************************!*\
+  !*** ./~/react-dom/lib/flattenChildren.js ***!
+  \********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {/**
+	 * Copyright 2013-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * 
+	 */
+	
+	'use strict';
+	
+	var KeyEscapeUtils = __webpack_require__(/*! ./KeyEscapeUtils */ 128);
+	var traverseAllChildren = __webpack_require__(/*! ./traverseAllChildren */ 129);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
 	var ReactComponentTreeHook;
@@ -16677,7 +17093,7 @@
 	  // https://github.com/facebook/react/issues/7240
 	  // Remove the inline requires when we don't need them anymore:
 	  // https://github.com/facebook/react/pull/7178
-	  ReactComponentTreeHook = __webpack_require__(/*! ./ReactComponentTreeHook */ 28);
+	  ReactComponentTreeHook = __webpack_require__(/*! react/lib/ReactComponentTreeHook */ 26);
 	}
 	
 	/**
@@ -16693,7 +17109,7 @@
 	    var keyUnique = result[name] === undefined;
 	    if (process.env.NODE_ENV !== 'production') {
 	      if (!ReactComponentTreeHook) {
-	        ReactComponentTreeHook = __webpack_require__(/*! ./ReactComponentTreeHook */ 28);
+	        ReactComponentTreeHook = __webpack_require__(/*! react/lib/ReactComponentTreeHook */ 26);
 	      }
 	      if (!keyUnique) {
 	        process.env.NODE_ENV !== 'production' ? warning(false, 'flattenChildren(...): Encountered two children with the same key, ' + '`%s`. Child keys must be unique; when two children share a key, only ' + 'the first child will be used.%s', KeyEscapeUtils.unescape(name), ReactComponentTreeHook.getStackAddendumByID(selfDebugID)) : void 0;
@@ -16727,13 +17143,13 @@
 	}
 	
 	module.exports = flattenChildren;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 129 */
-/*!********************************************************!*\
-  !*** ./~/react/lib/ReactServerRenderingTransaction.js ***!
-  \********************************************************/
+/* 133 */
+/*!************************************************************!*\
+  !*** ./~/react-dom/lib/ReactServerRenderingTransaction.js ***!
+  \************************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -16744,17 +17160,16 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactServerRenderingTransaction
 	 */
 	
 	'use strict';
 	
 	var _assign = __webpack_require__(/*! object-assign */ 4);
 	
-	var PooledClass = __webpack_require__(/*! ./PooledClass */ 6);
-	var Transaction = __webpack_require__(/*! ./Transaction */ 69);
+	var PooledClass = __webpack_require__(/*! ./PooledClass */ 50);
+	var Transaction = __webpack_require__(/*! ./Transaction */ 68);
 	var ReactInstrumentation = __webpack_require__(/*! ./ReactInstrumentation */ 62);
-	var ReactServerUpdateQueue = __webpack_require__(/*! ./ReactServerUpdateQueue */ 130);
+	var ReactServerUpdateQueue = __webpack_require__(/*! ./ReactServerUpdateQueue */ 134);
 	
 	/**
 	 * Executed within the scope of the `Transaction` instance. Consider these as
@@ -16821,18 +17236,18 @@
 	  rollback: function () {}
 	};
 	
-	_assign(ReactServerRenderingTransaction.prototype, Transaction.Mixin, Mixin);
+	_assign(ReactServerRenderingTransaction.prototype, Transaction, Mixin);
 	
 	PooledClass.addPoolingTo(ReactServerRenderingTransaction);
 	
 	module.exports = ReactServerRenderingTransaction;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 130 */
-/*!***********************************************!*\
-  !*** ./~/react/lib/ReactServerUpdateQueue.js ***!
-  \***********************************************/
+/* 134 */
+/*!***************************************************!*\
+  !*** ./~/react-dom/lib/ReactServerUpdateQueue.js ***!
+  \***************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -16843,7 +17258,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactServerUpdateQueue
 	 * 
 	 */
 	
@@ -16851,8 +17265,8 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var ReactUpdateQueue = __webpack_require__(/*! ./ReactUpdateQueue */ 131);
-	var Transaction = __webpack_require__(/*! ./Transaction */ 69);
+	var ReactUpdateQueue = __webpack_require__(/*! ./ReactUpdateQueue */ 135);
+	
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
 	function warnNoop(publicInstance, callerName) {
@@ -16871,8 +17285,6 @@
 	 */
 	
 	var ReactServerUpdateQueue = function () {
-	  /* :: transaction: Transaction; */
-	
 	  function ReactServerUpdateQueue(transaction) {
 	    _classCallCheck(this, ReactServerUpdateQueue);
 	
@@ -16976,13 +17388,13 @@
 	}();
 	
 	module.exports = ReactServerUpdateQueue;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 131 */
-/*!*****************************************!*\
-  !*** ./~/react/lib/ReactUpdateQueue.js ***!
-  \*****************************************/
+/* 135 */
+/*!*********************************************!*\
+  !*** ./~/react-dom/lib/ReactUpdateQueue.js ***!
+  \*********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -16993,15 +17405,14 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactUpdateQueue
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
-	var ReactCurrentOwner = __webpack_require__(/*! ./ReactCurrentOwner */ 10);
-	var ReactInstanceMap = __webpack_require__(/*! ./ReactInstanceMap */ 119);
+	var ReactCurrentOwner = __webpack_require__(/*! react/lib/ReactCurrentOwner */ 10);
+	var ReactInstanceMap = __webpack_require__(/*! ./ReactInstanceMap */ 116);
 	var ReactInstrumentation = __webpack_require__(/*! ./ReactInstrumentation */ 62);
 	var ReactUpdates = __webpack_require__(/*! ./ReactUpdates */ 56);
 	
@@ -17211,13 +17622,13 @@
 	};
 	
 	module.exports = ReactUpdateQueue;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 132 */
-/*!*******************************************!*\
-  !*** ./~/react/lib/validateDOMNesting.js ***!
-  \*******************************************/
+/* 136 */
+/*!***********************************************!*\
+  !*** ./~/react-dom/lib/validateDOMNesting.js ***!
+  \***********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -17228,7 +17639,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule validateDOMNesting
 	 */
 	
 	'use strict';
@@ -17509,10 +17919,15 @@
 	
 	  var didWarn = {};
 	
-	  validateDOMNesting = function (childTag, childInstance, ancestorInfo) {
+	  validateDOMNesting = function (childTag, childText, childInstance, ancestorInfo) {
 	    ancestorInfo = ancestorInfo || emptyAncestorInfo;
 	    var parentInfo = ancestorInfo.current;
 	    var parentTag = parentInfo && parentInfo.tag;
+	
+	    if (childText != null) {
+	      process.env.NODE_ENV !== 'production' ? warning(childTag == null, 'validateDOMNesting: when childText is passed, childTag should be null') : void 0;
+	      childTag = '#text';
+	    }
 	
 	    var invalidParent = isTagValidWithParent(childTag, parentTag) ? null : parentInfo;
 	    var invalidAncestor = invalidParent ? null : findInvalidAncestorForTag(childTag, ancestorInfo);
@@ -17561,7 +17976,15 @@
 	      didWarn[warnKey] = true;
 	
 	      var tagDisplayName = childTag;
-	      if (childTag !== '#text') {
+	      var whitespaceInfo = '';
+	      if (childTag === '#text') {
+	        if (/\S/.test(childText)) {
+	          tagDisplayName = 'Text nodes';
+	        } else {
+	          tagDisplayName = 'Whitespace text nodes';
+	          whitespaceInfo = ' Make sure you don\'t have any extra whitespace between tags on ' + 'each line of your source code.';
+	        }
+	      } else {
 	        tagDisplayName = '<' + childTag + '>';
 	      }
 	
@@ -17570,7 +17993,7 @@
 	        if (ancestorTag === 'table' && childTag === 'tr') {
 	          info += ' Add a <tbody> to your code to match the DOM tree generated by ' + 'the browser.';
 	        }
-	        process.env.NODE_ENV !== 'production' ? warning(false, 'validateDOMNesting(...): %s cannot appear as a child of <%s>. ' + 'See %s.%s', tagDisplayName, ancestorTag, ownerInfo, info) : void 0;
+	        process.env.NODE_ENV !== 'production' ? warning(false, 'validateDOMNesting(...): %s cannot appear as a child of <%s>.%s ' + 'See %s.%s', tagDisplayName, ancestorTag, whitespaceInfo, ownerInfo, info) : void 0;
 	      } else {
 	        process.env.NODE_ENV !== 'production' ? warning(false, 'validateDOMNesting(...): %s cannot appear as a descendant of ' + '<%s>. See %s.', tagDisplayName, ancestorTag, ownerInfo) : void 0;
 	      }
@@ -17589,13 +18012,13 @@
 	}
 	
 	module.exports = validateDOMNesting;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 133 */
-/*!***********************************************!*\
-  !*** ./~/react/lib/ReactDOMEmptyComponent.js ***!
-  \***********************************************/
+/* 137 */
+/*!***************************************************!*\
+  !*** ./~/react-dom/lib/ReactDOMEmptyComponent.js ***!
+  \***************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -17606,15 +18029,14 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDOMEmptyComponent
 	 */
 	
 	'use strict';
 	
 	var _assign = __webpack_require__(/*! object-assign */ 4);
 	
-	var DOMLazyTree = __webpack_require__(/*! ./DOMLazyTree */ 82);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
+	var DOMLazyTree = __webpack_require__(/*! ./DOMLazyTree */ 81);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
 	
 	var ReactDOMEmptyComponent = function (instantiate) {
 	  // ReactCompositeComponent uses this:
@@ -17660,10 +18082,10 @@
 	module.exports = ReactDOMEmptyComponent;
 
 /***/ },
-/* 134 */
-/*!**********************************************!*\
-  !*** ./~/react/lib/ReactDOMTreeTraversal.js ***!
-  \**********************************************/
+/* 138 */
+/*!**************************************************!*\
+  !*** ./~/react-dom/lib/ReactDOMTreeTraversal.js ***!
+  \**************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -17674,12 +18096,11 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDOMTreeTraversal
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	
@@ -17760,10 +18181,10 @@
 	  }
 	  var i;
 	  for (i = path.length; i-- > 0;) {
-	    fn(path[i], false, arg);
+	    fn(path[i], 'captured', arg);
 	  }
 	  for (i = 0; i < path.length; i++) {
-	    fn(path[i], true, arg);
+	    fn(path[i], 'bubbled', arg);
 	  }
 	}
 	
@@ -17788,10 +18209,10 @@
 	  }
 	  var i;
 	  for (i = 0; i < pathFrom.length; i++) {
-	    fn(pathFrom[i], true, argFrom);
+	    fn(pathFrom[i], 'bubbled', argFrom);
 	  }
 	  for (i = pathTo.length; i-- > 0;) {
-	    fn(pathTo[i], false, argTo);
+	    fn(pathTo[i], 'captured', argTo);
 	  }
 	}
 	
@@ -17802,13 +18223,13 @@
 	  traverseTwoPhase: traverseTwoPhase,
 	  traverseEnterLeave: traverseEnterLeave
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 135 */
-/*!**********************************************!*\
-  !*** ./~/react/lib/ReactDOMTextComponent.js ***!
-  \**********************************************/
+/* 139 */
+/*!**************************************************!*\
+  !*** ./~/react-dom/lib/ReactDOMTextComponent.js ***!
+  \**************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -17819,21 +18240,20 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDOMTextComponent
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7),
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35),
 	    _assign = __webpack_require__(/*! object-assign */ 4);
 	
-	var DOMChildrenOperations = __webpack_require__(/*! ./DOMChildrenOperations */ 81);
-	var DOMLazyTree = __webpack_require__(/*! ./DOMLazyTree */ 82);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
+	var DOMChildrenOperations = __webpack_require__(/*! ./DOMChildrenOperations */ 80);
+	var DOMLazyTree = __webpack_require__(/*! ./DOMLazyTree */ 81);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
 	
-	var escapeTextContentForBrowser = __webpack_require__(/*! ./escapeTextContentForBrowser */ 87);
+	var escapeTextContentForBrowser = __webpack_require__(/*! ./escapeTextContentForBrowser */ 86);
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
-	var validateDOMNesting = __webpack_require__(/*! ./validateDOMNesting */ 132);
+	var validateDOMNesting = __webpack_require__(/*! ./validateDOMNesting */ 136);
 	
 	/**
 	 * Text nodes violate a couple assumptions that React makes about components:
@@ -17886,7 +18306,7 @@
 	      if (parentInfo) {
 	        // parentInfo should always be present except for the top-level
 	        // component when server rendering
-	        validateDOMNesting('#text', this, parentInfo);
+	        validateDOMNesting(null, this._stringText, this, parentInfo);
 	      }
 	    }
 	
@@ -17975,13 +18395,13 @@
 	});
 	
 	module.exports = ReactDOMTextComponent;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 136 */
-/*!*****************************************************!*\
-  !*** ./~/react/lib/ReactDefaultBatchingStrategy.js ***!
-  \*****************************************************/
+/* 140 */
+/*!*********************************************************!*\
+  !*** ./~/react-dom/lib/ReactDefaultBatchingStrategy.js ***!
+  \*********************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -17992,7 +18412,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDefaultBatchingStrategy
 	 */
 	
 	'use strict';
@@ -18000,7 +18419,7 @@
 	var _assign = __webpack_require__(/*! object-assign */ 4);
 	
 	var ReactUpdates = __webpack_require__(/*! ./ReactUpdates */ 56);
-	var Transaction = __webpack_require__(/*! ./Transaction */ 69);
+	var Transaction = __webpack_require__(/*! ./Transaction */ 68);
 	
 	var emptyFunction = __webpack_require__(/*! fbjs/lib/emptyFunction */ 12);
 	
@@ -18022,7 +18441,7 @@
 	  this.reinitializeTransaction();
 	}
 	
-	_assign(ReactDefaultBatchingStrategyTransaction.prototype, Transaction.Mixin, {
+	_assign(ReactDefaultBatchingStrategyTransaction.prototype, Transaction, {
 	  getTransactionWrappers: function () {
 	    return TRANSACTION_WRAPPERS;
 	  }
@@ -18044,9 +18463,9 @@
 	
 	    // The code is written this way to avoid extra allocations
 	    if (alreadyBatchingUpdates) {
-	      callback(a, b, c, d, e);
+	      return callback(a, b, c, d, e);
 	    } else {
-	      transaction.perform(callback, null, a, b, c, d, e);
+	      return transaction.perform(callback, null, a, b, c, d, e);
 	    }
 	  }
 	};
@@ -18054,10 +18473,10 @@
 	module.exports = ReactDefaultBatchingStrategy;
 
 /***/ },
-/* 137 */
-/*!*******************************************!*\
-  !*** ./~/react/lib/ReactEventListener.js ***!
-  \*******************************************/
+/* 141 */
+/*!***********************************************!*\
+  !*** ./~/react-dom/lib/ReactEventListener.js ***!
+  \***********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -18068,21 +18487,20 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactEventListener
 	 */
 	
 	'use strict';
 	
 	var _assign = __webpack_require__(/*! object-assign */ 4);
 	
-	var EventListener = __webpack_require__(/*! fbjs/lib/EventListener */ 138);
-	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 49);
-	var PooledClass = __webpack_require__(/*! ./PooledClass */ 6);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
+	var EventListener = __webpack_require__(/*! fbjs/lib/EventListener */ 142);
+	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 48);
+	var PooledClass = __webpack_require__(/*! ./PooledClass */ 50);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
 	var ReactUpdates = __webpack_require__(/*! ./ReactUpdates */ 56);
 	
-	var getEventTarget = __webpack_require__(/*! ./getEventTarget */ 70);
-	var getUnboundedScrollPosition = __webpack_require__(/*! fbjs/lib/getUnboundedScrollPosition */ 139);
+	var getEventTarget = __webpack_require__(/*! ./getEventTarget */ 69);
+	var getUnboundedScrollPosition = __webpack_require__(/*! fbjs/lib/getUnboundedScrollPosition */ 143);
 	
 	/**
 	 * Find the deepest React component completely containing the root of the
@@ -18164,13 +18582,12 @@
 	   *
 	   * @param {string} topLevelType Record from `EventConstants`.
 	   * @param {string} handlerBaseName Event name (e.g. "click").
-	   * @param {object} handle Element on which to attach listener.
+	   * @param {object} element Element on which to attach listener.
 	   * @return {?object} An object with a remove function which will forcefully
 	   *                  remove the listener.
 	   * @internal
 	   */
-	  trapBubbledEvent: function (topLevelType, handlerBaseName, handle) {
-	    var element = handle;
+	  trapBubbledEvent: function (topLevelType, handlerBaseName, element) {
 	    if (!element) {
 	      return null;
 	    }
@@ -18182,13 +18599,12 @@
 	   *
 	   * @param {string} topLevelType Record from `EventConstants`.
 	   * @param {string} handlerBaseName Event name (e.g. "click").
-	   * @param {object} handle Element on which to attach listener.
+	   * @param {object} element Element on which to attach listener.
 	   * @return {?object} An object with a remove function which will forcefully
 	   *                  remove the listener.
 	   * @internal
 	   */
-	  trapCapturedEvent: function (topLevelType, handlerBaseName, handle) {
-	    var element = handle;
+	  trapCapturedEvent: function (topLevelType, handlerBaseName, element) {
 	    if (!element) {
 	      return null;
 	    }
@@ -18219,7 +18635,7 @@
 	module.exports = ReactEventListener;
 
 /***/ },
-/* 138 */
+/* 142 */
 /*!*************************************!*\
   !*** ./~/fbjs/lib/EventListener.js ***!
   \*************************************/
@@ -18308,10 +18724,10 @@
 	};
 	
 	module.exports = EventListener;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 139 */
+/* 143 */
 /*!**************************************************!*\
   !*** ./~/fbjs/lib/getUnboundedScrollPosition.js ***!
   \**************************************************/
@@ -18357,10 +18773,10 @@
 	module.exports = getUnboundedScrollPosition;
 
 /***/ },
-/* 140 */
-/*!***************************************!*\
-  !*** ./~/react/lib/ReactInjection.js ***!
-  \***************************************/
+/* 144 */
+/*!*******************************************!*\
+  !*** ./~/react-dom/lib/ReactInjection.js ***!
+  \*******************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -18371,24 +18787,21 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactInjection
 	 */
 	
 	'use strict';
 	
-	var DOMProperty = __webpack_require__(/*! ./DOMProperty */ 37);
-	var EventPluginHub = __webpack_require__(/*! ./EventPluginHub */ 43);
-	var EventPluginUtils = __webpack_require__(/*! ./EventPluginUtils */ 45);
-	var ReactComponentEnvironment = __webpack_require__(/*! ./ReactComponentEnvironment */ 118);
-	var ReactClass = __webpack_require__(/*! ./ReactClass */ 21);
-	var ReactEmptyComponent = __webpack_require__(/*! ./ReactEmptyComponent */ 126);
-	var ReactBrowserEventEmitter = __webpack_require__(/*! ./ReactBrowserEventEmitter */ 107);
-	var ReactHostComponent = __webpack_require__(/*! ./ReactHostComponent */ 127);
+	var DOMProperty = __webpack_require__(/*! ./DOMProperty */ 36);
+	var EventPluginHub = __webpack_require__(/*! ./EventPluginHub */ 42);
+	var EventPluginUtils = __webpack_require__(/*! ./EventPluginUtils */ 44);
+	var ReactComponentEnvironment = __webpack_require__(/*! ./ReactComponentEnvironment */ 115);
+	var ReactEmptyComponent = __webpack_require__(/*! ./ReactEmptyComponent */ 125);
+	var ReactBrowserEventEmitter = __webpack_require__(/*! ./ReactBrowserEventEmitter */ 105);
+	var ReactHostComponent = __webpack_require__(/*! ./ReactHostComponent */ 126);
 	var ReactUpdates = __webpack_require__(/*! ./ReactUpdates */ 56);
 	
 	var ReactInjection = {
 	  Component: ReactComponentEnvironment.injection,
-	  Class: ReactClass.injection,
 	  DOMProperty: DOMProperty.injection,
 	  EmptyComponent: ReactEmptyComponent.injection,
 	  EventPluginHub: EventPluginHub.injection,
@@ -18401,10 +18814,10 @@
 	module.exports = ReactInjection;
 
 /***/ },
-/* 141 */
-/*!**************************************************!*\
-  !*** ./~/react/lib/ReactReconcileTransaction.js ***!
-  \**************************************************/
+/* 145 */
+/*!******************************************************!*\
+  !*** ./~/react-dom/lib/ReactReconcileTransaction.js ***!
+  \******************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -18415,7 +18828,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactReconcileTransaction
 	 */
 	
 	'use strict';
@@ -18423,12 +18835,12 @@
 	var _assign = __webpack_require__(/*! object-assign */ 4);
 	
 	var CallbackQueue = __webpack_require__(/*! ./CallbackQueue */ 57);
-	var PooledClass = __webpack_require__(/*! ./PooledClass */ 6);
-	var ReactBrowserEventEmitter = __webpack_require__(/*! ./ReactBrowserEventEmitter */ 107);
-	var ReactInputSelection = __webpack_require__(/*! ./ReactInputSelection */ 142);
+	var PooledClass = __webpack_require__(/*! ./PooledClass */ 50);
+	var ReactBrowserEventEmitter = __webpack_require__(/*! ./ReactBrowserEventEmitter */ 105);
+	var ReactInputSelection = __webpack_require__(/*! ./ReactInputSelection */ 146);
 	var ReactInstrumentation = __webpack_require__(/*! ./ReactInstrumentation */ 62);
-	var Transaction = __webpack_require__(/*! ./Transaction */ 69);
-	var ReactUpdateQueue = __webpack_require__(/*! ./ReactUpdateQueue */ 131);
+	var Transaction = __webpack_require__(/*! ./Transaction */ 68);
+	var ReactUpdateQueue = __webpack_require__(/*! ./ReactUpdateQueue */ 135);
 	
 	/**
 	 * Ensures that, when possible, the selection range (currently selected text
@@ -18580,18 +18992,18 @@
 	  }
 	};
 	
-	_assign(ReactReconcileTransaction.prototype, Transaction.Mixin, Mixin);
+	_assign(ReactReconcileTransaction.prototype, Transaction, Mixin);
 	
 	PooledClass.addPoolingTo(ReactReconcileTransaction);
 	
 	module.exports = ReactReconcileTransaction;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 142 */
-/*!********************************************!*\
-  !*** ./~/react/lib/ReactInputSelection.js ***!
-  \********************************************/
+/* 146 */
+/*!************************************************!*\
+  !*** ./~/react-dom/lib/ReactInputSelection.js ***!
+  \************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -18602,16 +19014,15 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactInputSelection
 	 */
 	
 	'use strict';
 	
-	var ReactDOMSelection = __webpack_require__(/*! ./ReactDOMSelection */ 143);
+	var ReactDOMSelection = __webpack_require__(/*! ./ReactDOMSelection */ 147);
 	
-	var containsNode = __webpack_require__(/*! fbjs/lib/containsNode */ 145);
-	var focusNode = __webpack_require__(/*! fbjs/lib/focusNode */ 96);
-	var getActiveElement = __webpack_require__(/*! fbjs/lib/getActiveElement */ 148);
+	var containsNode = __webpack_require__(/*! fbjs/lib/containsNode */ 149);
+	var focusNode = __webpack_require__(/*! fbjs/lib/focusNode */ 94);
+	var getActiveElement = __webpack_require__(/*! fbjs/lib/getActiveElement */ 152);
 	
 	function isInDocument(node) {
 	  return containsNode(document.documentElement, node);
@@ -18720,10 +19131,10 @@
 	module.exports = ReactInputSelection;
 
 /***/ },
-/* 143 */
-/*!******************************************!*\
-  !*** ./~/react/lib/ReactDOMSelection.js ***!
-  \******************************************/
+/* 147 */
+/*!**********************************************!*\
+  !*** ./~/react-dom/lib/ReactDOMSelection.js ***!
+  \**********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -18734,14 +19145,13 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDOMSelection
 	 */
 	
 	'use strict';
 	
-	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 49);
+	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 48);
 	
-	var getNodeForCharacterOffset = __webpack_require__(/*! ./getNodeForCharacterOffset */ 144);
+	var getNodeForCharacterOffset = __webpack_require__(/*! ./getNodeForCharacterOffset */ 148);
 	var getTextContentAccessor = __webpack_require__(/*! ./getTextContentAccessor */ 51);
 	
 	/**
@@ -18940,10 +19350,10 @@
 	module.exports = ReactDOMSelection;
 
 /***/ },
-/* 144 */
-/*!**************************************************!*\
-  !*** ./~/react/lib/getNodeForCharacterOffset.js ***!
-  \**************************************************/
+/* 148 */
+/*!******************************************************!*\
+  !*** ./~/react-dom/lib/getNodeForCharacterOffset.js ***!
+  \******************************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -18954,7 +19364,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule getNodeForCharacterOffset
 	 */
 	
 	'use strict';
@@ -19022,7 +19431,7 @@
 	module.exports = getNodeForCharacterOffset;
 
 /***/ },
-/* 145 */
+/* 149 */
 /*!************************************!*\
   !*** ./~/fbjs/lib/containsNode.js ***!
   \************************************/
@@ -19041,7 +19450,7 @@
 	 * 
 	 */
 	
-	var isTextNode = __webpack_require__(/*! ./isTextNode */ 146);
+	var isTextNode = __webpack_require__(/*! ./isTextNode */ 150);
 	
 	/*eslint-disable no-bitwise */
 	
@@ -19069,7 +19478,7 @@
 	module.exports = containsNode;
 
 /***/ },
-/* 146 */
+/* 150 */
 /*!**********************************!*\
   !*** ./~/fbjs/lib/isTextNode.js ***!
   \**********************************/
@@ -19088,7 +19497,7 @@
 	 * @typechecks
 	 */
 	
-	var isNode = __webpack_require__(/*! ./isNode */ 147);
+	var isNode = __webpack_require__(/*! ./isNode */ 151);
 	
 	/**
 	 * @param {*} object The object to check.
@@ -19101,7 +19510,7 @@
 	module.exports = isTextNode;
 
 /***/ },
-/* 147 */
+/* 151 */
 /*!******************************!*\
   !*** ./~/fbjs/lib/isNode.js ***!
   \******************************/
@@ -19131,7 +19540,7 @@
 	module.exports = isNode;
 
 /***/ },
-/* 148 */
+/* 152 */
 /*!****************************************!*\
   !*** ./~/fbjs/lib/getActiveElement.js ***!
   \****************************************/
@@ -19173,10 +19582,10 @@
 	module.exports = getActiveElement;
 
 /***/ },
-/* 149 */
-/*!*********************************************!*\
-  !*** ./~/react/lib/SVGDOMPropertyConfig.js ***!
-  \*********************************************/
+/* 153 */
+/*!*************************************************!*\
+  !*** ./~/react-dom/lib/SVGDOMPropertyConfig.js ***!
+  \*************************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -19187,7 +19596,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule SVGDOMPropertyConfig
 	 */
 	
 	'use strict';
@@ -19483,10 +19891,10 @@
 	module.exports = SVGDOMPropertyConfig;
 
 /***/ },
-/* 150 */
-/*!******************************************!*\
-  !*** ./~/react/lib/SelectEventPlugin.js ***!
-  \******************************************/
+/* 154 */
+/*!**********************************************!*\
+  !*** ./~/react-dom/lib/SelectEventPlugin.js ***!
+  \**********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -19497,34 +19905,29 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule SelectEventPlugin
 	 */
 	
 	'use strict';
 	
-	var EventConstants = __webpack_require__(/*! ./EventConstants */ 41);
-	var EventPropagators = __webpack_require__(/*! ./EventPropagators */ 42);
-	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 49);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
-	var ReactInputSelection = __webpack_require__(/*! ./ReactInputSelection */ 142);
+	var EventPropagators = __webpack_require__(/*! ./EventPropagators */ 41);
+	var ExecutionEnvironment = __webpack_require__(/*! fbjs/lib/ExecutionEnvironment */ 48);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
+	var ReactInputSelection = __webpack_require__(/*! ./ReactInputSelection */ 146);
 	var SyntheticEvent = __webpack_require__(/*! ./SyntheticEvent */ 53);
 	
-	var getActiveElement = __webpack_require__(/*! fbjs/lib/getActiveElement */ 148);
-	var isTextInputElement = __webpack_require__(/*! ./isTextInputElement */ 72);
-	var keyOf = __webpack_require__(/*! fbjs/lib/keyOf */ 25);
-	var shallowEqual = __webpack_require__(/*! fbjs/lib/shallowEqual */ 124);
-	
-	var topLevelTypes = EventConstants.topLevelTypes;
+	var getActiveElement = __webpack_require__(/*! fbjs/lib/getActiveElement */ 152);
+	var isTextInputElement = __webpack_require__(/*! ./isTextInputElement */ 71);
+	var shallowEqual = __webpack_require__(/*! fbjs/lib/shallowEqual */ 123);
 	
 	var skipSelectionChangeEvent = ExecutionEnvironment.canUseDOM && 'documentMode' in document && document.documentMode <= 11;
 	
 	var eventTypes = {
 	  select: {
 	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onSelect: null }),
-	      captured: keyOf({ onSelectCapture: null })
+	      bubbled: 'onSelect',
+	      captured: 'onSelectCapture'
 	    },
-	    dependencies: [topLevelTypes.topBlur, topLevelTypes.topContextMenu, topLevelTypes.topFocus, topLevelTypes.topKeyDown, topLevelTypes.topMouseDown, topLevelTypes.topMouseUp, topLevelTypes.topSelectionChange]
+	    dependencies: ['topBlur', 'topContextMenu', 'topFocus', 'topKeyDown', 'topKeyUp', 'topMouseDown', 'topMouseUp', 'topSelectionChange']
 	  }
 	};
 	
@@ -19536,7 +19939,6 @@
 	// Track whether a listener exists for this plugin. If none exist, we do
 	// not extract events. See #3639.
 	var hasListener = false;
-	var ON_SELECT_KEY = keyOf({ onSelect: null });
 	
 	/**
 	 * Get an object which is a unique representation of the current selection.
@@ -19632,14 +20034,14 @@
 	
 	    switch (topLevelType) {
 	      // Track the input node that has focus.
-	      case topLevelTypes.topFocus:
+	      case 'topFocus':
 	        if (isTextInputElement(targetNode) || targetNode.contentEditable === 'true') {
 	          activeElement = targetNode;
 	          activeElementInst = targetInst;
 	          lastSelection = null;
 	        }
 	        break;
-	      case topLevelTypes.topBlur:
+	      case 'topBlur':
 	        activeElement = null;
 	        activeElementInst = null;
 	        lastSelection = null;
@@ -19647,11 +20049,11 @@
 	
 	      // Don't fire the event while the user is dragging. This matches the
 	      // semantics of the native select event.
-	      case topLevelTypes.topMouseDown:
+	      case 'topMouseDown':
 	        mouseDown = true;
 	        break;
-	      case topLevelTypes.topContextMenu:
-	      case topLevelTypes.topMouseUp:
+	      case 'topContextMenu':
+	      case 'topMouseUp':
 	        mouseDown = false;
 	        return constructSelectEvent(nativeEvent, nativeEventTarget);
 	
@@ -19664,13 +20066,13 @@
 	      // keyup, but we check on keydown as well in the case of holding down a
 	      // key, when multiple keydown events are fired but only one keyup is.
 	      // This is also our approach for IE handling, for the reason above.
-	      case topLevelTypes.topSelectionChange:
+	      case 'topSelectionChange':
 	        if (skipSelectionChangeEvent) {
 	          break;
 	        }
 	      // falls through
-	      case topLevelTypes.topKeyDown:
-	      case topLevelTypes.topKeyUp:
+	      case 'topKeyDown':
+	      case 'topKeyUp':
 	        return constructSelectEvent(nativeEvent, nativeEventTarget);
 	    }
 	
@@ -19678,7 +20080,7 @@
 	  },
 	
 	  didPutListener: function (inst, registrationName, listener) {
-	    if (registrationName === ON_SELECT_KEY) {
+	    if (registrationName === 'onSelect') {
 	      hasListener = true;
 	    }
 	  }
@@ -19687,10 +20089,10 @@
 	module.exports = SelectEventPlugin;
 
 /***/ },
-/* 151 */
-/*!******************************************!*\
-  !*** ./~/react/lib/SimpleEventPlugin.js ***!
-  \******************************************/
+/* 155 */
+/*!**********************************************!*\
+  !*** ./~/react-dom/lib/SimpleEventPlugin.js ***!
+  \**********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -19701,489 +20103,78 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule SimpleEventPlugin
+	 * 
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
-	var EventConstants = __webpack_require__(/*! ./EventConstants */ 41);
-	var EventListener = __webpack_require__(/*! fbjs/lib/EventListener */ 138);
-	var EventPropagators = __webpack_require__(/*! ./EventPropagators */ 42);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
-	var SyntheticAnimationEvent = __webpack_require__(/*! ./SyntheticAnimationEvent */ 152);
-	var SyntheticClipboardEvent = __webpack_require__(/*! ./SyntheticClipboardEvent */ 153);
+	var EventListener = __webpack_require__(/*! fbjs/lib/EventListener */ 142);
+	var EventPropagators = __webpack_require__(/*! ./EventPropagators */ 41);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
+	var SyntheticAnimationEvent = __webpack_require__(/*! ./SyntheticAnimationEvent */ 156);
+	var SyntheticClipboardEvent = __webpack_require__(/*! ./SyntheticClipboardEvent */ 157);
 	var SyntheticEvent = __webpack_require__(/*! ./SyntheticEvent */ 53);
-	var SyntheticFocusEvent = __webpack_require__(/*! ./SyntheticFocusEvent */ 154);
-	var SyntheticKeyboardEvent = __webpack_require__(/*! ./SyntheticKeyboardEvent */ 155);
-	var SyntheticMouseEvent = __webpack_require__(/*! ./SyntheticMouseEvent */ 75);
-	var SyntheticDragEvent = __webpack_require__(/*! ./SyntheticDragEvent */ 158);
-	var SyntheticTouchEvent = __webpack_require__(/*! ./SyntheticTouchEvent */ 159);
-	var SyntheticTransitionEvent = __webpack_require__(/*! ./SyntheticTransitionEvent */ 160);
-	var SyntheticUIEvent = __webpack_require__(/*! ./SyntheticUIEvent */ 76);
-	var SyntheticWheelEvent = __webpack_require__(/*! ./SyntheticWheelEvent */ 161);
+	var SyntheticFocusEvent = __webpack_require__(/*! ./SyntheticFocusEvent */ 158);
+	var SyntheticKeyboardEvent = __webpack_require__(/*! ./SyntheticKeyboardEvent */ 159);
+	var SyntheticMouseEvent = __webpack_require__(/*! ./SyntheticMouseEvent */ 74);
+	var SyntheticDragEvent = __webpack_require__(/*! ./SyntheticDragEvent */ 162);
+	var SyntheticTouchEvent = __webpack_require__(/*! ./SyntheticTouchEvent */ 163);
+	var SyntheticTransitionEvent = __webpack_require__(/*! ./SyntheticTransitionEvent */ 164);
+	var SyntheticUIEvent = __webpack_require__(/*! ./SyntheticUIEvent */ 75);
+	var SyntheticWheelEvent = __webpack_require__(/*! ./SyntheticWheelEvent */ 165);
 	
 	var emptyFunction = __webpack_require__(/*! fbjs/lib/emptyFunction */ 12);
-	var getEventCharCode = __webpack_require__(/*! ./getEventCharCode */ 156);
+	var getEventCharCode = __webpack_require__(/*! ./getEventCharCode */ 160);
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
-	var keyOf = __webpack_require__(/*! fbjs/lib/keyOf */ 25);
 	
-	var topLevelTypes = EventConstants.topLevelTypes;
+	/**
+	 * Turns
+	 * ['abort', ...]
+	 * into
+	 * eventTypes = {
+	 *   'abort': {
+	 *     phasedRegistrationNames: {
+	 *       bubbled: 'onAbort',
+	 *       captured: 'onAbortCapture',
+	 *     },
+	 *     dependencies: ['topAbort'],
+	 *   },
+	 *   ...
+	 * };
+	 * topLevelEventsToDispatchConfig = {
+	 *   'topAbort': { sameConfig }
+	 * };
+	 */
+	var eventTypes = {};
+	var topLevelEventsToDispatchConfig = {};
+	['abort', 'animationEnd', 'animationIteration', 'animationStart', 'blur', 'canPlay', 'canPlayThrough', 'click', 'contextMenu', 'copy', 'cut', 'doubleClick', 'drag', 'dragEnd', 'dragEnter', 'dragExit', 'dragLeave', 'dragOver', 'dragStart', 'drop', 'durationChange', 'emptied', 'encrypted', 'ended', 'error', 'focus', 'input', 'invalid', 'keyDown', 'keyPress', 'keyUp', 'load', 'loadedData', 'loadedMetadata', 'loadStart', 'mouseDown', 'mouseMove', 'mouseOut', 'mouseOver', 'mouseUp', 'paste', 'pause', 'play', 'playing', 'progress', 'rateChange', 'reset', 'scroll', 'seeked', 'seeking', 'stalled', 'submit', 'suspend', 'timeUpdate', 'touchCancel', 'touchEnd', 'touchMove', 'touchStart', 'transitionEnd', 'volumeChange', 'waiting', 'wheel'].forEach(function (event) {
+	  var capitalizedEvent = event[0].toUpperCase() + event.slice(1);
+	  var onEvent = 'on' + capitalizedEvent;
+	  var topEvent = 'top' + capitalizedEvent;
 	
-	var eventTypes = {
-	  abort: {
+	  var type = {
 	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onAbort: true }),
-	      captured: keyOf({ onAbortCapture: true })
-	    }
-	  },
-	  animationEnd: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onAnimationEnd: true }),
-	      captured: keyOf({ onAnimationEndCapture: true })
-	    }
-	  },
-	  animationIteration: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onAnimationIteration: true }),
-	      captured: keyOf({ onAnimationIterationCapture: true })
-	    }
-	  },
-	  animationStart: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onAnimationStart: true }),
-	      captured: keyOf({ onAnimationStartCapture: true })
-	    }
-	  },
-	  blur: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onBlur: true }),
-	      captured: keyOf({ onBlurCapture: true })
-	    }
-	  },
-	  canPlay: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onCanPlay: true }),
-	      captured: keyOf({ onCanPlayCapture: true })
-	    }
-	  },
-	  canPlayThrough: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onCanPlayThrough: true }),
-	      captured: keyOf({ onCanPlayThroughCapture: true })
-	    }
-	  },
-	  click: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onClick: true }),
-	      captured: keyOf({ onClickCapture: true })
-	    }
-	  },
-	  contextMenu: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onContextMenu: true }),
-	      captured: keyOf({ onContextMenuCapture: true })
-	    }
-	  },
-	  copy: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onCopy: true }),
-	      captured: keyOf({ onCopyCapture: true })
-	    }
-	  },
-	  cut: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onCut: true }),
-	      captured: keyOf({ onCutCapture: true })
-	    }
-	  },
-	  doubleClick: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onDoubleClick: true }),
-	      captured: keyOf({ onDoubleClickCapture: true })
-	    }
-	  },
-	  drag: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onDrag: true }),
-	      captured: keyOf({ onDragCapture: true })
-	    }
-	  },
-	  dragEnd: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onDragEnd: true }),
-	      captured: keyOf({ onDragEndCapture: true })
-	    }
-	  },
-	  dragEnter: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onDragEnter: true }),
-	      captured: keyOf({ onDragEnterCapture: true })
-	    }
-	  },
-	  dragExit: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onDragExit: true }),
-	      captured: keyOf({ onDragExitCapture: true })
-	    }
-	  },
-	  dragLeave: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onDragLeave: true }),
-	      captured: keyOf({ onDragLeaveCapture: true })
-	    }
-	  },
-	  dragOver: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onDragOver: true }),
-	      captured: keyOf({ onDragOverCapture: true })
-	    }
-	  },
-	  dragStart: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onDragStart: true }),
-	      captured: keyOf({ onDragStartCapture: true })
-	    }
-	  },
-	  drop: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onDrop: true }),
-	      captured: keyOf({ onDropCapture: true })
-	    }
-	  },
-	  durationChange: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onDurationChange: true }),
-	      captured: keyOf({ onDurationChangeCapture: true })
-	    }
-	  },
-	  emptied: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onEmptied: true }),
-	      captured: keyOf({ onEmptiedCapture: true })
-	    }
-	  },
-	  encrypted: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onEncrypted: true }),
-	      captured: keyOf({ onEncryptedCapture: true })
-	    }
-	  },
-	  ended: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onEnded: true }),
-	      captured: keyOf({ onEndedCapture: true })
-	    }
-	  },
-	  error: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onError: true }),
-	      captured: keyOf({ onErrorCapture: true })
-	    }
-	  },
-	  focus: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onFocus: true }),
-	      captured: keyOf({ onFocusCapture: true })
-	    }
-	  },
-	  input: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onInput: true }),
-	      captured: keyOf({ onInputCapture: true })
-	    }
-	  },
-	  invalid: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onInvalid: true }),
-	      captured: keyOf({ onInvalidCapture: true })
-	    }
-	  },
-	  keyDown: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onKeyDown: true }),
-	      captured: keyOf({ onKeyDownCapture: true })
-	    }
-	  },
-	  keyPress: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onKeyPress: true }),
-	      captured: keyOf({ onKeyPressCapture: true })
-	    }
-	  },
-	  keyUp: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onKeyUp: true }),
-	      captured: keyOf({ onKeyUpCapture: true })
-	    }
-	  },
-	  load: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onLoad: true }),
-	      captured: keyOf({ onLoadCapture: true })
-	    }
-	  },
-	  loadedData: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onLoadedData: true }),
-	      captured: keyOf({ onLoadedDataCapture: true })
-	    }
-	  },
-	  loadedMetadata: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onLoadedMetadata: true }),
-	      captured: keyOf({ onLoadedMetadataCapture: true })
-	    }
-	  },
-	  loadStart: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onLoadStart: true }),
-	      captured: keyOf({ onLoadStartCapture: true })
-	    }
-	  },
-	  // Note: We do not allow listening to mouseOver events. Instead, use the
-	  // onMouseEnter/onMouseLeave created by `EnterLeaveEventPlugin`.
-	  mouseDown: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onMouseDown: true }),
-	      captured: keyOf({ onMouseDownCapture: true })
-	    }
-	  },
-	  mouseMove: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onMouseMove: true }),
-	      captured: keyOf({ onMouseMoveCapture: true })
-	    }
-	  },
-	  mouseOut: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onMouseOut: true }),
-	      captured: keyOf({ onMouseOutCapture: true })
-	    }
-	  },
-	  mouseOver: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onMouseOver: true }),
-	      captured: keyOf({ onMouseOverCapture: true })
-	    }
-	  },
-	  mouseUp: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onMouseUp: true }),
-	      captured: keyOf({ onMouseUpCapture: true })
-	    }
-	  },
-	  paste: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onPaste: true }),
-	      captured: keyOf({ onPasteCapture: true })
-	    }
-	  },
-	  pause: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onPause: true }),
-	      captured: keyOf({ onPauseCapture: true })
-	    }
-	  },
-	  play: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onPlay: true }),
-	      captured: keyOf({ onPlayCapture: true })
-	    }
-	  },
-	  playing: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onPlaying: true }),
-	      captured: keyOf({ onPlayingCapture: true })
-	    }
-	  },
-	  progress: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onProgress: true }),
-	      captured: keyOf({ onProgressCapture: true })
-	    }
-	  },
-	  rateChange: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onRateChange: true }),
-	      captured: keyOf({ onRateChangeCapture: true })
-	    }
-	  },
-	  reset: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onReset: true }),
-	      captured: keyOf({ onResetCapture: true })
-	    }
-	  },
-	  scroll: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onScroll: true }),
-	      captured: keyOf({ onScrollCapture: true })
-	    }
-	  },
-	  seeked: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onSeeked: true }),
-	      captured: keyOf({ onSeekedCapture: true })
-	    }
-	  },
-	  seeking: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onSeeking: true }),
-	      captured: keyOf({ onSeekingCapture: true })
-	    }
-	  },
-	  stalled: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onStalled: true }),
-	      captured: keyOf({ onStalledCapture: true })
-	    }
-	  },
-	  submit: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onSubmit: true }),
-	      captured: keyOf({ onSubmitCapture: true })
-	    }
-	  },
-	  suspend: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onSuspend: true }),
-	      captured: keyOf({ onSuspendCapture: true })
-	    }
-	  },
-	  timeUpdate: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onTimeUpdate: true }),
-	      captured: keyOf({ onTimeUpdateCapture: true })
-	    }
-	  },
-	  touchCancel: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onTouchCancel: true }),
-	      captured: keyOf({ onTouchCancelCapture: true })
-	    }
-	  },
-	  touchEnd: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onTouchEnd: true }),
-	      captured: keyOf({ onTouchEndCapture: true })
-	    }
-	  },
-	  touchMove: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onTouchMove: true }),
-	      captured: keyOf({ onTouchMoveCapture: true })
-	    }
-	  },
-	  touchStart: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onTouchStart: true }),
-	      captured: keyOf({ onTouchStartCapture: true })
-	    }
-	  },
-	  transitionEnd: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onTransitionEnd: true }),
-	      captured: keyOf({ onTransitionEndCapture: true })
-	    }
-	  },
-	  volumeChange: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onVolumeChange: true }),
-	      captured: keyOf({ onVolumeChangeCapture: true })
-	    }
-	  },
-	  waiting: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onWaiting: true }),
-	      captured: keyOf({ onWaitingCapture: true })
-	    }
-	  },
-	  wheel: {
-	    phasedRegistrationNames: {
-	      bubbled: keyOf({ onWheel: true }),
-	      captured: keyOf({ onWheelCapture: true })
-	    }
-	  }
-	};
+	      bubbled: onEvent,
+	      captured: onEvent + 'Capture'
+	    },
+	    dependencies: [topEvent]
+	  };
+	  eventTypes[event] = type;
+	  topLevelEventsToDispatchConfig[topEvent] = type;
+	});
 	
-	var topLevelEventsToDispatchConfig = {
-	  topAbort: eventTypes.abort,
-	  topAnimationEnd: eventTypes.animationEnd,
-	  topAnimationIteration: eventTypes.animationIteration,
-	  topAnimationStart: eventTypes.animationStart,
-	  topBlur: eventTypes.blur,
-	  topCanPlay: eventTypes.canPlay,
-	  topCanPlayThrough: eventTypes.canPlayThrough,
-	  topClick: eventTypes.click,
-	  topContextMenu: eventTypes.contextMenu,
-	  topCopy: eventTypes.copy,
-	  topCut: eventTypes.cut,
-	  topDoubleClick: eventTypes.doubleClick,
-	  topDrag: eventTypes.drag,
-	  topDragEnd: eventTypes.dragEnd,
-	  topDragEnter: eventTypes.dragEnter,
-	  topDragExit: eventTypes.dragExit,
-	  topDragLeave: eventTypes.dragLeave,
-	  topDragOver: eventTypes.dragOver,
-	  topDragStart: eventTypes.dragStart,
-	  topDrop: eventTypes.drop,
-	  topDurationChange: eventTypes.durationChange,
-	  topEmptied: eventTypes.emptied,
-	  topEncrypted: eventTypes.encrypted,
-	  topEnded: eventTypes.ended,
-	  topError: eventTypes.error,
-	  topFocus: eventTypes.focus,
-	  topInput: eventTypes.input,
-	  topInvalid: eventTypes.invalid,
-	  topKeyDown: eventTypes.keyDown,
-	  topKeyPress: eventTypes.keyPress,
-	  topKeyUp: eventTypes.keyUp,
-	  topLoad: eventTypes.load,
-	  topLoadedData: eventTypes.loadedData,
-	  topLoadedMetadata: eventTypes.loadedMetadata,
-	  topLoadStart: eventTypes.loadStart,
-	  topMouseDown: eventTypes.mouseDown,
-	  topMouseMove: eventTypes.mouseMove,
-	  topMouseOut: eventTypes.mouseOut,
-	  topMouseOver: eventTypes.mouseOver,
-	  topMouseUp: eventTypes.mouseUp,
-	  topPaste: eventTypes.paste,
-	  topPause: eventTypes.pause,
-	  topPlay: eventTypes.play,
-	  topPlaying: eventTypes.playing,
-	  topProgress: eventTypes.progress,
-	  topRateChange: eventTypes.rateChange,
-	  topReset: eventTypes.reset,
-	  topScroll: eventTypes.scroll,
-	  topSeeked: eventTypes.seeked,
-	  topSeeking: eventTypes.seeking,
-	  topStalled: eventTypes.stalled,
-	  topSubmit: eventTypes.submit,
-	  topSuspend: eventTypes.suspend,
-	  topTimeUpdate: eventTypes.timeUpdate,
-	  topTouchCancel: eventTypes.touchCancel,
-	  topTouchEnd: eventTypes.touchEnd,
-	  topTouchMove: eventTypes.touchMove,
-	  topTouchStart: eventTypes.touchStart,
-	  topTransitionEnd: eventTypes.transitionEnd,
-	  topVolumeChange: eventTypes.volumeChange,
-	  topWaiting: eventTypes.waiting,
-	  topWheel: eventTypes.wheel
-	};
-	
-	for (var type in topLevelEventsToDispatchConfig) {
-	  topLevelEventsToDispatchConfig[type].dependencies = [type];
-	}
-	
-	var ON_CLICK_KEY = keyOf({ onClick: null });
 	var onClickListeners = {};
 	
 	function getDictionaryKey(inst) {
 	  // Prevents V8 performance issue:
 	  // https://github.com/facebook/react/pull/7232
 	  return '.' + inst._rootNodeID;
+	}
+	
+	function isInteractive(tag) {
+	  return tag === 'button' || tag === 'input' || tag === 'select' || tag === 'textarea';
 	}
 	
 	var SimpleEventPlugin = {
@@ -20197,39 +20188,39 @@
 	    }
 	    var EventConstructor;
 	    switch (topLevelType) {
-	      case topLevelTypes.topAbort:
-	      case topLevelTypes.topCanPlay:
-	      case topLevelTypes.topCanPlayThrough:
-	      case topLevelTypes.topDurationChange:
-	      case topLevelTypes.topEmptied:
-	      case topLevelTypes.topEncrypted:
-	      case topLevelTypes.topEnded:
-	      case topLevelTypes.topError:
-	      case topLevelTypes.topInput:
-	      case topLevelTypes.topInvalid:
-	      case topLevelTypes.topLoad:
-	      case topLevelTypes.topLoadedData:
-	      case topLevelTypes.topLoadedMetadata:
-	      case topLevelTypes.topLoadStart:
-	      case topLevelTypes.topPause:
-	      case topLevelTypes.topPlay:
-	      case topLevelTypes.topPlaying:
-	      case topLevelTypes.topProgress:
-	      case topLevelTypes.topRateChange:
-	      case topLevelTypes.topReset:
-	      case topLevelTypes.topSeeked:
-	      case topLevelTypes.topSeeking:
-	      case topLevelTypes.topStalled:
-	      case topLevelTypes.topSubmit:
-	      case topLevelTypes.topSuspend:
-	      case topLevelTypes.topTimeUpdate:
-	      case topLevelTypes.topVolumeChange:
-	      case topLevelTypes.topWaiting:
+	      case 'topAbort':
+	      case 'topCanPlay':
+	      case 'topCanPlayThrough':
+	      case 'topDurationChange':
+	      case 'topEmptied':
+	      case 'topEncrypted':
+	      case 'topEnded':
+	      case 'topError':
+	      case 'topInput':
+	      case 'topInvalid':
+	      case 'topLoad':
+	      case 'topLoadedData':
+	      case 'topLoadedMetadata':
+	      case 'topLoadStart':
+	      case 'topPause':
+	      case 'topPlay':
+	      case 'topPlaying':
+	      case 'topProgress':
+	      case 'topRateChange':
+	      case 'topReset':
+	      case 'topSeeked':
+	      case 'topSeeking':
+	      case 'topStalled':
+	      case 'topSubmit':
+	      case 'topSuspend':
+	      case 'topTimeUpdate':
+	      case 'topVolumeChange':
+	      case 'topWaiting':
 	        // HTML Events
 	        // @see http://www.w3.org/TR/html5/index.html#events-0
 	        EventConstructor = SyntheticEvent;
 	        break;
-	      case topLevelTypes.topKeyPress:
+	      case 'topKeyPress':
 	        // Firefox creates a keypress event for function keys too. This removes
 	        // the unwanted keypress events. Enter is however both printable and
 	        // non-printable. One would expect Tab to be as well (but it isn't).
@@ -20237,63 +20228,65 @@
 	          return null;
 	        }
 	      /* falls through */
-	      case topLevelTypes.topKeyDown:
-	      case topLevelTypes.topKeyUp:
+	      case 'topKeyDown':
+	      case 'topKeyUp':
 	        EventConstructor = SyntheticKeyboardEvent;
 	        break;
-	      case topLevelTypes.topBlur:
-	      case topLevelTypes.topFocus:
+	      case 'topBlur':
+	      case 'topFocus':
 	        EventConstructor = SyntheticFocusEvent;
 	        break;
-	      case topLevelTypes.topClick:
+	      case 'topClick':
 	        // Firefox creates a click event on right mouse clicks. This removes the
 	        // unwanted click events.
 	        if (nativeEvent.button === 2) {
 	          return null;
 	        }
 	      /* falls through */
-	      case topLevelTypes.topContextMenu:
-	      case topLevelTypes.topDoubleClick:
-	      case topLevelTypes.topMouseDown:
-	      case topLevelTypes.topMouseMove:
-	      case topLevelTypes.topMouseOut:
-	      case topLevelTypes.topMouseOver:
-	      case topLevelTypes.topMouseUp:
+	      case 'topDoubleClick':
+	      case 'topMouseDown':
+	      case 'topMouseMove':
+	      case 'topMouseUp':
+	      // TODO: Disabled elements should not respond to mouse events
+	      /* falls through */
+	      case 'topMouseOut':
+	      case 'topMouseOver':
+	      case 'topContextMenu':
 	        EventConstructor = SyntheticMouseEvent;
 	        break;
-	      case topLevelTypes.topDrag:
-	      case topLevelTypes.topDragEnd:
-	      case topLevelTypes.topDragEnter:
-	      case topLevelTypes.topDragExit:
-	      case topLevelTypes.topDragLeave:
-	      case topLevelTypes.topDragOver:
-	      case topLevelTypes.topDragStart:
-	      case topLevelTypes.topDrop:
+	      case 'topDrag':
+	      case 'topDragEnd':
+	      case 'topDragEnter':
+	      case 'topDragExit':
+	      case 'topDragLeave':
+	      case 'topDragOver':
+	      case 'topDragStart':
+	      case 'topDrop':
 	        EventConstructor = SyntheticDragEvent;
 	        break;
-	      case topLevelTypes.topTouchCancel:
-	      case topLevelTypes.topTouchEnd:
-	      case topLevelTypes.topTouchMove:
-	      case topLevelTypes.topTouchStart:
+	      case 'topTouchCancel':
+	      case 'topTouchEnd':
+	      case 'topTouchMove':
+	      case 'topTouchStart':
 	        EventConstructor = SyntheticTouchEvent;
 	        break;
-	      case topLevelTypes.topAnimationEnd:
-	      case topLevelTypes.topAnimationIteration:
-	      case topLevelTypes.topAnimationStart:
+	      case 'topAnimationEnd':
+	      case 'topAnimationIteration':
+	      case 'topAnimationStart':
 	        EventConstructor = SyntheticAnimationEvent;
 	        break;
-	      case topLevelTypes.topTransitionEnd:
+	      case 'topTransitionEnd':
 	        EventConstructor = SyntheticTransitionEvent;
 	        break;
-	      case topLevelTypes.topScroll:
+	      case 'topScroll':
 	        EventConstructor = SyntheticUIEvent;
 	        break;
-	      case topLevelTypes.topWheel:
+	      case 'topWheel':
 	        EventConstructor = SyntheticWheelEvent;
 	        break;
-	      case topLevelTypes.topCopy:
-	      case topLevelTypes.topCut:
-	      case topLevelTypes.topPaste:
+	      case 'topCopy':
+	      case 'topCut':
+	      case 'topPaste':
 	        EventConstructor = SyntheticClipboardEvent;
 	        break;
 	    }
@@ -20308,7 +20301,8 @@
 	    // non-interactive elements, which means delegated click listeners do not
 	    // fire. The workaround for this bug involves attaching an empty click
 	    // listener on the target node.
-	    if (registrationName === ON_CLICK_KEY) {
+	    // http://www.quirksmode.org/blog/archives/2010/09/click_event_del.html
+	    if (registrationName === 'onClick' && !isInteractive(inst._tag)) {
 	      var key = getDictionaryKey(inst);
 	      var node = ReactDOMComponentTree.getNodeFromInstance(inst);
 	      if (!onClickListeners[key]) {
@@ -20318,7 +20312,7 @@
 	  },
 	
 	  willDeleteListener: function (inst, registrationName) {
-	    if (registrationName === ON_CLICK_KEY) {
+	    if (registrationName === 'onClick' && !isInteractive(inst._tag)) {
 	      var key = getDictionaryKey(inst);
 	      onClickListeners[key].remove();
 	      delete onClickListeners[key];
@@ -20328,13 +20322,13 @@
 	};
 	
 	module.exports = SimpleEventPlugin;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 152 */
-/*!************************************************!*\
-  !*** ./~/react/lib/SyntheticAnimationEvent.js ***!
-  \************************************************/
+/* 156 */
+/*!****************************************************!*\
+  !*** ./~/react-dom/lib/SyntheticAnimationEvent.js ***!
+  \****************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -20345,7 +20339,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule SyntheticAnimationEvent
 	 */
 	
 	'use strict';
@@ -20378,10 +20371,10 @@
 	module.exports = SyntheticAnimationEvent;
 
 /***/ },
-/* 153 */
-/*!************************************************!*\
-  !*** ./~/react/lib/SyntheticClipboardEvent.js ***!
-  \************************************************/
+/* 157 */
+/*!****************************************************!*\
+  !*** ./~/react-dom/lib/SyntheticClipboardEvent.js ***!
+  \****************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -20392,7 +20385,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule SyntheticClipboardEvent
 	 */
 	
 	'use strict';
@@ -20424,10 +20416,10 @@
 	module.exports = SyntheticClipboardEvent;
 
 /***/ },
-/* 154 */
-/*!********************************************!*\
-  !*** ./~/react/lib/SyntheticFocusEvent.js ***!
-  \********************************************/
+/* 158 */
+/*!************************************************!*\
+  !*** ./~/react-dom/lib/SyntheticFocusEvent.js ***!
+  \************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -20438,12 +20430,11 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule SyntheticFocusEvent
 	 */
 	
 	'use strict';
 	
-	var SyntheticUIEvent = __webpack_require__(/*! ./SyntheticUIEvent */ 76);
+	var SyntheticUIEvent = __webpack_require__(/*! ./SyntheticUIEvent */ 75);
 	
 	/**
 	 * @interface FocusEvent
@@ -20468,10 +20459,10 @@
 	module.exports = SyntheticFocusEvent;
 
 /***/ },
-/* 155 */
-/*!***********************************************!*\
-  !*** ./~/react/lib/SyntheticKeyboardEvent.js ***!
-  \***********************************************/
+/* 159 */
+/*!***************************************************!*\
+  !*** ./~/react-dom/lib/SyntheticKeyboardEvent.js ***!
+  \***************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -20482,16 +20473,15 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule SyntheticKeyboardEvent
 	 */
 	
 	'use strict';
 	
-	var SyntheticUIEvent = __webpack_require__(/*! ./SyntheticUIEvent */ 76);
+	var SyntheticUIEvent = __webpack_require__(/*! ./SyntheticUIEvent */ 75);
 	
-	var getEventCharCode = __webpack_require__(/*! ./getEventCharCode */ 156);
-	var getEventKey = __webpack_require__(/*! ./getEventKey */ 157);
-	var getEventModifierState = __webpack_require__(/*! ./getEventModifierState */ 78);
+	var getEventCharCode = __webpack_require__(/*! ./getEventCharCode */ 160);
+	var getEventKey = __webpack_require__(/*! ./getEventKey */ 161);
+	var getEventModifierState = __webpack_require__(/*! ./getEventModifierState */ 77);
 	
 	/**
 	 * @interface KeyboardEvent
@@ -20560,10 +20550,10 @@
 	module.exports = SyntheticKeyboardEvent;
 
 /***/ },
-/* 156 */
-/*!*****************************************!*\
-  !*** ./~/react/lib/getEventCharCode.js ***!
-  \*****************************************/
+/* 160 */
+/*!*********************************************!*\
+  !*** ./~/react-dom/lib/getEventCharCode.js ***!
+  \*********************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -20574,7 +20564,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule getEventCharCode
 	 */
 	
 	'use strict';
@@ -20618,10 +20607,10 @@
 	module.exports = getEventCharCode;
 
 /***/ },
-/* 157 */
-/*!************************************!*\
-  !*** ./~/react/lib/getEventKey.js ***!
-  \************************************/
+/* 161 */
+/*!****************************************!*\
+  !*** ./~/react-dom/lib/getEventKey.js ***!
+  \****************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -20632,12 +20621,11 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule getEventKey
 	 */
 	
 	'use strict';
 	
-	var getEventCharCode = __webpack_require__(/*! ./getEventCharCode */ 156);
+	var getEventCharCode = __webpack_require__(/*! ./getEventCharCode */ 160);
 	
 	/**
 	 * Normalization of deprecated HTML5 `key` values
@@ -20728,10 +20716,10 @@
 	module.exports = getEventKey;
 
 /***/ },
-/* 158 */
-/*!*******************************************!*\
-  !*** ./~/react/lib/SyntheticDragEvent.js ***!
-  \*******************************************/
+/* 162 */
+/*!***********************************************!*\
+  !*** ./~/react-dom/lib/SyntheticDragEvent.js ***!
+  \***********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -20742,12 +20730,11 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule SyntheticDragEvent
 	 */
 	
 	'use strict';
 	
-	var SyntheticMouseEvent = __webpack_require__(/*! ./SyntheticMouseEvent */ 75);
+	var SyntheticMouseEvent = __webpack_require__(/*! ./SyntheticMouseEvent */ 74);
 	
 	/**
 	 * @interface DragEvent
@@ -20772,10 +20759,10 @@
 	module.exports = SyntheticDragEvent;
 
 /***/ },
-/* 159 */
-/*!********************************************!*\
-  !*** ./~/react/lib/SyntheticTouchEvent.js ***!
-  \********************************************/
+/* 163 */
+/*!************************************************!*\
+  !*** ./~/react-dom/lib/SyntheticTouchEvent.js ***!
+  \************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -20786,14 +20773,13 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule SyntheticTouchEvent
 	 */
 	
 	'use strict';
 	
-	var SyntheticUIEvent = __webpack_require__(/*! ./SyntheticUIEvent */ 76);
+	var SyntheticUIEvent = __webpack_require__(/*! ./SyntheticUIEvent */ 75);
 	
-	var getEventModifierState = __webpack_require__(/*! ./getEventModifierState */ 78);
+	var getEventModifierState = __webpack_require__(/*! ./getEventModifierState */ 77);
 	
 	/**
 	 * @interface TouchEvent
@@ -20825,10 +20811,10 @@
 	module.exports = SyntheticTouchEvent;
 
 /***/ },
-/* 160 */
-/*!*************************************************!*\
-  !*** ./~/react/lib/SyntheticTransitionEvent.js ***!
-  \*************************************************/
+/* 164 */
+/*!*****************************************************!*\
+  !*** ./~/react-dom/lib/SyntheticTransitionEvent.js ***!
+  \*****************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -20839,7 +20825,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule SyntheticTransitionEvent
 	 */
 	
 	'use strict';
@@ -20872,10 +20857,10 @@
 	module.exports = SyntheticTransitionEvent;
 
 /***/ },
-/* 161 */
-/*!********************************************!*\
-  !*** ./~/react/lib/SyntheticWheelEvent.js ***!
-  \********************************************/
+/* 165 */
+/*!************************************************!*\
+  !*** ./~/react-dom/lib/SyntheticWheelEvent.js ***!
+  \************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -20886,12 +20871,11 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule SyntheticWheelEvent
 	 */
 	
 	'use strict';
 	
-	var SyntheticMouseEvent = __webpack_require__(/*! ./SyntheticMouseEvent */ 75);
+	var SyntheticMouseEvent = __webpack_require__(/*! ./SyntheticMouseEvent */ 74);
 	
 	/**
 	 * @interface WheelEvent
@@ -20934,10 +20918,10 @@
 	module.exports = SyntheticWheelEvent;
 
 /***/ },
-/* 162 */
-/*!***********************************!*\
-  !*** ./~/react/lib/ReactMount.js ***!
-  \***********************************/
+/* 166 */
+/*!***************************************!*\
+  !*** ./~/react-dom/lib/ReactMount.js ***!
+  \***************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -20948,34 +20932,33 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactMount
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
-	var DOMLazyTree = __webpack_require__(/*! ./DOMLazyTree */ 82);
-	var DOMProperty = __webpack_require__(/*! ./DOMProperty */ 37);
-	var ReactBrowserEventEmitter = __webpack_require__(/*! ./ReactBrowserEventEmitter */ 107);
-	var ReactCurrentOwner = __webpack_require__(/*! ./ReactCurrentOwner */ 10);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
-	var ReactDOMContainerInfo = __webpack_require__(/*! ./ReactDOMContainerInfo */ 163);
-	var ReactDOMFeatureFlags = __webpack_require__(/*! ./ReactDOMFeatureFlags */ 164);
-	var ReactElement = __webpack_require__(/*! ./ReactElement */ 9);
+	var DOMLazyTree = __webpack_require__(/*! ./DOMLazyTree */ 81);
+	var DOMProperty = __webpack_require__(/*! ./DOMProperty */ 36);
+	var React = __webpack_require__(/*! react/lib/React */ 2);
+	var ReactBrowserEventEmitter = __webpack_require__(/*! ./ReactBrowserEventEmitter */ 105);
+	var ReactCurrentOwner = __webpack_require__(/*! react/lib/ReactCurrentOwner */ 10);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
+	var ReactDOMContainerInfo = __webpack_require__(/*! ./ReactDOMContainerInfo */ 167);
+	var ReactDOMFeatureFlags = __webpack_require__(/*! ./ReactDOMFeatureFlags */ 168);
 	var ReactFeatureFlags = __webpack_require__(/*! ./ReactFeatureFlags */ 58);
-	var ReactInstanceMap = __webpack_require__(/*! ./ReactInstanceMap */ 119);
+	var ReactInstanceMap = __webpack_require__(/*! ./ReactInstanceMap */ 116);
 	var ReactInstrumentation = __webpack_require__(/*! ./ReactInstrumentation */ 62);
-	var ReactMarkupChecksum = __webpack_require__(/*! ./ReactMarkupChecksum */ 165);
+	var ReactMarkupChecksum = __webpack_require__(/*! ./ReactMarkupChecksum */ 169);
 	var ReactReconciler = __webpack_require__(/*! ./ReactReconciler */ 59);
-	var ReactUpdateQueue = __webpack_require__(/*! ./ReactUpdateQueue */ 131);
+	var ReactUpdateQueue = __webpack_require__(/*! ./ReactUpdateQueue */ 135);
 	var ReactUpdates = __webpack_require__(/*! ./ReactUpdates */ 56);
 	
-	var emptyObject = __webpack_require__(/*! fbjs/lib/emptyObject */ 19);
-	var instantiateReactComponent = __webpack_require__(/*! ./instantiateReactComponent */ 121);
+	var emptyObject = __webpack_require__(/*! fbjs/lib/emptyObject */ 20);
+	var instantiateReactComponent = __webpack_require__(/*! ./instantiateReactComponent */ 118);
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
-	var setInnerHTML = __webpack_require__(/*! ./setInnerHTML */ 84);
-	var shouldUpdateReactComponent = __webpack_require__(/*! ./shouldUpdateReactComponent */ 125);
+	var setInnerHTML = __webpack_require__(/*! ./setInnerHTML */ 83);
+	var shouldUpdateReactComponent = __webpack_require__(/*! ./shouldUpdateReactComponent */ 124);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
 	var ATTR_NAME = DOMProperty.ID_ATTRIBUTE_NAME;
@@ -21038,7 +21021,7 @@
 	function mountComponentIntoNode(wrapperInstance, container, transaction, shouldReuseMarkup, context) {
 	  var markerName;
 	  if (ReactFeatureFlags.logTopLevelRenders) {
-	    var wrappedElement = wrapperInstance._currentElement.props;
+	    var wrappedElement = wrapperInstance._currentElement.props.child;
 	    var type = wrappedElement.type;
 	    markerName = 'React mount: ' + (typeof type === 'string' ? type : type.displayName || type.name);
 	    console.time(markerName);
@@ -21176,9 +21159,9 @@
 	  TopLevelWrapper.displayName = 'TopLevelWrapper';
 	}
 	TopLevelWrapper.prototype.render = function () {
-	  // this.props is actually a ReactElement
-	  return this.props;
+	  return this.props.child;
 	};
+	TopLevelWrapper.isReactTopLevelWrapper = true;
 	
 	/**
 	 * Mounting is the process of initializing a React component by creating its
@@ -21288,13 +21271,13 @@
 	
 	  _renderSubtreeIntoContainer: function (parentComponent, nextElement, container, callback) {
 	    ReactUpdateQueue.validateCallback(callback, 'ReactDOM.render');
-	    !ReactElement.isValidElement(nextElement) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactDOM.render(): Invalid component element.%s', typeof nextElement === 'string' ? ' Instead of passing a string like \'div\', pass ' + 'React.createElement(\'div\') or <div />.' : typeof nextElement === 'function' ? ' Instead of passing a class like Foo, pass ' + 'React.createElement(Foo) or <Foo />.' :
+	    !React.isValidElement(nextElement) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'ReactDOM.render(): Invalid component element.%s', typeof nextElement === 'string' ? ' Instead of passing a string like \'div\', pass ' + 'React.createElement(\'div\') or <div />.' : typeof nextElement === 'function' ? ' Instead of passing a class like Foo, pass ' + 'React.createElement(Foo) or <Foo />.' :
 	    // Check if it quacks like an element
 	    nextElement != null && nextElement.props !== undefined ? ' This may be caused by unintentionally loading two independent ' + 'copies of React.' : '') : _prodInvariant('39', typeof nextElement === 'string' ? ' Instead of passing a string like \'div\', pass ' + 'React.createElement(\'div\') or <div />.' : typeof nextElement === 'function' ? ' Instead of passing a class like Foo, pass ' + 'React.createElement(Foo) or <Foo />.' : nextElement != null && nextElement.props !== undefined ? ' This may be caused by unintentionally loading two independent ' + 'copies of React.' : '') : void 0;
 	
 	    process.env.NODE_ENV !== 'production' ? warning(!container || !container.tagName || container.tagName.toUpperCase() !== 'BODY', 'render(): Rendering components directly into document.body is ' + 'discouraged, since its children are often manipulated by third-party ' + 'scripts and browser extensions. This may lead to subtle ' + 'reconciliation issues. Try rendering into a container element created ' + 'for your app.') : void 0;
 	
-	    var nextWrappedElement = ReactElement(TopLevelWrapper, null, null, null, null, null, nextElement);
+	    var nextWrappedElement = React.createElement(TopLevelWrapper, { child: nextElement });
 	
 	    var nextContext;
 	    if (parentComponent) {
@@ -21308,7 +21291,7 @@
 	
 	    if (prevComponent) {
 	      var prevWrappedElement = prevComponent._currentElement;
-	      var prevElement = prevWrappedElement.props;
+	      var prevElement = prevWrappedElement.props.child;
 	      if (shouldUpdateReactComponent(prevElement, nextElement)) {
 	        var publicInst = prevComponent._renderedComponent.getPublicInstance();
 	        var updatedCallback = callback && function () {
@@ -21467,20 +21450,24 @@
 	    if (process.env.NODE_ENV !== 'production') {
 	      var hostNode = ReactDOMComponentTree.getInstanceFromNode(container.firstChild);
 	      if (hostNode._debugID !== 0) {
-	        ReactInstrumentation.debugTool.onHostOperation(hostNode._debugID, 'mount', markup.toString());
+	        ReactInstrumentation.debugTool.onHostOperation({
+	          instanceID: hostNode._debugID,
+	          type: 'mount',
+	          payload: markup.toString()
+	        });
 	      }
 	    }
 	  }
 	};
 	
 	module.exports = ReactMount;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 163 */
-/*!**********************************************!*\
-  !*** ./~/react/lib/ReactDOMContainerInfo.js ***!
-  \**********************************************/
+/* 167 */
+/*!**************************************************!*\
+  !*** ./~/react-dom/lib/ReactDOMContainerInfo.js ***!
+  \**************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21491,12 +21478,11 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDOMContainerInfo
 	 */
 	
 	'use strict';
 	
-	var validateDOMNesting = __webpack_require__(/*! ./validateDOMNesting */ 132);
+	var validateDOMNesting = __webpack_require__(/*! ./validateDOMNesting */ 136);
 	
 	var DOC_NODE_TYPE = 9;
 	
@@ -21516,13 +21502,13 @@
 	}
 	
 	module.exports = ReactDOMContainerInfo;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 164 */
-/*!*********************************************!*\
-  !*** ./~/react/lib/ReactDOMFeatureFlags.js ***!
-  \*********************************************/
+/* 168 */
+/*!*************************************************!*\
+  !*** ./~/react-dom/lib/ReactDOMFeatureFlags.js ***!
+  \*************************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -21533,22 +21519,22 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDOMFeatureFlags
 	 */
 	
 	'use strict';
 	
 	var ReactDOMFeatureFlags = {
-	  useCreateElement: true
+	  useCreateElement: true,
+	  useFiber: false
 	};
 	
 	module.exports = ReactDOMFeatureFlags;
 
 /***/ },
-/* 165 */
-/*!********************************************!*\
-  !*** ./~/react/lib/ReactMarkupChecksum.js ***!
-  \********************************************/
+/* 169 */
+/*!************************************************!*\
+  !*** ./~/react-dom/lib/ReactMarkupChecksum.js ***!
+  \************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -21559,12 +21545,11 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactMarkupChecksum
 	 */
 	
 	'use strict';
 	
-	var adler32 = __webpack_require__(/*! ./adler32 */ 166);
+	var adler32 = __webpack_require__(/*! ./adler32 */ 170);
 	
 	var TAG_END = /\/?>/;
 	var COMMENT_START = /^<\!\-\-/;
@@ -21603,10 +21588,10 @@
 	module.exports = ReactMarkupChecksum;
 
 /***/ },
-/* 166 */
-/*!********************************!*\
-  !*** ./~/react/lib/adler32.js ***!
-  \********************************/
+/* 170 */
+/*!************************************!*\
+  !*** ./~/react-dom/lib/adler32.js ***!
+  \************************************/
 /***/ function(module, exports) {
 
 	/**
@@ -21617,7 +21602,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule adler32
 	 * 
 	 */
 	
@@ -21655,10 +21639,31 @@
 	module.exports = adler32;
 
 /***/ },
-/* 167 */
-/*!************************************!*\
-  !*** ./~/react/lib/findDOMNode.js ***!
-  \************************************/
+/* 171 */
+/*!*****************************************!*\
+  !*** ./~/react-dom/lib/ReactVersion.js ***!
+  \*****************************************/
+/***/ function(module, exports) {
+
+	/**
+	 * Copyright 2013-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 */
+	
+	'use strict';
+	
+	module.exports = '15.4.2';
+
+/***/ },
+/* 172 */
+/*!****************************************!*\
+  !*** ./~/react-dom/lib/findDOMNode.js ***!
+  \****************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21669,18 +21674,17 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule findDOMNode
 	 */
 	
 	'use strict';
 	
-	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 7);
+	var _prodInvariant = __webpack_require__(/*! ./reactProdInvariant */ 35);
 	
-	var ReactCurrentOwner = __webpack_require__(/*! ./ReactCurrentOwner */ 10);
-	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 36);
-	var ReactInstanceMap = __webpack_require__(/*! ./ReactInstanceMap */ 119);
+	var ReactCurrentOwner = __webpack_require__(/*! react/lib/ReactCurrentOwner */ 10);
+	var ReactDOMComponentTree = __webpack_require__(/*! ./ReactDOMComponentTree */ 34);
+	var ReactInstanceMap = __webpack_require__(/*! ./ReactInstanceMap */ 116);
 	
-	var getHostComponentFromComposite = __webpack_require__(/*! ./getHostComponentFromComposite */ 168);
+	var getHostComponentFromComposite = __webpack_require__(/*! ./getHostComponentFromComposite */ 173);
 	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
@@ -21721,13 +21725,13 @@
 	}
 	
 	module.exports = findDOMNode;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 168 */
-/*!******************************************************!*\
-  !*** ./~/react/lib/getHostComponentFromComposite.js ***!
-  \******************************************************/
+/* 173 */
+/*!**********************************************************!*\
+  !*** ./~/react-dom/lib/getHostComponentFromComposite.js ***!
+  \**********************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -21738,12 +21742,11 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule getHostComponentFromComposite
 	 */
 	
 	'use strict';
 	
-	var ReactNodeTypes = __webpack_require__(/*! ./ReactNodeTypes */ 123);
+	var ReactNodeTypes = __webpack_require__(/*! ./ReactNodeTypes */ 120);
 	
 	function getHostComponentFromComposite(inst) {
 	  var type;
@@ -21762,10 +21765,10 @@
 	module.exports = getHostComponentFromComposite;
 
 /***/ },
-/* 169 */
-/*!***************************************************!*\
-  !*** ./~/react/lib/renderSubtreeIntoContainer.js ***!
-  \***************************************************/
+/* 174 */
+/*!*******************************************************!*\
+  !*** ./~/react-dom/lib/renderSubtreeIntoContainer.js ***!
+  \*******************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -21776,20 +21779,19 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	* @providesModule renderSubtreeIntoContainer
-	*/
+	 */
 	
 	'use strict';
 	
-	var ReactMount = __webpack_require__(/*! ./ReactMount */ 162);
+	var ReactMount = __webpack_require__(/*! ./ReactMount */ 166);
 	
 	module.exports = ReactMount.renderSubtreeIntoContainer;
 
 /***/ },
-/* 170 */
-/*!****************************************************!*\
-  !*** ./~/react/lib/ReactDOMUnknownPropertyHook.js ***!
-  \****************************************************/
+/* 175 */
+/*!********************************************************!*\
+  !*** ./~/react-dom/lib/ReactDOMUnknownPropertyHook.js ***!
+  \********************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21800,14 +21802,13 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDOMUnknownPropertyHook
 	 */
 	
 	'use strict';
 	
-	var DOMProperty = __webpack_require__(/*! ./DOMProperty */ 37);
-	var EventPluginRegistry = __webpack_require__(/*! ./EventPluginRegistry */ 44);
-	var ReactComponentTreeHook = __webpack_require__(/*! ./ReactComponentTreeHook */ 28);
+	var DOMProperty = __webpack_require__(/*! ./DOMProperty */ 36);
+	var EventPluginRegistry = __webpack_require__(/*! ./EventPluginRegistry */ 43);
+	var ReactComponentTreeHook = __webpack_require__(/*! react/lib/ReactComponentTreeHook */ 26);
 	
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
@@ -21904,13 +21905,13 @@
 	};
 	
 	module.exports = ReactDOMUnknownPropertyHook;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 171 */
-/*!*******************************************************!*\
-  !*** ./~/react/lib/ReactDOMNullInputValuePropHook.js ***!
-  \*******************************************************/
+/* 176 */
+/*!***********************************************************!*\
+  !*** ./~/react-dom/lib/ReactDOMNullInputValuePropHook.js ***!
+  \***********************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21921,12 +21922,11 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule ReactDOMNullInputValuePropHook
 	 */
 	
 	'use strict';
 	
-	var ReactComponentTreeHook = __webpack_require__(/*! ./ReactComponentTreeHook */ 28);
+	var ReactComponentTreeHook = __webpack_require__(/*! react/lib/ReactComponentTreeHook */ 26);
 	
 	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
 	
@@ -21956,10 +21956,111 @@
 	};
 	
 	module.exports = ReactDOMNullInputValuePropHook;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
 
 /***/ },
-/* 172 */
+/* 177 */
+/*!****************************************************!*\
+  !*** ./~/react-dom/lib/ReactDOMInvalidARIAHook.js ***!
+  \****************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {/**
+	 * Copyright 2013-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 */
+	
+	'use strict';
+	
+	var DOMProperty = __webpack_require__(/*! ./DOMProperty */ 36);
+	var ReactComponentTreeHook = __webpack_require__(/*! react/lib/ReactComponentTreeHook */ 26);
+	
+	var warning = __webpack_require__(/*! fbjs/lib/warning */ 11);
+	
+	var warnedProperties = {};
+	var rARIA = new RegExp('^(aria)-[' + DOMProperty.ATTRIBUTE_NAME_CHAR + ']*$');
+	
+	function validateProperty(tagName, name, debugID) {
+	  if (warnedProperties.hasOwnProperty(name) && warnedProperties[name]) {
+	    return true;
+	  }
+	
+	  if (rARIA.test(name)) {
+	    var lowerCasedName = name.toLowerCase();
+	    var standardName = DOMProperty.getPossibleStandardName.hasOwnProperty(lowerCasedName) ? DOMProperty.getPossibleStandardName[lowerCasedName] : null;
+	
+	    // If this is an aria-* attribute, but is not listed in the known DOM
+	    // DOM properties, then it is an invalid aria-* attribute.
+	    if (standardName == null) {
+	      warnedProperties[name] = true;
+	      return false;
+	    }
+	    // aria-* attributes should be lowercase; suggest the lowercase version.
+	    if (name !== standardName) {
+	      process.env.NODE_ENV !== 'production' ? warning(false, 'Unknown ARIA attribute %s. Did you mean %s?%s', name, standardName, ReactComponentTreeHook.getStackAddendumByID(debugID)) : void 0;
+	      warnedProperties[name] = true;
+	      return true;
+	    }
+	  }
+	
+	  return true;
+	}
+	
+	function warnInvalidARIAProps(debugID, element) {
+	  var invalidProps = [];
+	
+	  for (var key in element.props) {
+	    var isValid = validateProperty(element.type, key, debugID);
+	    if (!isValid) {
+	      invalidProps.push(key);
+	    }
+	  }
+	
+	  var unknownPropString = invalidProps.map(function (prop) {
+	    return '`' + prop + '`';
+	  }).join(', ');
+	
+	  if (invalidProps.length === 1) {
+	    process.env.NODE_ENV !== 'production' ? warning(false, 'Invalid aria prop %s on <%s> tag. ' + 'For details, see https://fb.me/invalid-aria-prop%s', unknownPropString, element.type, ReactComponentTreeHook.getStackAddendumByID(debugID)) : void 0;
+	  } else if (invalidProps.length > 1) {
+	    process.env.NODE_ENV !== 'production' ? warning(false, 'Invalid aria props %s on <%s> tag. ' + 'For details, see https://fb.me/invalid-aria-prop%s', unknownPropString, element.type, ReactComponentTreeHook.getStackAddendumByID(debugID)) : void 0;
+	  }
+	}
+	
+	function handleElement(debugID, element) {
+	  if (element == null || typeof element.type !== 'string') {
+	    return;
+	  }
+	  if (element.type.indexOf('-') >= 0 || element.props.is) {
+	    return;
+	  }
+	
+	  warnInvalidARIAProps(debugID, element);
+	}
+	
+	var ReactDOMInvalidARIAHook = {
+	  onBeforeMountComponent: function (debugID, element) {
+	    if (process.env.NODE_ENV !== 'production') {
+	      handleElement(debugID, element);
+	    }
+	  },
+	  onBeforeUpdateComponent: function (debugID, element) {
+	    if (process.env.NODE_ENV !== 'production') {
+	      handleElement(debugID, element);
+	    }
+	  }
+	};
+	
+	module.exports = ReactDOMInvalidARIAHook;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../process/browser.js */ 3)))
+
+/***/ },
+/* 178 */
 /*!********************************************!*\
   !*** ./src/client/app/NavBarComponent.jsx ***!
   \********************************************/
@@ -21977,7 +22078,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _PhotoComponent = __webpack_require__(/*! ./PhotoComponent.jsx */ 173);
+	var _PhotoComponent = __webpack_require__(/*! ./PhotoComponent.jsx */ 179);
 	
 	var _PhotoComponent2 = _interopRequireDefault(_PhotoComponent);
 	
@@ -22032,7 +22133,7 @@
 	                        _react2.default.createElement(
 	                            'li',
 	                            { className: 'item' },
-	                            'Favorite counter: '
+	                            'Favorite counter:\xA0'
 	                        ),
 	                        _react2.default.createElement(
 	                            'li',
@@ -22052,7 +22153,7 @@
 	exports.default = NavBarComponent;
 
 /***/ },
-/* 173 */
+/* 179 */
 /*!*******************************************!*\
   !*** ./src/client/app/PhotoComponent.jsx ***!
   \*******************************************/
@@ -22070,7 +22171,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _BoxComponent = __webpack_require__(/*! ./BoxComponent.jsx */ 175);
+	var _BoxComponent = __webpack_require__(/*! ./BoxComponent.jsx */ 181);
 	
 	var _BoxComponent2 = _interopRequireDefault(_BoxComponent);
 	
@@ -22124,6 +22225,7 @@
 	                    rpp: 50,
 	                    page: this.state.page,
 	                    feature: 'upcoming',
+	                    only: 'Animals',
 	                    image_size: [4],
 	                    sdk_key: 'b68e60cff4c929bedea36ca978830c5caca790c3'
 	                },
@@ -22223,39 +22325,41 @@
 	}(_react2.default.Component);
 	
 	exports.default = PhotoComponent;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! jquery */ 174)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! jquery */ 180)))
 
 /***/ },
-/* 174 */
+/* 180 */
 /*!*********************************!*\
   !*** ./~/jquery/dist/jquery.js ***!
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	 * jQuery JavaScript Library v1.11.3
-	 * http://jquery.com/
+	 * jQuery JavaScript Library v3.1.1
+	 * https://jquery.com/
 	 *
 	 * Includes Sizzle.js
-	 * http://sizzlejs.com/
+	 * https://sizzlejs.com/
 	 *
-	 * Copyright 2005, 2014 jQuery Foundation, Inc. and other contributors
+	 * Copyright jQuery Foundation and other contributors
 	 * Released under the MIT license
-	 * http://jquery.org/license
+	 * https://jquery.org/license
 	 *
-	 * Date: 2015-04-28T16:19Z
+	 * Date: 2016-09-22T22:30Z
 	 */
+	( function( global, factory ) {
 	
-	(function( global, factory ) {
+		"use strict";
 	
 		if ( typeof module === "object" && typeof module.exports === "object" ) {
-			// For CommonJS and CommonJS-like environments where a proper window is present,
-			// execute the factory and get jQuery
-			// For environments that do not inherently posses a window with a document
-			// (such as Node.js), expose a jQuery-making factory as module.exports
-			// This accentuates the need for the creation of a real window
+	
+			// For CommonJS and CommonJS-like environments where a proper `window`
+			// is present, execute the factory and get jQuery.
+			// For environments that do not have a `window` with a `document`
+			// (such as Node.js), expose a factory as module.exports.
+			// This accentuates the need for the creation of a real `window`.
 			// e.g. var jQuery = require("jquery")(window);
-			// See ticket #14549 for more info
+			// See ticket #14549 for more info.
 			module.exports = global.document ?
 				factory( global, true ) :
 				function( w ) {
@@ -22269,23 +22373,27 @@
 		}
 	
 	// Pass this if window is not defined yet
-	}(typeof window !== "undefined" ? window : this, function( window, noGlobal ) {
+	} )( typeof window !== "undefined" ? window : this, function( window, noGlobal ) {
 	
-	// Can't do this because several apps including ASP.NET trace
-	// the stack via arguments.caller.callee and Firefox dies if
-	// you try to trace through "use strict" call chains. (#13335)
-	// Support: Firefox 18+
-	//
+	// Edge <= 12 - 13+, Firefox <=18 - 45+, IE 10 - 11, Safari 5.1 - 9+, iOS 6 - 9.1
+	// throw exceptions when non-strict code (e.g., ASP.NET 4.5) accesses strict mode
+	// arguments.callee.caller (trac-13335). But as of jQuery 3.0 (2016), strict mode should be common
+	// enough that all such attempts are guarded in a try block.
+	"use strict";
 	
-	var deletedIds = [];
+	var arr = [];
 	
-	var slice = deletedIds.slice;
+	var document = window.document;
 	
-	var concat = deletedIds.concat;
+	var getProto = Object.getPrototypeOf;
 	
-	var push = deletedIds.push;
+	var slice = arr.slice;
 	
-	var indexOf = deletedIds.indexOf;
+	var concat = arr.concat;
+	
+	var push = arr.push;
+	
+	var indexOf = arr.indexOf;
 	
 	var class2type = {};
 	
@@ -22293,27 +22401,46 @@
 	
 	var hasOwn = class2type.hasOwnProperty;
 	
+	var fnToString = hasOwn.toString;
+	
+	var ObjectFunctionString = fnToString.call( Object );
+	
 	var support = {};
 	
 	
 	
+		function DOMEval( code, doc ) {
+			doc = doc || document;
+	
+			var script = doc.createElement( "script" );
+	
+			script.text = code;
+			doc.head.appendChild( script ).parentNode.removeChild( script );
+		}
+	/* global Symbol */
+	// Defining this global in .eslintrc.json would create a danger of using the global
+	// unguarded in another place, it seems safer to define global only for this module
+	
+	
+	
 	var
-		version = "1.11.3",
+		version = "3.1.1",
 	
 		// Define a local copy of jQuery
 		jQuery = function( selector, context ) {
+	
 			// The jQuery object is actually just the init constructor 'enhanced'
 			// Need init if jQuery is called (just allow error to be thrown if not included)
 			return new jQuery.fn.init( selector, context );
 		},
 	
-		// Support: Android<4.1, IE<9
+		// Support: Android <=4.0 only
 		// Make sure we trim BOM and NBSP
 		rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,
 	
 		// Matches dashed string for camelizing
 		rmsPrefix = /^-ms-/,
-		rdashAlpha = /-([\da-z])/gi,
+		rdashAlpha = /-([a-z])/g,
 	
 		// Used by jQuery.camelCase as callback to replace()
 		fcamelCase = function( all, letter ) {
@@ -22321,13 +22448,11 @@
 		};
 	
 	jQuery.fn = jQuery.prototype = {
+	
 		// The current version of jQuery being used
 		jquery: version,
 	
 		constructor: jQuery,
-	
-		// Start with an empty selector
-		selector: "",
 	
 		// The default length of a jQuery object is 0
 		length: 0,
@@ -22339,13 +22464,14 @@
 		// Get the Nth element in the matched element set OR
 		// Get the whole matched element set as a clean array
 		get: function( num ) {
-			return num != null ?
 	
-				// Return just the one element from the set
-				( num < 0 ? this[ num + this.length ] : this[ num ] ) :
+			// Return all the elements in a clean array
+			if ( num == null ) {
+				return slice.call( this );
+			}
 	
-				// Return all the elements in a clean array
-				slice.call( this );
+			// Return just the one element from the set
+			return num < 0 ? this[ num + this.length ] : this[ num ];
 		},
 	
 		// Take an array of elements and push it onto the stack
@@ -22357,23 +22483,20 @@
 	
 			// Add the old object onto the stack (as a reference)
 			ret.prevObject = this;
-			ret.context = this.context;
 	
 			// Return the newly-formed element set
 			return ret;
 		},
 	
 		// Execute a callback for every element in the matched set.
-		// (You can seed the arguments with an array of args, but this is
-		// only used internally.)
-		each: function( callback, args ) {
-			return jQuery.each( this, callback, args );
+		each: function( callback ) {
+			return jQuery.each( this, callback );
 		},
 	
 		map: function( callback ) {
-			return this.pushStack( jQuery.map(this, function( elem, i ) {
+			return this.pushStack( jQuery.map( this, function( elem, i ) {
 				return callback.call( elem, i, elem );
-			}));
+			} ) );
 		},
 	
 		slice: function() {
@@ -22391,23 +22514,23 @@
 		eq: function( i ) {
 			var len = this.length,
 				j = +i + ( i < 0 ? len : 0 );
-			return this.pushStack( j >= 0 && j < len ? [ this[j] ] : [] );
+			return this.pushStack( j >= 0 && j < len ? [ this[ j ] ] : [] );
 		},
 	
 		end: function() {
-			return this.prevObject || this.constructor(null);
+			return this.prevObject || this.constructor();
 		},
 	
 		// For internal use only.
 		// Behaves like an Array's method, not like a jQuery method.
 		push: push,
-		sort: deletedIds.sort,
-		splice: deletedIds.splice
+		sort: arr.sort,
+		splice: arr.splice
 	};
 	
 	jQuery.extend = jQuery.fn.extend = function() {
-		var src, copyIsArray, copy, name, options, clone,
-			target = arguments[0] || {},
+		var options, name, src, copy, copyIsArray, clone,
+			target = arguments[ 0 ] || {},
 			i = 1,
 			length = arguments.length,
 			deep = false;
@@ -22416,25 +22539,27 @@
 		if ( typeof target === "boolean" ) {
 			deep = target;
 	
-			// skip the boolean and the target
+			// Skip the boolean and the target
 			target = arguments[ i ] || {};
 			i++;
 		}
 	
 		// Handle case when target is a string or something (possible in deep copy)
-		if ( typeof target !== "object" && !jQuery.isFunction(target) ) {
+		if ( typeof target !== "object" && !jQuery.isFunction( target ) ) {
 			target = {};
 		}
 	
-		// extend jQuery itself if only one argument is passed
+		// Extend jQuery itself if only one argument is passed
 		if ( i === length ) {
 			target = this;
 			i--;
 		}
 	
 		for ( ; i < length; i++ ) {
+	
 			// Only deal with non-null/undefined values
-			if ( (options = arguments[ i ]) != null ) {
+			if ( ( options = arguments[ i ] ) != null ) {
+	
 				// Extend the base object
 				for ( name in options ) {
 					src = target[ name ];
@@ -22446,13 +22571,15 @@
 					}
 	
 					// Recurse if we're merging plain objects or arrays
-					if ( deep && copy && ( jQuery.isPlainObject(copy) || (copyIsArray = jQuery.isArray(copy)) ) ) {
+					if ( deep && copy && ( jQuery.isPlainObject( copy ) ||
+						( copyIsArray = jQuery.isArray( copy ) ) ) ) {
+	
 						if ( copyIsArray ) {
 							copyIsArray = false;
-							clone = src && jQuery.isArray(src) ? src : [];
+							clone = src && jQuery.isArray( src ) ? src : [];
 	
 						} else {
-							clone = src && jQuery.isPlainObject(src) ? src : {};
+							clone = src && jQuery.isPlainObject( src ) ? src : {};
 						}
 	
 						// Never move original objects, clone them
@@ -22470,7 +22597,8 @@
 		return target;
 	};
 	
-	jQuery.extend({
+	jQuery.extend( {
+	
 		// Unique for each copy of jQuery on the page
 		expando: "jQuery" + ( version + Math.random() ).replace( /\D/g, "" ),
 	
@@ -22483,99 +22611,81 @@
 	
 		noop: function() {},
 	
-		// See test/unit/core.js for details concerning isFunction.
-		// Since version 1.3, DOM methods and functions like alert
-		// aren't supported. They return false on IE (#2968).
 		isFunction: function( obj ) {
-			return jQuery.type(obj) === "function";
+			return jQuery.type( obj ) === "function";
 		},
 	
-		isArray: Array.isArray || function( obj ) {
-			return jQuery.type(obj) === "array";
-		},
+		isArray: Array.isArray,
 	
 		isWindow: function( obj ) {
-			/* jshint eqeqeq: false */
-			return obj != null && obj == obj.window;
+			return obj != null && obj === obj.window;
 		},
 	
 		isNumeric: function( obj ) {
-			// parseFloat NaNs numeric-cast false positives (null|true|false|"")
-			// ...but misinterprets leading-number strings, particularly hex literals ("0x...")
-			// subtraction forces infinities to NaN
-			// adding 1 corrects loss of precision from parseFloat (#15100)
-			return !jQuery.isArray( obj ) && (obj - parseFloat( obj ) + 1) >= 0;
+	
+			// As of jQuery 3.0, isNumeric is limited to
+			// strings and numbers (primitives or objects)
+			// that can be coerced to finite numbers (gh-2662)
+			var type = jQuery.type( obj );
+			return ( type === "number" || type === "string" ) &&
+	
+				// parseFloat NaNs numeric-cast false positives ("")
+				// ...but misinterprets leading-number strings, particularly hex literals ("0x...")
+				// subtraction forces infinities to NaN
+				!isNaN( obj - parseFloat( obj ) );
+		},
+	
+		isPlainObject: function( obj ) {
+			var proto, Ctor;
+	
+			// Detect obvious negatives
+			// Use toString instead of jQuery.type to catch host objects
+			if ( !obj || toString.call( obj ) !== "[object Object]" ) {
+				return false;
+			}
+	
+			proto = getProto( obj );
+	
+			// Objects with no prototype (e.g., `Object.create( null )`) are plain
+			if ( !proto ) {
+				return true;
+			}
+	
+			// Objects with prototype are plain iff they were constructed by a global Object function
+			Ctor = hasOwn.call( proto, "constructor" ) && proto.constructor;
+			return typeof Ctor === "function" && fnToString.call( Ctor ) === ObjectFunctionString;
 		},
 	
 		isEmptyObject: function( obj ) {
+	
+			/* eslint-disable no-unused-vars */
+			// See https://github.com/eslint/eslint/issues/6125
 			var name;
+	
 			for ( name in obj ) {
 				return false;
 			}
 			return true;
 		},
 	
-		isPlainObject: function( obj ) {
-			var key;
-	
-			// Must be an Object.
-			// Because of IE, we also have to check the presence of the constructor property.
-			// Make sure that DOM nodes and window objects don't pass through, as well
-			if ( !obj || jQuery.type(obj) !== "object" || obj.nodeType || jQuery.isWindow( obj ) ) {
-				return false;
-			}
-	
-			try {
-				// Not own constructor property must be Object
-				if ( obj.constructor &&
-					!hasOwn.call(obj, "constructor") &&
-					!hasOwn.call(obj.constructor.prototype, "isPrototypeOf") ) {
-					return false;
-				}
-			} catch ( e ) {
-				// IE8,9 Will throw exceptions on certain host objects #9897
-				return false;
-			}
-	
-			// Support: IE<9
-			// Handle iteration over inherited properties before own properties.
-			if ( support.ownLast ) {
-				for ( key in obj ) {
-					return hasOwn.call( obj, key );
-				}
-			}
-	
-			// Own properties are enumerated firstly, so to speed up,
-			// if last one is own, then all properties are own.
-			for ( key in obj ) {}
-	
-			return key === undefined || hasOwn.call( obj, key );
-		},
-	
 		type: function( obj ) {
 			if ( obj == null ) {
 				return obj + "";
 			}
+	
+			// Support: Android <=2.3 only (functionish RegExp)
 			return typeof obj === "object" || typeof obj === "function" ?
-				class2type[ toString.call(obj) ] || "object" :
+				class2type[ toString.call( obj ) ] || "object" :
 				typeof obj;
 		},
 	
 		// Evaluates a script in a global context
-		// Workarounds based on findings by Jim Driscoll
-		// http://weblogs.java.net/blog/driscoll/archive/2009/09/08/eval-javascript-global-context
-		globalEval: function( data ) {
-			if ( data && jQuery.trim( data ) ) {
-				// We use execScript on Internet Explorer
-				// We use an anonymous function so that context is window
-				// rather than jQuery in Firefox
-				( window.execScript || function( data ) {
-					window[ "eval" ].call( window, data );
-				} )( data );
-			}
+		globalEval: function( code ) {
+			DOMEval( code );
 		},
 	
 		// Convert dashed to camelCase; used by the css and data modules
+		// Support: IE <=9 - 11, Edge 12 - 13
 		// Microsoft forgot to hump their vendor prefix (#9572)
 		camelCase: function( string ) {
 			return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
@@ -22585,49 +22695,20 @@
 			return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
 		},
 	
-		// args is for internal usage only
-		each: function( obj, callback, args ) {
-			var value,
-				i = 0,
-				length = obj.length,
-				isArray = isArraylike( obj );
+		each: function( obj, callback ) {
+			var length, i = 0;
 	
-			if ( args ) {
-				if ( isArray ) {
-					for ( ; i < length; i++ ) {
-						value = callback.apply( obj[ i ], args );
-	
-						if ( value === false ) {
-							break;
-						}
-					}
-				} else {
-					for ( i in obj ) {
-						value = callback.apply( obj[ i ], args );
-	
-						if ( value === false ) {
-							break;
-						}
+			if ( isArrayLike( obj ) ) {
+				length = obj.length;
+				for ( ; i < length; i++ ) {
+					if ( callback.call( obj[ i ], i, obj[ i ] ) === false ) {
+						break;
 					}
 				}
-	
-			// A special, fast, case for the most common use of each
 			} else {
-				if ( isArray ) {
-					for ( ; i < length; i++ ) {
-						value = callback.call( obj[ i ], i, obj[ i ] );
-	
-						if ( value === false ) {
-							break;
-						}
-					}
-				} else {
-					for ( i in obj ) {
-						value = callback.call( obj[ i ], i, obj[ i ] );
-	
-						if ( value === false ) {
-							break;
-						}
+				for ( i in obj ) {
+					if ( callback.call( obj[ i ], i, obj[ i ] ) === false ) {
+						break;
 					}
 				}
 			}
@@ -22635,7 +22716,7 @@
 			return obj;
 		},
 	
-		// Support: Android<4.1, IE<9
+		// Support: Android <=4.0 only
 		trim: function( text ) {
 			return text == null ?
 				"" :
@@ -22647,7 +22728,7 @@
 			var ret = results || [];
 	
 			if ( arr != null ) {
-				if ( isArraylike( Object(arr) ) ) {
+				if ( isArrayLike( Object( arr ) ) ) {
 					jQuery.merge( ret,
 						typeof arr === "string" ?
 						[ arr ] : arr
@@ -22661,42 +22742,18 @@
 		},
 	
 		inArray: function( elem, arr, i ) {
-			var len;
-	
-			if ( arr ) {
-				if ( indexOf ) {
-					return indexOf.call( arr, elem, i );
-				}
-	
-				len = arr.length;
-				i = i ? i < 0 ? Math.max( 0, len + i ) : i : 0;
-	
-				for ( ; i < len; i++ ) {
-					// Skip accessing in sparse arrays
-					if ( i in arr && arr[ i ] === elem ) {
-						return i;
-					}
-				}
-			}
-	
-			return -1;
+			return arr == null ? -1 : indexOf.call( arr, elem, i );
 		},
 	
+		// Support: Android <=4.0 only, PhantomJS 1 only
+		// push.apply(_, arraylike) throws on ancient WebKit
 		merge: function( first, second ) {
 			var len = +second.length,
 				j = 0,
 				i = first.length;
 	
-			while ( j < len ) {
-				first[ i++ ] = second[ j++ ];
-			}
-	
-			// Support: IE<9
-			// Workaround casting of .length to NaN on otherwise arraylike objects (e.g., NodeLists)
-			if ( len !== len ) {
-				while ( second[j] !== undefined ) {
-					first[ i++ ] = second[ j++ ];
-				}
+			for ( ; j < len; j++ ) {
+				first[ i++ ] = second[ j ];
 			}
 	
 			first.length = i;
@@ -22725,14 +22782,13 @@
 	
 		// arg is for internal usage only
 		map: function( elems, callback, arg ) {
-			var value,
+			var length, value,
 				i = 0,
-				length = elems.length,
-				isArray = isArraylike( elems ),
 				ret = [];
 	
 			// Go through the array, translating each of the items to their new values
-			if ( isArray ) {
+			if ( isArrayLike( elems ) ) {
+				length = elems.length;
 				for ( ; i < length; i++ ) {
 					value = callback( elems[ i ], i, arg );
 	
@@ -22762,7 +22818,7 @@
 		// Bind a function to a context, optionally partially applying any
 		// arguments.
 		proxy: function( fn, context ) {
-			var args, proxy, tmp;
+			var tmp, args, proxy;
 	
 			if ( typeof context === "string" ) {
 				tmp = fn[ context ];
@@ -22788,35 +22844,34 @@
 			return proxy;
 		},
 	
-		now: function() {
-			return +( new Date() );
-		},
+		now: Date.now,
 	
 		// jQuery.support is not used in Core but other projects attach their
 		// properties to it so it needs to exist.
 		support: support
-	});
+	} );
+	
+	if ( typeof Symbol === "function" ) {
+		jQuery.fn[ Symbol.iterator ] = arr[ Symbol.iterator ];
+	}
 	
 	// Populate the class2type map
-	jQuery.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function(i, name) {
+	jQuery.each( "Boolean Number String Function Array Date RegExp Object Error Symbol".split( " " ),
+	function( i, name ) {
 		class2type[ "[object " + name + "]" ] = name.toLowerCase();
-	});
+	} );
 	
-	function isArraylike( obj ) {
+	function isArrayLike( obj ) {
 	
-		// Support: iOS 8.2 (not reproducible in simulator)
+		// Support: real iOS 8.2 only (not reproducible in simulator)
 		// `in` check used to prevent JIT error (gh-2145)
 		// hasOwn isn't used here due to false negatives
 		// regarding Nodelist length in IE
-		var length = "length" in obj && obj.length,
+		var length = !!obj && "length" in obj && obj.length,
 			type = jQuery.type( obj );
 	
 		if ( type === "function" || jQuery.isWindow( obj ) ) {
 			return false;
-		}
-	
-		if ( obj.nodeType === 1 && length ) {
-			return true;
 		}
 	
 		return type === "array" || length === 0 ||
@@ -22824,14 +22879,14 @@
 	}
 	var Sizzle =
 	/*!
-	 * Sizzle CSS Selector Engine v2.2.0-pre
-	 * http://sizzlejs.com/
+	 * Sizzle CSS Selector Engine v2.3.3
+	 * https://sizzlejs.com/
 	 *
-	 * Copyright 2008, 2014 jQuery Foundation, Inc. and other contributors
+	 * Copyright jQuery Foundation and other contributors
 	 * Released under the MIT license
 	 * http://jquery.org/license
 	 *
-	 * Date: 2014-12-16
+	 * Date: 2016-08-08
 	 */
 	(function( window ) {
 	
@@ -22872,9 +22927,6 @@
 			return 0;
 		},
 	
-		// General-purpose constants
-		MAX_NEGATIVE = 1 << 31,
-	
 		// Instance methods
 		hasOwn = ({}).hasOwnProperty,
 		arr = [],
@@ -22883,7 +22935,7 @@
 		push = arr.push,
 		slice = arr.slice,
 		// Use a stripped-down indexOf as it's faster than native
-		// http://jsperf.com/thor-indexof-vs-for/5
+		// https://jsperf.com/thor-indexof-vs-for/5
 		indexOf = function( list, elem ) {
 			var i = 0,
 				len = list.length;
@@ -22899,25 +22951,21 @@
 	
 		// Regular expressions
 	
-		// Whitespace characters http://www.w3.org/TR/css3-selectors/#whitespace
+		// http://www.w3.org/TR/css3-selectors/#whitespace
 		whitespace = "[\\x20\\t\\r\\n\\f]",
-		// http://www.w3.org/TR/css3-syntax/#characters
-		characterEncoding = "(?:\\\\.|[\\w-]|[^\\x00-\\xa0])+",
 	
-		// Loosely modeled on CSS identifier characters
-		// An unquoted value should be a CSS identifier http://www.w3.org/TR/css3-selectors/#attribute-selectors
-		// Proper syntax: http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
-		identifier = characterEncoding.replace( "w", "w#" ),
+		// http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
+		identifier = "(?:\\\\.|[\\w-]|[^\0-\\xa0])+",
 	
 		// Attribute selectors: http://www.w3.org/TR/selectors/#attribute-selectors
-		attributes = "\\[" + whitespace + "*(" + characterEncoding + ")(?:" + whitespace +
+		attributes = "\\[" + whitespace + "*(" + identifier + ")(?:" + whitespace +
 			// Operator (capture 2)
 			"*([*^$|!~]?=)" + whitespace +
 			// "Attribute values must be CSS identifiers [capture 5] or strings [capture 3 or capture 4]"
 			"*(?:'((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\"|(" + identifier + "))|)" + whitespace +
 			"*\\]",
 	
-		pseudos = ":(" + characterEncoding + ")(?:\\((" +
+		pseudos = ":(" + identifier + ")(?:\\((" +
 			// To reduce the number of selectors needing tokenize in the preFilter, prefer arguments:
 			// 1. quoted (capture 3; capture 4 or capture 5)
 			"('((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\")|" +
@@ -22940,9 +22988,9 @@
 		ridentifier = new RegExp( "^" + identifier + "$" ),
 	
 		matchExpr = {
-			"ID": new RegExp( "^#(" + characterEncoding + ")" ),
-			"CLASS": new RegExp( "^\\.(" + characterEncoding + ")" ),
-			"TAG": new RegExp( "^(" + characterEncoding.replace( "w", "w*" ) + ")" ),
+			"ID": new RegExp( "^#(" + identifier + ")" ),
+			"CLASS": new RegExp( "^\\.(" + identifier + ")" ),
+			"TAG": new RegExp( "^(" + identifier + "|[*])" ),
 			"ATTR": new RegExp( "^" + attributes ),
 			"PSEUDO": new RegExp( "^" + pseudos ),
 			"CHILD": new RegExp( "^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\(" + whitespace +
@@ -22964,9 +23012,9 @@
 		rquickExpr = /^(?:#([\w-]+)|(\w+)|\.([\w-]+))$/,
 	
 		rsibling = /[+~]/,
-		rescape = /'|\\/g,
 	
-		// CSS escapes http://www.w3.org/TR/CSS21/syndata.html#escaped-characters
+		// CSS escapes
+		// http://www.w3.org/TR/CSS21/syndata.html#escaped-characters
 		runescape = new RegExp( "\\\\([\\da-f]{1,6}" + whitespace + "?|(" + whitespace + ")|.)", "ig" ),
 		funescape = function( _, escaped, escapedWhitespace ) {
 			var high = "0x" + escaped - 0x10000;
@@ -22982,13 +23030,39 @@
 					String.fromCharCode( high >> 10 | 0xD800, high & 0x3FF | 0xDC00 );
 		},
 	
+		// CSS string/identifier serialization
+		// https://drafts.csswg.org/cssom/#common-serializing-idioms
+		rcssescape = /([\0-\x1f\x7f]|^-?\d)|^-$|[^\0-\x1f\x7f-\uFFFF\w-]/g,
+		fcssescape = function( ch, asCodePoint ) {
+			if ( asCodePoint ) {
+	
+				// U+0000 NULL becomes U+FFFD REPLACEMENT CHARACTER
+				if ( ch === "\0" ) {
+					return "\uFFFD";
+				}
+	
+				// Control characters and (dependent upon position) numbers get escaped as code points
+				return ch.slice( 0, -1 ) + "\\" + ch.charCodeAt( ch.length - 1 ).toString( 16 ) + " ";
+			}
+	
+			// Other potentially-special ASCII characters get backslash-escaped
+			return "\\" + ch;
+		},
+	
 		// Used for iframes
 		// See setDocument()
 		// Removing the function wrapper causes a "Permission Denied"
 		// error in IE
 		unloadHandler = function() {
 			setDocument();
-		};
+		},
+	
+		disabledAncestor = addCombinator(
+			function( elem ) {
+				return elem.disabled === true && ("form" in elem || "label" in elem);
+			},
+			{ dir: "parentNode", next: "legend" }
+		);
 	
 	// Optimize for push.apply( _, NodeList )
 	try {
@@ -23020,103 +23094,128 @@
 	}
 	
 	function Sizzle( selector, context, results, seed ) {
-		var match, elem, m, nodeType,
-			// QSA vars
-			i, groups, old, nid, newContext, newSelector;
+		var m, i, elem, nid, match, groups, newSelector,
+			newContext = context && context.ownerDocument,
 	
-		if ( ( context ? context.ownerDocument || context : preferredDoc ) !== document ) {
-			setDocument( context );
-		}
+			// nodeType defaults to 9, since context defaults to document
+			nodeType = context ? context.nodeType : 9;
 	
-		context = context || document;
 		results = results || [];
-		nodeType = context.nodeType;
 	
+		// Return early from calls with invalid selector or context
 		if ( typeof selector !== "string" || !selector ||
 			nodeType !== 1 && nodeType !== 9 && nodeType !== 11 ) {
 	
 			return results;
 		}
 	
-		if ( !seed && documentIsHTML ) {
+		// Try to shortcut find operations (as opposed to filters) in HTML documents
+		if ( !seed ) {
 	
-			// Try to shortcut find operations when possible (e.g., not under DocumentFragment)
-			if ( nodeType !== 11 && (match = rquickExpr.exec( selector )) ) {
-				// Speed-up: Sizzle("#ID")
-				if ( (m = match[1]) ) {
-					if ( nodeType === 9 ) {
-						elem = context.getElementById( m );
-						// Check parentNode to catch when Blackberry 4.6 returns
-						// nodes that are no longer in the document (jQuery #6963)
-						if ( elem && elem.parentNode ) {
-							// Handle the case where IE, Opera, and Webkit return items
-							// by name instead of ID
-							if ( elem.id === m ) {
+			if ( ( context ? context.ownerDocument || context : preferredDoc ) !== document ) {
+				setDocument( context );
+			}
+			context = context || document;
+	
+			if ( documentIsHTML ) {
+	
+				// If the selector is sufficiently simple, try using a "get*By*" DOM method
+				// (excepting DocumentFragment context, where the methods don't exist)
+				if ( nodeType !== 11 && (match = rquickExpr.exec( selector )) ) {
+	
+					// ID selector
+					if ( (m = match[1]) ) {
+	
+						// Document context
+						if ( nodeType === 9 ) {
+							if ( (elem = context.getElementById( m )) ) {
+	
+								// Support: IE, Opera, Webkit
+								// TODO: identify versions
+								// getElementById can match elements by name instead of ID
+								if ( elem.id === m ) {
+									results.push( elem );
+									return results;
+								}
+							} else {
+								return results;
+							}
+	
+						// Element context
+						} else {
+	
+							// Support: IE, Opera, Webkit
+							// TODO: identify versions
+							// getElementById can match elements by name instead of ID
+							if ( newContext && (elem = newContext.getElementById( m )) &&
+								contains( context, elem ) &&
+								elem.id === m ) {
+	
 								results.push( elem );
 								return results;
 							}
-						} else {
-							return results;
 						}
-					} else {
-						// Context is not a document
-						if ( context.ownerDocument && (elem = context.ownerDocument.getElementById( m )) &&
-							contains( context, elem ) && elem.id === m ) {
-							results.push( elem );
-							return results;
-						}
-					}
 	
-				// Speed-up: Sizzle("TAG")
-				} else if ( match[2] ) {
-					push.apply( results, context.getElementsByTagName( selector ) );
-					return results;
-	
-				// Speed-up: Sizzle(".CLASS")
-				} else if ( (m = match[3]) && support.getElementsByClassName ) {
-					push.apply( results, context.getElementsByClassName( m ) );
-					return results;
-				}
-			}
-	
-			// QSA path
-			if ( support.qsa && (!rbuggyQSA || !rbuggyQSA.test( selector )) ) {
-				nid = old = expando;
-				newContext = context;
-				newSelector = nodeType !== 1 && selector;
-	
-				// qSA works strangely on Element-rooted queries
-				// We can work around this by specifying an extra ID on the root
-				// and working up from there (Thanks to Andrew Dupont for the technique)
-				// IE 8 doesn't work on object elements
-				if ( nodeType === 1 && context.nodeName.toLowerCase() !== "object" ) {
-					groups = tokenize( selector );
-	
-					if ( (old = context.getAttribute("id")) ) {
-						nid = old.replace( rescape, "\\$&" );
-					} else {
-						context.setAttribute( "id", nid );
-					}
-					nid = "[id='" + nid + "'] ";
-	
-					i = groups.length;
-					while ( i-- ) {
-						groups[i] = nid + toSelector( groups[i] );
-					}
-					newContext = rsibling.test( selector ) && testContext( context.parentNode ) || context;
-					newSelector = groups.join(",");
-				}
-	
-				if ( newSelector ) {
-					try {
-						push.apply( results,
-							newContext.querySelectorAll( newSelector )
-						);
+					// Type selector
+					} else if ( match[2] ) {
+						push.apply( results, context.getElementsByTagName( selector ) );
 						return results;
-					} catch(qsaError) {
-					} finally {
-						if ( !old ) {
-							context.removeAttribute("id");
+	
+					// Class selector
+					} else if ( (m = match[3]) && support.getElementsByClassName &&
+						context.getElementsByClassName ) {
+	
+						push.apply( results, context.getElementsByClassName( m ) );
+						return results;
+					}
+				}
+	
+				// Take advantage of querySelectorAll
+				if ( support.qsa &&
+					!compilerCache[ selector + " " ] &&
+					(!rbuggyQSA || !rbuggyQSA.test( selector )) ) {
+	
+					if ( nodeType !== 1 ) {
+						newContext = context;
+						newSelector = selector;
+	
+					// qSA looks outside Element context, which is not what we want
+					// Thanks to Andrew Dupont for this workaround technique
+					// Support: IE <=8
+					// Exclude object elements
+					} else if ( context.nodeName.toLowerCase() !== "object" ) {
+	
+						// Capture the context ID, setting it first if necessary
+						if ( (nid = context.getAttribute( "id" )) ) {
+							nid = nid.replace( rcssescape, fcssescape );
+						} else {
+							context.setAttribute( "id", (nid = expando) );
+						}
+	
+						// Prefix every selector in the list
+						groups = tokenize( selector );
+						i = groups.length;
+						while ( i-- ) {
+							groups[i] = "#" + nid + " " + toSelector( groups[i] );
+						}
+						newSelector = groups.join( "," );
+	
+						// Expand context for sibling selectors
+						newContext = rsibling.test( selector ) && testContext( context.parentNode ) ||
+							context;
+					}
+	
+					if ( newSelector ) {
+						try {
+							push.apply( results,
+								newContext.querySelectorAll( newSelector )
+							);
+							return results;
+						} catch ( qsaError ) {
+						} finally {
+							if ( nid === expando ) {
+								context.removeAttribute( "id" );
+							}
 						}
 					}
 				}
@@ -23129,7 +23228,7 @@
 	
 	/**
 	 * Create key-value caches of limited size
-	 * @returns {Function(string, Object)} Returns the Object data after storing it on itself with
+	 * @returns {function(string, object)} Returns the Object data after storing it on itself with
 	 *	property name the (space-suffixed) string and (if the cache is larger than Expr.cacheLength)
 	 *	deleting the oldest entry
 	 */
@@ -23158,22 +23257,22 @@
 	
 	/**
 	 * Support testing using an element
-	 * @param {Function} fn Passed the created div and expects a boolean result
+	 * @param {Function} fn Passed the created element and returns a boolean result
 	 */
 	function assert( fn ) {
-		var div = document.createElement("div");
+		var el = document.createElement("fieldset");
 	
 		try {
-			return !!fn( div );
+			return !!fn( el );
 		} catch (e) {
 			return false;
 		} finally {
 			// Remove from its parent by default
-			if ( div.parentNode ) {
-				div.parentNode.removeChild( div );
+			if ( el.parentNode ) {
+				el.parentNode.removeChild( el );
 			}
 			// release memory in IE
-			div = null;
+			el = null;
 		}
 	}
 	
@@ -23184,7 +23283,7 @@
 	 */
 	function addHandle( attrs, handler ) {
 		var arr = attrs.split("|"),
-			i = attrs.length;
+			i = arr.length;
 	
 		while ( i-- ) {
 			Expr.attrHandle[ arr[i] ] = handler;
@@ -23200,8 +23299,7 @@
 	function siblingCheck( a, b ) {
 		var cur = b && a,
 			diff = cur && a.nodeType === 1 && b.nodeType === 1 &&
-				( ~b.sourceIndex || MAX_NEGATIVE ) -
-				( ~a.sourceIndex || MAX_NEGATIVE );
+				a.sourceIndex - b.sourceIndex;
 	
 		// Use IE sourceIndex if available on both nodes
 		if ( diff ) {
@@ -23239,6 +23337,62 @@
 		return function( elem ) {
 			var name = elem.nodeName.toLowerCase();
 			return (name === "input" || name === "button") && elem.type === type;
+		};
+	}
+	
+	/**
+	 * Returns a function to use in pseudos for :enabled/:disabled
+	 * @param {Boolean} disabled true for :disabled; false for :enabled
+	 */
+	function createDisabledPseudo( disabled ) {
+	
+		// Known :disabled false positives: fieldset[disabled] > legend:nth-of-type(n+2) :can-disable
+		return function( elem ) {
+	
+			// Only certain elements can match :enabled or :disabled
+			// https://html.spec.whatwg.org/multipage/scripting.html#selector-enabled
+			// https://html.spec.whatwg.org/multipage/scripting.html#selector-disabled
+			if ( "form" in elem ) {
+	
+				// Check for inherited disabledness on relevant non-disabled elements:
+				// * listed form-associated elements in a disabled fieldset
+				//   https://html.spec.whatwg.org/multipage/forms.html#category-listed
+				//   https://html.spec.whatwg.org/multipage/forms.html#concept-fe-disabled
+				// * option elements in a disabled optgroup
+				//   https://html.spec.whatwg.org/multipage/forms.html#concept-option-disabled
+				// All such elements have a "form" property.
+				if ( elem.parentNode && elem.disabled === false ) {
+	
+					// Option elements defer to a parent optgroup if present
+					if ( "label" in elem ) {
+						if ( "label" in elem.parentNode ) {
+							return elem.parentNode.disabled === disabled;
+						} else {
+							return elem.disabled === disabled;
+						}
+					}
+	
+					// Support: IE 6 - 11
+					// Use the isDisabled shortcut property to check for disabled fieldset ancestors
+					return elem.isDisabled === disabled ||
+	
+						// Where there is no isDisabled, check manually
+						/* jshint -W018 */
+						elem.isDisabled !== !disabled &&
+							disabledAncestor( elem ) === disabled;
+				}
+	
+				return elem.disabled === disabled;
+	
+			// Try to winnow out elements that can't be disabled before trusting the disabled property.
+			// Some victims get caught in our net (label, legend, menu, track), but it shouldn't
+			// even exist on them, let alone have a boolean value.
+			} else if ( "label" in elem ) {
+				return elem.disabled === disabled;
+			}
+	
+			// Remaining elements are neither :enabled nor :disabled
+			return false;
 		};
 	}
 	
@@ -23294,35 +23448,33 @@
 	 * @returns {Object} Returns the current document
 	 */
 	setDocument = Sizzle.setDocument = function( node ) {
-		var hasCompare, parent,
+		var hasCompare, subWindow,
 			doc = node ? node.ownerDocument || node : preferredDoc;
 	
-		// If no document and documentElement is available, return
+		// Return early if doc is invalid or already selected
 		if ( doc === document || doc.nodeType !== 9 || !doc.documentElement ) {
 			return document;
 		}
 	
-		// Set our document
+		// Update global variables
 		document = doc;
-		docElem = doc.documentElement;
-		parent = doc.defaultView;
+		docElem = document.documentElement;
+		documentIsHTML = !isXML( document );
 	
-		// Support: IE>8
-		// If iframe document is assigned to "document" variable and if iframe has been reloaded,
-		// IE will throw "permission denied" error when accessing "document" variable, see jQuery #13936
-		// IE6-8 do not support the defaultView property so parent will be undefined
-		if ( parent && parent !== parent.top ) {
-			// IE11 does not have attachEvent, so all must suffer
-			if ( parent.addEventListener ) {
-				parent.addEventListener( "unload", unloadHandler, false );
-			} else if ( parent.attachEvent ) {
-				parent.attachEvent( "onunload", unloadHandler );
+		// Support: IE 9-11, Edge
+		// Accessing iframe documents after unload throws "permission denied" errors (jQuery #13936)
+		if ( preferredDoc !== document &&
+			(subWindow = document.defaultView) && subWindow.top !== subWindow ) {
+	
+			// Support: IE 11, Edge
+			if ( subWindow.addEventListener ) {
+				subWindow.addEventListener( "unload", unloadHandler, false );
+	
+			// Support: IE 9 - 10 only
+			} else if ( subWindow.attachEvent ) {
+				subWindow.attachEvent( "onunload", unloadHandler );
 			}
 		}
-	
-		/* Support tests
-		---------------------------------------------------------------------- */
-		documentIsHTML = !isXML( doc );
 	
 		/* Attributes
 		---------------------------------------------------------------------- */
@@ -23330,59 +23482,84 @@
 		// Support: IE<8
 		// Verify that getAttribute really returns attributes and not properties
 		// (excepting IE8 booleans)
-		support.attributes = assert(function( div ) {
-			div.className = "i";
-			return !div.getAttribute("className");
+		support.attributes = assert(function( el ) {
+			el.className = "i";
+			return !el.getAttribute("className");
 		});
 	
 		/* getElement(s)By*
 		---------------------------------------------------------------------- */
 	
 		// Check if getElementsByTagName("*") returns only elements
-		support.getElementsByTagName = assert(function( div ) {
-			div.appendChild( doc.createComment("") );
-			return !div.getElementsByTagName("*").length;
+		support.getElementsByTagName = assert(function( el ) {
+			el.appendChild( document.createComment("") );
+			return !el.getElementsByTagName("*").length;
 		});
 	
 		// Support: IE<9
-		support.getElementsByClassName = rnative.test( doc.getElementsByClassName );
+		support.getElementsByClassName = rnative.test( document.getElementsByClassName );
 	
 		// Support: IE<10
 		// Check if getElementById returns elements by name
-		// The broken getElementById methods don't pick up programatically-set names,
+		// The broken getElementById methods don't pick up programmatically-set names,
 		// so use a roundabout getElementsByName test
-		support.getById = assert(function( div ) {
-			docElem.appendChild( div ).id = expando;
-			return !doc.getElementsByName || !doc.getElementsByName( expando ).length;
+		support.getById = assert(function( el ) {
+			docElem.appendChild( el ).id = expando;
+			return !document.getElementsByName || !document.getElementsByName( expando ).length;
 		});
 	
-		// ID find and filter
+		// ID filter and find
 		if ( support.getById ) {
-			Expr.find["ID"] = function( id, context ) {
-				if ( typeof context.getElementById !== "undefined" && documentIsHTML ) {
-					var m = context.getElementById( id );
-					// Check parentNode to catch when Blackberry 4.6 returns
-					// nodes that are no longer in the document #6963
-					return m && m.parentNode ? [ m ] : [];
-				}
-			};
 			Expr.filter["ID"] = function( id ) {
 				var attrId = id.replace( runescape, funescape );
 				return function( elem ) {
 					return elem.getAttribute("id") === attrId;
 				};
 			};
+			Expr.find["ID"] = function( id, context ) {
+				if ( typeof context.getElementById !== "undefined" && documentIsHTML ) {
+					var elem = context.getElementById( id );
+					return elem ? [ elem ] : [];
+				}
+			};
 		} else {
-			// Support: IE6/7
-			// getElementById is not reliable as a find shortcut
-			delete Expr.find["ID"];
-	
 			Expr.filter["ID"] =  function( id ) {
 				var attrId = id.replace( runescape, funescape );
 				return function( elem ) {
-					var node = typeof elem.getAttributeNode !== "undefined" && elem.getAttributeNode("id");
+					var node = typeof elem.getAttributeNode !== "undefined" &&
+						elem.getAttributeNode("id");
 					return node && node.value === attrId;
 				};
+			};
+	
+			// Support: IE 6 - 7 only
+			// getElementById is not reliable as a find shortcut
+			Expr.find["ID"] = function( id, context ) {
+				if ( typeof context.getElementById !== "undefined" && documentIsHTML ) {
+					var node, i, elems,
+						elem = context.getElementById( id );
+	
+					if ( elem ) {
+	
+						// Verify the id attribute
+						node = elem.getAttributeNode("id");
+						if ( node && node.value === id ) {
+							return [ elem ];
+						}
+	
+						// Fall back on getElementsByName
+						elems = context.getElementsByName( id );
+						i = 0;
+						while ( (elem = elems[i++]) ) {
+							node = elem.getAttributeNode("id");
+							if ( node && node.value === id ) {
+								return [ elem ];
+							}
+						}
+					}
+	
+					return [];
+				}
 			};
 		}
 	
@@ -23420,7 +23597,7 @@
 	
 		// Class
 		Expr.find["CLASS"] = support.getElementsByClassName && function( className, context ) {
-			if ( documentIsHTML ) {
+			if ( typeof context.getElementsByClassName !== "undefined" && documentIsHTML ) {
 				return context.getElementsByClassName( className );
 			}
 		};
@@ -23437,77 +23614,87 @@
 		// We allow this because of a bug in IE8/9 that throws an error
 		// whenever `document.activeElement` is accessed on an iframe
 		// So, we allow :focus to pass through QSA all the time to avoid the IE error
-		// See http://bugs.jquery.com/ticket/13378
+		// See https://bugs.jquery.com/ticket/13378
 		rbuggyQSA = [];
 	
-		if ( (support.qsa = rnative.test( doc.querySelectorAll )) ) {
+		if ( (support.qsa = rnative.test( document.querySelectorAll )) ) {
 			// Build QSA regex
 			// Regex strategy adopted from Diego Perini
-			assert(function( div ) {
+			assert(function( el ) {
 				// Select is set to empty string on purpose
 				// This is to test IE's treatment of not explicitly
 				// setting a boolean content attribute,
 				// since its presence should be enough
-				// http://bugs.jquery.com/ticket/12359
-				docElem.appendChild( div ).innerHTML = "<a id='" + expando + "'></a>" +
-					"<select id='" + expando + "-\f]' msallowcapture=''>" +
+				// https://bugs.jquery.com/ticket/12359
+				docElem.appendChild( el ).innerHTML = "<a id='" + expando + "'></a>" +
+					"<select id='" + expando + "-\r\\' msallowcapture=''>" +
 					"<option selected=''></option></select>";
 	
 				// Support: IE8, Opera 11-12.16
 				// Nothing should be selected when empty strings follow ^= or $= or *=
 				// The test attribute must be unknown in Opera but "safe" for WinRT
-				// http://msdn.microsoft.com/en-us/library/ie/hh465388.aspx#attribute_section
-				if ( div.querySelectorAll("[msallowcapture^='']").length ) {
+				// https://msdn.microsoft.com/en-us/library/ie/hh465388.aspx#attribute_section
+				if ( el.querySelectorAll("[msallowcapture^='']").length ) {
 					rbuggyQSA.push( "[*^$]=" + whitespace + "*(?:''|\"\")" );
 				}
 	
 				// Support: IE8
 				// Boolean attributes and "value" are not treated correctly
-				if ( !div.querySelectorAll("[selected]").length ) {
+				if ( !el.querySelectorAll("[selected]").length ) {
 					rbuggyQSA.push( "\\[" + whitespace + "*(?:value|" + booleans + ")" );
 				}
 	
-				// Support: Chrome<29, Android<4.2+, Safari<7.0+, iOS<7.0+, PhantomJS<1.9.7+
-				if ( !div.querySelectorAll( "[id~=" + expando + "-]" ).length ) {
+				// Support: Chrome<29, Android<4.4, Safari<7.0+, iOS<7.0+, PhantomJS<1.9.8+
+				if ( !el.querySelectorAll( "[id~=" + expando + "-]" ).length ) {
 					rbuggyQSA.push("~=");
 				}
 	
 				// Webkit/Opera - :checked should return selected option elements
 				// http://www.w3.org/TR/2011/REC-css3-selectors-20110929/#checked
 				// IE8 throws error here and will not see later tests
-				if ( !div.querySelectorAll(":checked").length ) {
+				if ( !el.querySelectorAll(":checked").length ) {
 					rbuggyQSA.push(":checked");
 				}
 	
 				// Support: Safari 8+, iOS 8+
 				// https://bugs.webkit.org/show_bug.cgi?id=136851
-				// In-page `selector#id sibing-combinator selector` fails
-				if ( !div.querySelectorAll( "a#" + expando + "+*" ).length ) {
+				// In-page `selector#id sibling-combinator selector` fails
+				if ( !el.querySelectorAll( "a#" + expando + "+*" ).length ) {
 					rbuggyQSA.push(".#.+[+~]");
 				}
 			});
 	
-			assert(function( div ) {
+			assert(function( el ) {
+				el.innerHTML = "<a href='' disabled='disabled'></a>" +
+					"<select disabled='disabled'><option/></select>";
+	
 				// Support: Windows 8 Native Apps
 				// The type and name attributes are restricted during .innerHTML assignment
-				var input = doc.createElement("input");
+				var input = document.createElement("input");
 				input.setAttribute( "type", "hidden" );
-				div.appendChild( input ).setAttribute( "name", "D" );
+				el.appendChild( input ).setAttribute( "name", "D" );
 	
 				// Support: IE8
 				// Enforce case-sensitivity of name attribute
-				if ( div.querySelectorAll("[name=d]").length ) {
+				if ( el.querySelectorAll("[name=d]").length ) {
 					rbuggyQSA.push( "name" + whitespace + "*[*^$|!~]?=" );
 				}
 	
 				// FF 3.5 - :enabled/:disabled and hidden elements (hidden elements are still enabled)
 				// IE8 throws error here and will not see later tests
-				if ( !div.querySelectorAll(":enabled").length ) {
+				if ( el.querySelectorAll(":enabled").length !== 2 ) {
+					rbuggyQSA.push( ":enabled", ":disabled" );
+				}
+	
+				// Support: IE9-11+
+				// IE's :disabled selector does not pick up the children of disabled fieldsets
+				docElem.appendChild( el ).disabled = true;
+				if ( el.querySelectorAll(":disabled").length !== 2 ) {
 					rbuggyQSA.push( ":enabled", ":disabled" );
 				}
 	
 				// Opera 10-11 does not throw on post-comma invalid pseudos
-				div.querySelectorAll("*,:x");
+				el.querySelectorAll("*,:x");
 				rbuggyQSA.push(",.*:");
 			});
 		}
@@ -23518,14 +23705,14 @@
 			docElem.oMatchesSelector ||
 			docElem.msMatchesSelector) )) ) {
 	
-			assert(function( div ) {
+			assert(function( el ) {
 				// Check to see if it's possible to do matchesSelector
 				// on a disconnected node (IE 9)
-				support.disconnectedMatch = matches.call( div, "div" );
+				support.disconnectedMatch = matches.call( el, "*" );
 	
 				// This should fail with an exception
 				// Gecko does not error, returns false instead
-				matches.call( div, "[s!='']:x" );
+				matches.call( el, "[s!='']:x" );
 				rbuggyMatches.push( "!=", pseudos );
 			});
 		}
@@ -23538,7 +23725,7 @@
 		hasCompare = rnative.test( docElem.compareDocumentPosition );
 	
 		// Element contains another
-		// Purposefully does not implement inclusive descendent
+		// Purposefully self-exclusive
 		// As in, an element does not contain itself
 		contains = hasCompare || rnative.test( docElem.contains ) ?
 			function( a, b ) {
@@ -23592,10 +23779,10 @@
 				(!support.sortDetached && b.compareDocumentPosition( a ) === compare) ) {
 	
 				// Choose the first element that is related to our preferred document
-				if ( a === doc || a.ownerDocument === preferredDoc && contains(preferredDoc, a) ) {
+				if ( a === document || a.ownerDocument === preferredDoc && contains(preferredDoc, a) ) {
 					return -1;
 				}
-				if ( b === doc || b.ownerDocument === preferredDoc && contains(preferredDoc, b) ) {
+				if ( b === document || b.ownerDocument === preferredDoc && contains(preferredDoc, b) ) {
 					return 1;
 				}
 	
@@ -23623,8 +23810,8 @@
 	
 			// Parentless nodes are either documents or disconnected
 			if ( !aup || !bup ) {
-				return a === doc ? -1 :
-					b === doc ? 1 :
+				return a === document ? -1 :
+					b === document ? 1 :
 					aup ? -1 :
 					bup ? 1 :
 					sortInput ?
@@ -23661,7 +23848,7 @@
 				0;
 		};
 	
-		return doc;
+		return document;
 	};
 	
 	Sizzle.matches = function( expr, elements ) {
@@ -23678,6 +23865,7 @@
 		expr = expr.replace( rattributeQuotes, "='$1']" );
 	
 		if ( support.matchesSelector && documentIsHTML &&
+			!compilerCache[ expr + " " ] &&
 			( !rbuggyMatches || !rbuggyMatches.test( expr ) ) &&
 			( !rbuggyQSA     || !rbuggyQSA.test( expr ) ) ) {
 	
@@ -23724,6 +23912,10 @@
 				(val = elem.getAttributeNode(name)) && val.specified ?
 					val.value :
 					null;
+	};
+	
+	Sizzle.escape = function( sel ) {
+		return (sel + "").replace( rcssescape, fcssescape );
 	};
 	
 	Sizzle.error = function( msg ) {
@@ -23951,11 +24143,12 @@
 					} :
 	
 					function( elem, context, xml ) {
-						var cache, outerCache, node, diff, nodeIndex, start,
+						var cache, uniqueCache, outerCache, node, nodeIndex, start,
 							dir = simple !== forward ? "nextSibling" : "previousSibling",
 							parent = elem.parentNode,
 							name = ofType && elem.nodeName.toLowerCase(),
-							useCache = !xml && !ofType;
+							useCache = !xml && !ofType,
+							diff = false;
 	
 						if ( parent ) {
 	
@@ -23964,7 +24157,10 @@
 								while ( dir ) {
 									node = elem;
 									while ( (node = node[ dir ]) ) {
-										if ( ofType ? node.nodeName.toLowerCase() === name : node.nodeType === 1 ) {
+										if ( ofType ?
+											node.nodeName.toLowerCase() === name :
+											node.nodeType === 1 ) {
+	
 											return false;
 										}
 									}
@@ -23978,11 +24174,21 @@
 	
 							// non-xml :nth-child(...) stores cache data on `parent`
 							if ( forward && useCache ) {
+	
 								// Seek `elem` from a previously-cached index
-								outerCache = parent[ expando ] || (parent[ expando ] = {});
-								cache = outerCache[ type ] || [];
-								nodeIndex = cache[0] === dirruns && cache[1];
-								diff = cache[0] === dirruns && cache[2];
+	
+								// ...in a gzip-friendly way
+								node = parent;
+								outerCache = node[ expando ] || (node[ expando ] = {});
+	
+								// Support: IE <9 only
+								// Defend against cloned attroperties (jQuery gh-1709)
+								uniqueCache = outerCache[ node.uniqueID ] ||
+									(outerCache[ node.uniqueID ] = {});
+	
+								cache = uniqueCache[ type ] || [];
+								nodeIndex = cache[ 0 ] === dirruns && cache[ 1 ];
+								diff = nodeIndex && cache[ 2 ];
 								node = nodeIndex && parent.childNodes[ nodeIndex ];
 	
 								while ( (node = ++nodeIndex && node && node[ dir ] ||
@@ -23992,29 +24198,55 @@
 	
 									// When found, cache indexes on `parent` and break
 									if ( node.nodeType === 1 && ++diff && node === elem ) {
-										outerCache[ type ] = [ dirruns, nodeIndex, diff ];
+										uniqueCache[ type ] = [ dirruns, nodeIndex, diff ];
 										break;
 									}
 								}
 	
-							// Use previously-cached element index if available
-							} else if ( useCache && (cache = (elem[ expando ] || (elem[ expando ] = {}))[ type ]) && cache[0] === dirruns ) {
-								diff = cache[1];
-	
-							// xml :nth-child(...) or :nth-last-child(...) or :nth(-last)?-of-type(...)
 							} else {
-								// Use the same loop as above to seek `elem` from the start
-								while ( (node = ++nodeIndex && node && node[ dir ] ||
-									(diff = nodeIndex = 0) || start.pop()) ) {
+								// Use previously-cached element index if available
+								if ( useCache ) {
+									// ...in a gzip-friendly way
+									node = elem;
+									outerCache = node[ expando ] || (node[ expando ] = {});
 	
-									if ( ( ofType ? node.nodeName.toLowerCase() === name : node.nodeType === 1 ) && ++diff ) {
-										// Cache the index of each encountered element
-										if ( useCache ) {
-											(node[ expando ] || (node[ expando ] = {}))[ type ] = [ dirruns, diff ];
-										}
+									// Support: IE <9 only
+									// Defend against cloned attroperties (jQuery gh-1709)
+									uniqueCache = outerCache[ node.uniqueID ] ||
+										(outerCache[ node.uniqueID ] = {});
 	
-										if ( node === elem ) {
-											break;
+									cache = uniqueCache[ type ] || [];
+									nodeIndex = cache[ 0 ] === dirruns && cache[ 1 ];
+									diff = nodeIndex;
+								}
+	
+								// xml :nth-child(...)
+								// or :nth-last-child(...) or :nth(-last)?-of-type(...)
+								if ( diff === false ) {
+									// Use the same loop as above to seek `elem` from the start
+									while ( (node = ++nodeIndex && node && node[ dir ] ||
+										(diff = nodeIndex = 0) || start.pop()) ) {
+	
+										if ( ( ofType ?
+											node.nodeName.toLowerCase() === name :
+											node.nodeType === 1 ) &&
+											++diff ) {
+	
+											// Cache the index of each encountered element
+											if ( useCache ) {
+												outerCache = node[ expando ] || (node[ expando ] = {});
+	
+												// Support: IE <9 only
+												// Defend against cloned attroperties (jQuery gh-1709)
+												uniqueCache = outerCache[ node.uniqueID ] ||
+													(outerCache[ node.uniqueID ] = {});
+	
+												uniqueCache[ type ] = [ dirruns, diff ];
+											}
+	
+											if ( node === elem ) {
+												break;
+											}
 										}
 									}
 								}
@@ -24153,13 +24385,8 @@
 			},
 	
 			// Boolean properties
-			"enabled": function( elem ) {
-				return elem.disabled === false;
-			},
-	
-			"disabled": function( elem ) {
-				return elem.disabled === true;
-			},
+			"enabled": createDisabledPseudo( false ),
+			"disabled": createDisabledPseudo( true ),
 	
 			"checked": function( elem ) {
 				// In CSS3, :checked should return both checked and selected elements
@@ -24361,7 +24588,9 @@
 	
 	function addCombinator( matcher, combinator, base ) {
 		var dir = combinator.dir,
-			checkNonElements = base && dir === "parentNode",
+			skip = combinator.next,
+			key = skip || dir,
+			checkNonElements = base && key === "parentNode",
 			doneName = done++;
 	
 		return combinator.first ?
@@ -24372,14 +24601,15 @@
 						return matcher( elem, context, xml );
 					}
 				}
+				return false;
 			} :
 	
 			// Check against all ancestor/preceding elements
 			function( elem, context, xml ) {
-				var oldCache, outerCache,
+				var oldCache, uniqueCache, outerCache,
 					newCache = [ dirruns, doneName ];
 	
-				// We can't set arbitrary data on XML nodes, so they don't benefit from dir caching
+				// We can't set arbitrary data on XML nodes, so they don't benefit from combinator caching
 				if ( xml ) {
 					while ( (elem = elem[ dir ]) ) {
 						if ( elem.nodeType === 1 || checkNonElements ) {
@@ -24392,14 +24622,21 @@
 					while ( (elem = elem[ dir ]) ) {
 						if ( elem.nodeType === 1 || checkNonElements ) {
 							outerCache = elem[ expando ] || (elem[ expando ] = {});
-							if ( (oldCache = outerCache[ dir ]) &&
+	
+							// Support: IE <9 only
+							// Defend against cloned attroperties (jQuery gh-1709)
+							uniqueCache = outerCache[ elem.uniqueID ] || (outerCache[ elem.uniqueID ] = {});
+	
+							if ( skip && skip === elem.nodeName.toLowerCase() ) {
+								elem = elem[ dir ] || elem;
+							} else if ( (oldCache = uniqueCache[ key ]) &&
 								oldCache[ 0 ] === dirruns && oldCache[ 1 ] === doneName ) {
 	
 								// Assign to newCache so results back-propagate to previous elements
 								return (newCache[ 2 ] = oldCache[ 2 ]);
 							} else {
 								// Reuse newcache so results back-propagate to previous elements
-								outerCache[ dir ] = newCache;
+								uniqueCache[ key ] = newCache;
 	
 								// A match means we're done; a fail means we have to keep checking
 								if ( (newCache[ 2 ] = matcher( elem, context, xml )) ) {
@@ -24409,6 +24646,7 @@
 						}
 					}
 				}
+				return false;
 			};
 	}
 	
@@ -24624,18 +24862,21 @@
 					len = elems.length;
 	
 				if ( outermost ) {
-					outermostContext = context !== document && context;
+					outermostContext = context === document || context || outermost;
 				}
 	
 				// Add elements passing elementMatchers directly to results
-				// Keep `i` a string if there are no elements so `matchedCount` will be "00" below
 				// Support: IE<9, Safari
 				// Tolerate NodeList properties (IE: "length"; Safari: <number>) matching elements by id
 				for ( ; i !== len && (elem = elems[i]) != null; i++ ) {
 					if ( byElement && elem ) {
 						j = 0;
+						if ( !context && elem.ownerDocument !== document ) {
+							setDocument( elem );
+							xml = !documentIsHTML;
+						}
 						while ( (matcher = elementMatchers[j++]) ) {
-							if ( matcher( elem, context, xml ) ) {
+							if ( matcher( elem, context || document, xml) ) {
 								results.push( elem );
 								break;
 							}
@@ -24659,8 +24900,17 @@
 					}
 				}
 	
-				// Apply set filters to unmatched elements
+				// `i` is now the count of elements visited above, and adding it to `matchedCount`
+				// makes the latter nonnegative.
 				matchedCount += i;
+	
+				// Apply set filters to unmatched elements
+				// NOTE: This can be skipped if there are no unmatched elements (i.e., `matchedCount`
+				// equals `i`), unless we didn't visit _any_ elements in the above loop because we have
+				// no element matchers and no seed.
+				// Incrementing an initially-string "0" `i` allows `i` to remain a string only in that
+				// case, which will result in a "00" `matchedCount` that differs from `i` but is also
+				// numerically zero.
 				if ( bySet && i !== matchedCount ) {
 					j = 0;
 					while ( (matcher = setMatchers[j++]) ) {
@@ -24752,14 +25002,14 @@
 	
 		results = results || [];
 	
-		// Try to minimize operations if there is no seed and only one group
+		// Try to minimize operations if there is only one selector in the list and no seed
+		// (the latter of which guarantees us context)
 		if ( match.length === 1 ) {
 	
-			// Take a shortcut and set the context if the root selector is an ID
+			// Reduce context if the leading compound selector is an ID
 			tokens = match[0] = match[0].slice( 0 );
 			if ( tokens.length > 2 && (token = tokens[0]).type === "ID" &&
-					support.getById && context.nodeType === 9 && documentIsHTML &&
-					Expr.relative[ tokens[1].type ] ) {
+					context.nodeType === 9 && documentIsHTML && Expr.relative[ tokens[1].type ] ) {
 	
 				context = ( Expr.find["ID"]( token.matches[0].replace(runescape, funescape), context ) || [] )[0];
 				if ( !context ) {
@@ -24810,7 +25060,7 @@
 			context,
 			!documentIsHTML,
 			results,
-			rsibling.test( selector ) && testContext( context.parentNode ) || context
+			!context || rsibling.test( selector ) && testContext( context.parentNode ) || context
 		);
 		return results;
 	};
@@ -24829,17 +25079,17 @@
 	
 	// Support: Webkit<537.32 - Safari 6.0.3/Chrome 25 (fixed in Chrome 27)
 	// Detached nodes confoundingly follow *each other*
-	support.sortDetached = assert(function( div1 ) {
+	support.sortDetached = assert(function( el ) {
 		// Should return 1, but returns 4 (following)
-		return div1.compareDocumentPosition( document.createElement("div") ) & 1;
+		return el.compareDocumentPosition( document.createElement("fieldset") ) & 1;
 	});
 	
 	// Support: IE<8
 	// Prevent attribute/property "interpolation"
-	// http://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
-	if ( !assert(function( div ) {
-		div.innerHTML = "<a href='#'></a>";
-		return div.firstChild.getAttribute("href") === "#" ;
+	// https://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
+	if ( !assert(function( el ) {
+		el.innerHTML = "<a href='#'></a>";
+		return el.firstChild.getAttribute("href") === "#" ;
 	}) ) {
 		addHandle( "type|href|height|width", function( elem, name, isXML ) {
 			if ( !isXML ) {
@@ -24850,10 +25100,10 @@
 	
 	// Support: IE<9
 	// Use defaultValue in place of getAttribute("value")
-	if ( !support.attributes || !assert(function( div ) {
-		div.innerHTML = "<input/>";
-		div.firstChild.setAttribute( "value", "" );
-		return div.firstChild.getAttribute( "value" ) === "";
+	if ( !support.attributes || !assert(function( el ) {
+		el.innerHTML = "<input/>";
+		el.firstChild.setAttribute( "value", "" );
+		return el.firstChild.getAttribute( "value" ) === "";
 	}) ) {
 		addHandle( "value", function( elem, name, isXML ) {
 			if ( !isXML && elem.nodeName.toLowerCase() === "input" ) {
@@ -24864,8 +25114,8 @@
 	
 	// Support: IE<9
 	// Use getAttributeNode to fetch booleans when getAttribute lies
-	if ( !assert(function( div ) {
-		return div.getAttribute("disabled") == null;
+	if ( !assert(function( el ) {
+		return el.getAttribute("disabled") == null;
 	}) ) {
 		addHandle( booleans, function( elem, name, isXML ) {
 			var val;
@@ -24886,17 +25136,50 @@
 	
 	jQuery.find = Sizzle;
 	jQuery.expr = Sizzle.selectors;
-	jQuery.expr[":"] = jQuery.expr.pseudos;
-	jQuery.unique = Sizzle.uniqueSort;
+	
+	// Deprecated
+	jQuery.expr[ ":" ] = jQuery.expr.pseudos;
+	jQuery.uniqueSort = jQuery.unique = Sizzle.uniqueSort;
 	jQuery.text = Sizzle.getText;
 	jQuery.isXMLDoc = Sizzle.isXML;
 	jQuery.contains = Sizzle.contains;
+	jQuery.escapeSelector = Sizzle.escape;
 	
+	
+	
+	
+	var dir = function( elem, dir, until ) {
+		var matched = [],
+			truncate = until !== undefined;
+	
+		while ( ( elem = elem[ dir ] ) && elem.nodeType !== 9 ) {
+			if ( elem.nodeType === 1 ) {
+				if ( truncate && jQuery( elem ).is( until ) ) {
+					break;
+				}
+				matched.push( elem );
+			}
+		}
+		return matched;
+	};
+	
+	
+	var siblings = function( n, elem ) {
+		var matched = [];
+	
+		for ( ; n; n = n.nextSibling ) {
+			if ( n.nodeType === 1 && n !== elem ) {
+				matched.push( n );
+			}
+		}
+	
+		return matched;
+	};
 	
 	
 	var rneedsContext = jQuery.expr.match.needsContext;
 	
-	var rsingleTag = (/^<(\w+)\s*\/?>(?:<\/\1>|)$/);
+	var rsingleTag = ( /^<([a-z][^\/\0>:\x20\t\r\n\f]*)[\x20\t\r\n\f]*\/?>(?:<\/\1>|)$/i );
 	
 	
 	
@@ -24906,30 +25189,34 @@
 	function winnow( elements, qualifier, not ) {
 		if ( jQuery.isFunction( qualifier ) ) {
 			return jQuery.grep( elements, function( elem, i ) {
-				/* jshint -W018 */
 				return !!qualifier.call( elem, i, elem ) !== not;
-			});
-	
+			} );
 		}
 	
+		// Single element
 		if ( qualifier.nodeType ) {
 			return jQuery.grep( elements, function( elem ) {
 				return ( elem === qualifier ) !== not;
-			});
-	
+			} );
 		}
 	
-		if ( typeof qualifier === "string" ) {
-			if ( risSimple.test( qualifier ) ) {
-				return jQuery.filter( qualifier, elements, not );
-			}
-	
-			qualifier = jQuery.filter( qualifier, elements );
+		// Arraylike of elements (jQuery, arguments, Array)
+		if ( typeof qualifier !== "string" ) {
+			return jQuery.grep( elements, function( elem ) {
+				return ( indexOf.call( qualifier, elem ) > -1 ) !== not;
+			} );
 		}
 	
+		// Simple selector that can be filtered directly, removing non-Elements
+		if ( risSimple.test( qualifier ) ) {
+			return jQuery.filter( qualifier, elements, not );
+		}
+	
+		// Complex selector, compare the two sets, removing non-Elements
+		qualifier = jQuery.filter( qualifier, elements );
 		return jQuery.grep( elements, function( elem ) {
-			return ( jQuery.inArray( elem, qualifier ) >= 0 ) !== not;
-		});
+			return ( indexOf.call( qualifier, elem ) > -1 ) !== not && elem.nodeType === 1;
+		} );
 	}
 	
 	jQuery.filter = function( expr, elems, not ) {
@@ -24939,44 +25226,44 @@
 			expr = ":not(" + expr + ")";
 		}
 	
-		return elems.length === 1 && elem.nodeType === 1 ?
-			jQuery.find.matchesSelector( elem, expr ) ? [ elem ] : [] :
-			jQuery.find.matches( expr, jQuery.grep( elems, function( elem ) {
-				return elem.nodeType === 1;
-			}));
+		if ( elems.length === 1 && elem.nodeType === 1 ) {
+			return jQuery.find.matchesSelector( elem, expr ) ? [ elem ] : [];
+		}
+	
+		return jQuery.find.matches( expr, jQuery.grep( elems, function( elem ) {
+			return elem.nodeType === 1;
+		} ) );
 	};
 	
-	jQuery.fn.extend({
+	jQuery.fn.extend( {
 		find: function( selector ) {
-			var i,
-				ret = [],
-				self = this,
-				len = self.length;
+			var i, ret,
+				len = this.length,
+				self = this;
 	
 			if ( typeof selector !== "string" ) {
-				return this.pushStack( jQuery( selector ).filter(function() {
+				return this.pushStack( jQuery( selector ).filter( function() {
 					for ( i = 0; i < len; i++ ) {
 						if ( jQuery.contains( self[ i ], this ) ) {
 							return true;
 						}
 					}
-				}) );
+				} ) );
 			}
+	
+			ret = this.pushStack( [] );
 	
 			for ( i = 0; i < len; i++ ) {
 				jQuery.find( selector, self[ i ], ret );
 			}
 	
-			// Needed because $( selector, context ) becomes $( context ).find( selector )
-			ret = this.pushStack( len > 1 ? jQuery.unique( ret ) : ret );
-			ret.selector = this.selector ? this.selector + " " + selector : selector;
-			return ret;
+			return len > 1 ? jQuery.uniqueSort( ret ) : ret;
 		},
 		filter: function( selector ) {
-			return this.pushStack( winnow(this, selector || [], false) );
+			return this.pushStack( winnow( this, selector || [], false ) );
 		},
 		not: function( selector ) {
-			return this.pushStack( winnow(this, selector || [], true) );
+			return this.pushStack( winnow( this, selector || [], true ) );
 		},
 		is: function( selector ) {
 			return !!winnow(
@@ -24990,7 +25277,7 @@
 				false
 			).length;
 		}
-	});
+	} );
 	
 	
 	// Initialize a jQuery object
@@ -24999,15 +25286,13 @@
 	// A central reference to the root jQuery(document)
 	var rootjQuery,
 	
-		// Use the correct document accordingly with window argument (sandbox)
-		document = window.document,
-	
 		// A simple way to check for HTML strings
 		// Prioritize #id over <tag> to avoid XSS via location.hash (#9521)
 		// Strict HTML recognition (#11290: must start with <)
-		rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]*))$/,
+		// Shortcut simple #id case for speed
+		rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/,
 	
-		init = jQuery.fn.init = function( selector, context ) {
+		init = jQuery.fn.init = function( selector, context, root ) {
 			var match, elem;
 	
 			// HANDLE: $(""), $(null), $(undefined), $(false)
@@ -25015,9 +25300,16 @@
 				return this;
 			}
 	
+			// Method init() accepts an alternate rootjQuery
+			// so migrate can support jQuery.sub (gh-2101)
+			root = root || rootjQuery;
+	
 			// Handle HTML strings
 			if ( typeof selector === "string" ) {
-				if ( selector.charAt(0) === "<" && selector.charAt( selector.length - 1 ) === ">" && selector.length >= 3 ) {
+				if ( selector[ 0 ] === "<" &&
+					selector[ selector.length - 1 ] === ">" &&
+					selector.length >= 3 ) {
+	
 					// Assume that strings that start and end with <> are HTML and skip the regex check
 					match = [ null, selector, null ];
 	
@@ -25026,23 +25318,24 @@
 				}
 	
 				// Match html or make sure no context is specified for #id
-				if ( match && (match[1] || !context) ) {
+				if ( match && ( match[ 1 ] || !context ) ) {
 	
 					// HANDLE: $(html) -> $(array)
-					if ( match[1] ) {
-						context = context instanceof jQuery ? context[0] : context;
+					if ( match[ 1 ] ) {
+						context = context instanceof jQuery ? context[ 0 ] : context;
 	
-						// scripts is true for back-compat
+						// Option to run scripts is true for back-compat
 						// Intentionally let the error be thrown if parseHTML is not present
 						jQuery.merge( this, jQuery.parseHTML(
-							match[1],
+							match[ 1 ],
 							context && context.nodeType ? context.ownerDocument || context : document,
 							true
 						) );
 	
 						// HANDLE: $(html, props)
-						if ( rsingleTag.test( match[1] ) && jQuery.isPlainObject( context ) ) {
+						if ( rsingleTag.test( match[ 1 ] ) && jQuery.isPlainObject( context ) ) {
 							for ( match in context ) {
+	
 								// Properties of context are called as methods if possible
 								if ( jQuery.isFunction( this[ match ] ) ) {
 									this[ match ]( context[ match ] );
@@ -25058,30 +25351,20 @@
 	
 					// HANDLE: $(#id)
 					} else {
-						elem = document.getElementById( match[2] );
+						elem = document.getElementById( match[ 2 ] );
 	
-						// Check parentNode to catch when Blackberry 4.6 returns
-						// nodes that are no longer in the document #6963
-						if ( elem && elem.parentNode ) {
-							// Handle the case where IE and Opera return items
-							// by name instead of ID
-							if ( elem.id !== match[2] ) {
-								return rootjQuery.find( selector );
-							}
+						if ( elem ) {
 	
-							// Otherwise, we inject the element directly into the jQuery object
+							// Inject the element directly into the jQuery object
+							this[ 0 ] = elem;
 							this.length = 1;
-							this[0] = elem;
 						}
-	
-						this.context = document;
-						this.selector = selector;
 						return this;
 					}
 	
 				// HANDLE: $(expr, $(...))
 				} else if ( !context || context.jquery ) {
-					return ( context || rootjQuery ).find( selector );
+					return ( context || root ).find( selector );
 	
 				// HANDLE: $(expr, context)
 				// (which is just equivalent to: $(context).find(expr)
@@ -25091,22 +25374,18 @@
 	
 			// HANDLE: $(DOMElement)
 			} else if ( selector.nodeType ) {
-				this.context = this[0] = selector;
+				this[ 0 ] = selector;
 				this.length = 1;
 				return this;
 	
 			// HANDLE: $(function)
 			// Shortcut for document ready
 			} else if ( jQuery.isFunction( selector ) ) {
-				return typeof rootjQuery.ready !== "undefined" ?
-					rootjQuery.ready( selector ) :
+				return root.ready !== undefined ?
+					root.ready( selector ) :
+	
 					// Execute immediately if ready is not present
 					selector( jQuery );
-			}
-	
-			if ( selector.selector !== undefined ) {
-				this.selector = selector.selector;
-				this.context = selector.context;
 			}
 	
 			return jQuery.makeArray( selector, this );
@@ -25120,7 +25399,8 @@
 	
 	
 	var rparentsprev = /^(?:parents|prev(?:Until|All))/,
-		// methods guaranteed to produce a unique set when starting from a unique set
+	
+		// Methods guaranteed to produce a unique set when starting from a unique set
 		guaranteedUnique = {
 			children: true,
 			contents: true,
@@ -25128,46 +25408,19 @@
 			prev: true
 		};
 	
-	jQuery.extend({
-		dir: function( elem, dir, until ) {
-			var matched = [],
-				cur = elem[ dir ];
-	
-			while ( cur && cur.nodeType !== 9 && (until === undefined || cur.nodeType !== 1 || !jQuery( cur ).is( until )) ) {
-				if ( cur.nodeType === 1 ) {
-					matched.push( cur );
-				}
-				cur = cur[dir];
-			}
-			return matched;
-		},
-	
-		sibling: function( n, elem ) {
-			var r = [];
-	
-			for ( ; n; n = n.nextSibling ) {
-				if ( n.nodeType === 1 && n !== elem ) {
-					r.push( n );
-				}
-			}
-	
-			return r;
-		}
-	});
-	
-	jQuery.fn.extend({
+	jQuery.fn.extend( {
 		has: function( target ) {
-			var i,
-				targets = jQuery( target, this ),
-				len = targets.length;
+			var targets = jQuery( target, this ),
+				l = targets.length;
 	
-			return this.filter(function() {
-				for ( i = 0; i < len; i++ ) {
-					if ( jQuery.contains( this, targets[i] ) ) {
+			return this.filter( function() {
+				var i = 0;
+				for ( ; i < l; i++ ) {
+					if ( jQuery.contains( this, targets[ i ] ) ) {
 						return true;
 					}
 				}
-			});
+			} );
 		},
 	
 		closest: function( selectors, context ) {
@@ -25175,52 +25428,55 @@
 				i = 0,
 				l = this.length,
 				matched = [],
-				pos = rneedsContext.test( selectors ) || typeof selectors !== "string" ?
-					jQuery( selectors, context || this.context ) :
-					0;
+				targets = typeof selectors !== "string" && jQuery( selectors );
 	
-			for ( ; i < l; i++ ) {
-				for ( cur = this[i]; cur && cur !== context; cur = cur.parentNode ) {
-					// Always skip document fragments
-					if ( cur.nodeType < 11 && (pos ?
-						pos.index(cur) > -1 :
+			// Positional selectors never match, since there's no _selection_ context
+			if ( !rneedsContext.test( selectors ) ) {
+				for ( ; i < l; i++ ) {
+					for ( cur = this[ i ]; cur && cur !== context; cur = cur.parentNode ) {
 	
-						// Don't pass non-elements to Sizzle
-						cur.nodeType === 1 &&
-							jQuery.find.matchesSelector(cur, selectors)) ) {
+						// Always skip document fragments
+						if ( cur.nodeType < 11 && ( targets ?
+							targets.index( cur ) > -1 :
 	
-						matched.push( cur );
-						break;
+							// Don't pass non-elements to Sizzle
+							cur.nodeType === 1 &&
+								jQuery.find.matchesSelector( cur, selectors ) ) ) {
+	
+							matched.push( cur );
+							break;
+						}
 					}
 				}
 			}
 	
-			return this.pushStack( matched.length > 1 ? jQuery.unique( matched ) : matched );
+			return this.pushStack( matched.length > 1 ? jQuery.uniqueSort( matched ) : matched );
 		},
 	
-		// Determine the position of an element within
-		// the matched set of elements
+		// Determine the position of an element within the set
 		index: function( elem ) {
 	
 			// No argument, return index in parent
 			if ( !elem ) {
-				return ( this[0] && this[0].parentNode ) ? this.first().prevAll().length : -1;
+				return ( this[ 0 ] && this[ 0 ].parentNode ) ? this.first().prevAll().length : -1;
 			}
 	
-			// index in selector
+			// Index in selector
 			if ( typeof elem === "string" ) {
-				return jQuery.inArray( this[0], jQuery( elem ) );
+				return indexOf.call( jQuery( elem ), this[ 0 ] );
 			}
 	
 			// Locate the position of the desired element
-			return jQuery.inArray(
+			return indexOf.call( this,
+	
 				// If it receives a jQuery object, the first element is used
-				elem.jquery ? elem[0] : elem, this );
+				elem.jquery ? elem[ 0 ] : elem
+			);
 		},
 	
 		add: function( selector, context ) {
 			return this.pushStack(
-				jQuery.unique(
+				jQuery.uniqueSort(
 					jQuery.merge( this.get(), jQuery( selector, context ) )
 				)
 			);
@@ -25228,29 +25484,26 @@
 	
 		addBack: function( selector ) {
 			return this.add( selector == null ?
-				this.prevObject : this.prevObject.filter(selector)
+				this.prevObject : this.prevObject.filter( selector )
 			);
 		}
-	});
+	} );
 	
 	function sibling( cur, dir ) {
-		do {
-			cur = cur[ dir ];
-		} while ( cur && cur.nodeType !== 1 );
-	
+		while ( ( cur = cur[ dir ] ) && cur.nodeType !== 1 ) {}
 		return cur;
 	}
 	
-	jQuery.each({
+	jQuery.each( {
 		parent: function( elem ) {
 			var parent = elem.parentNode;
 			return parent && parent.nodeType !== 11 ? parent : null;
 		},
 		parents: function( elem ) {
-			return jQuery.dir( elem, "parentNode" );
+			return dir( elem, "parentNode" );
 		},
 		parentsUntil: function( elem, i, until ) {
-			return jQuery.dir( elem, "parentNode", until );
+			return dir( elem, "parentNode", until );
 		},
 		next: function( elem ) {
 			return sibling( elem, "nextSibling" );
@@ -25259,68 +25512,64 @@
 			return sibling( elem, "previousSibling" );
 		},
 		nextAll: function( elem ) {
-			return jQuery.dir( elem, "nextSibling" );
+			return dir( elem, "nextSibling" );
 		},
 		prevAll: function( elem ) {
-			return jQuery.dir( elem, "previousSibling" );
+			return dir( elem, "previousSibling" );
 		},
 		nextUntil: function( elem, i, until ) {
-			return jQuery.dir( elem, "nextSibling", until );
+			return dir( elem, "nextSibling", until );
 		},
 		prevUntil: function( elem, i, until ) {
-			return jQuery.dir( elem, "previousSibling", until );
+			return dir( elem, "previousSibling", until );
 		},
 		siblings: function( elem ) {
-			return jQuery.sibling( ( elem.parentNode || {} ).firstChild, elem );
+			return siblings( ( elem.parentNode || {} ).firstChild, elem );
 		},
 		children: function( elem ) {
-			return jQuery.sibling( elem.firstChild );
+			return siblings( elem.firstChild );
 		},
 		contents: function( elem ) {
-			return jQuery.nodeName( elem, "iframe" ) ?
-				elem.contentDocument || elem.contentWindow.document :
-				jQuery.merge( [], elem.childNodes );
+			return elem.contentDocument || jQuery.merge( [], elem.childNodes );
 		}
 	}, function( name, fn ) {
 		jQuery.fn[ name ] = function( until, selector ) {
-			var ret = jQuery.map( this, fn, until );
+			var matched = jQuery.map( this, fn, until );
 	
 			if ( name.slice( -5 ) !== "Until" ) {
 				selector = until;
 			}
 	
 			if ( selector && typeof selector === "string" ) {
-				ret = jQuery.filter( selector, ret );
+				matched = jQuery.filter( selector, matched );
 			}
 	
 			if ( this.length > 1 ) {
+	
 				// Remove duplicates
 				if ( !guaranteedUnique[ name ] ) {
-					ret = jQuery.unique( ret );
+					jQuery.uniqueSort( matched );
 				}
 	
 				// Reverse order for parents* and prev-derivatives
 				if ( rparentsprev.test( name ) ) {
-					ret = ret.reverse();
+					matched.reverse();
 				}
 			}
 	
-			return this.pushStack( ret );
+			return this.pushStack( matched );
 		};
-	});
-	var rnotwhite = (/\S+/g);
+	} );
+	var rnothtmlwhite = ( /[^\x20\t\r\n\f]+/g );
 	
 	
 	
-	// String to Object options format cache
-	var optionsCache = {};
-	
-	// Convert String-formatted options into Object-formatted ones and store in cache
+	// Convert String-formatted options into Object-formatted ones
 	function createOptions( options ) {
-		var object = optionsCache[ options ] = {};
-		jQuery.each( options.match( rnotwhite ) || [], function( _, flag ) {
+		var object = {};
+		jQuery.each( options.match( rnothtmlwhite ) || [], function( _, flag ) {
 			object[ flag ] = true;
-		});
+		} );
 		return object;
 	}
 	
@@ -25351,156 +25600,186 @@
 		// Convert options from String-formatted to Object-formatted if needed
 		// (we check in cache first)
 		options = typeof options === "string" ?
-			( optionsCache[ options ] || createOptions( options ) ) :
+			createOptions( options ) :
 			jQuery.extend( {}, options );
 	
 		var // Flag to know if list is currently firing
 			firing,
-			// Last fire value (for non-forgettable lists)
+	
+			// Last fire value for non-forgettable lists
 			memory,
+	
 			// Flag to know if list was already fired
 			fired,
-			// End of the loop when firing
-			firingLength,
-			// Index of currently firing callback (modified by remove if needed)
-			firingIndex,
-			// First callback to fire (used internally by add and fireWith)
-			firingStart,
+	
+			// Flag to prevent firing
+			locked,
+	
 			// Actual callback list
 			list = [],
-			// Stack of fire calls for repeatable lists
-			stack = !options.once && [],
+	
+			// Queue of execution data for repeatable lists
+			queue = [],
+	
+			// Index of currently firing callback (modified by add/remove as needed)
+			firingIndex = -1,
+	
 			// Fire callbacks
-			fire = function( data ) {
-				memory = options.memory && data;
-				fired = true;
-				firingIndex = firingStart || 0;
-				firingStart = 0;
-				firingLength = list.length;
-				firing = true;
-				for ( ; list && firingIndex < firingLength; firingIndex++ ) {
-					if ( list[ firingIndex ].apply( data[ 0 ], data[ 1 ] ) === false && options.stopOnFalse ) {
-						memory = false; // To prevent further calls using add
-						break;
+			fire = function() {
+	
+				// Enforce single-firing
+				locked = options.once;
+	
+				// Execute callbacks for all pending executions,
+				// respecting firingIndex overrides and runtime changes
+				fired = firing = true;
+				for ( ; queue.length; firingIndex = -1 ) {
+					memory = queue.shift();
+					while ( ++firingIndex < list.length ) {
+	
+						// Run callback and check for early termination
+						if ( list[ firingIndex ].apply( memory[ 0 ], memory[ 1 ] ) === false &&
+							options.stopOnFalse ) {
+	
+							// Jump to end and forget the data so .add doesn't re-fire
+							firingIndex = list.length;
+							memory = false;
+						}
 					}
 				}
+	
+				// Forget the data if we're done with it
+				if ( !options.memory ) {
+					memory = false;
+				}
+	
 				firing = false;
-				if ( list ) {
-					if ( stack ) {
-						if ( stack.length ) {
-							fire( stack.shift() );
-						}
-					} else if ( memory ) {
+	
+				// Clean up if we're done firing for good
+				if ( locked ) {
+	
+					// Keep an empty list if we have data for future add calls
+					if ( memory ) {
 						list = [];
+	
+					// Otherwise, this object is spent
 					} else {
-						self.disable();
+						list = "";
 					}
 				}
 			},
+	
 			// Actual Callbacks object
 			self = {
+	
 				// Add a callback or a collection of callbacks to the list
 				add: function() {
 					if ( list ) {
-						// First, we save the current length
-						var start = list.length;
-						(function add( args ) {
+	
+						// If we have memory from a past run, we should fire after adding
+						if ( memory && !firing ) {
+							firingIndex = list.length - 1;
+							queue.push( memory );
+						}
+	
+						( function add( args ) {
 							jQuery.each( args, function( _, arg ) {
-								var type = jQuery.type( arg );
-								if ( type === "function" ) {
+								if ( jQuery.isFunction( arg ) ) {
 									if ( !options.unique || !self.has( arg ) ) {
 										list.push( arg );
 									}
-								} else if ( arg && arg.length && type !== "string" ) {
+								} else if ( arg && arg.length && jQuery.type( arg ) !== "string" ) {
+	
 									// Inspect recursively
 									add( arg );
 								}
-							});
-						})( arguments );
-						// Do we need to add the callbacks to the
-						// current firing batch?
-						if ( firing ) {
-							firingLength = list.length;
-						// With memory, if we're not firing then
-						// we should call right away
-						} else if ( memory ) {
-							firingStart = start;
-							fire( memory );
+							} );
+						} )( arguments );
+	
+						if ( memory && !firing ) {
+							fire();
 						}
 					}
 					return this;
 				},
+	
 				// Remove a callback from the list
 				remove: function() {
-					if ( list ) {
-						jQuery.each( arguments, function( _, arg ) {
-							var index;
-							while ( ( index = jQuery.inArray( arg, list, index ) ) > -1 ) {
-								list.splice( index, 1 );
-								// Handle firing indexes
-								if ( firing ) {
-									if ( index <= firingLength ) {
-										firingLength--;
-									}
-									if ( index <= firingIndex ) {
-										firingIndex--;
-									}
-								}
+					jQuery.each( arguments, function( _, arg ) {
+						var index;
+						while ( ( index = jQuery.inArray( arg, list, index ) ) > -1 ) {
+							list.splice( index, 1 );
+	
+							// Handle firing indexes
+							if ( index <= firingIndex ) {
+								firingIndex--;
 							}
-						});
-					}
+						}
+					} );
 					return this;
 				},
+	
 				// Check if a given callback is in the list.
 				// If no argument is given, return whether or not list has callbacks attached.
 				has: function( fn ) {
-					return fn ? jQuery.inArray( fn, list ) > -1 : !!( list && list.length );
+					return fn ?
+						jQuery.inArray( fn, list ) > -1 :
+						list.length > 0;
 				},
+	
 				// Remove all callbacks from the list
 				empty: function() {
-					list = [];
-					firingLength = 0;
-					return this;
-				},
-				// Have the list do nothing anymore
-				disable: function() {
-					list = stack = memory = undefined;
-					return this;
-				},
-				// Is it disabled?
-				disabled: function() {
-					return !list;
-				},
-				// Lock the list in its current state
-				lock: function() {
-					stack = undefined;
-					if ( !memory ) {
-						self.disable();
+					if ( list ) {
+						list = [];
 					}
 					return this;
 				},
-				// Is it locked?
-				locked: function() {
-					return !stack;
+	
+				// Disable .fire and .add
+				// Abort any current/pending executions
+				// Clear all callbacks and values
+				disable: function() {
+					locked = queue = [];
+					list = memory = "";
+					return this;
 				},
+				disabled: function() {
+					return !list;
+				},
+	
+				// Disable .fire
+				// Also disable .add unless we have memory (since it would have no effect)
+				// Abort any pending executions
+				lock: function() {
+					locked = queue = [];
+					if ( !memory && !firing ) {
+						list = memory = "";
+					}
+					return this;
+				},
+				locked: function() {
+					return !!locked;
+				},
+	
 				// Call all callbacks with the given context and arguments
 				fireWith: function( context, args ) {
-					if ( list && ( !fired || stack ) ) {
+					if ( !locked ) {
 						args = args || [];
 						args = [ context, args.slice ? args.slice() : args ];
-						if ( firing ) {
-							stack.push( args );
-						} else {
-							fire( args );
+						queue.push( args );
+						if ( !firing ) {
+							fire();
 						}
 					}
 					return this;
 				},
+	
 				// Call all the callbacks with the given arguments
 				fire: function() {
 					self.fireWith( this, arguments );
 					return this;
 				},
+	
 				// To know if the callbacks have already been called at least once
 				fired: function() {
 					return !!fired;
@@ -25511,14 +25790,58 @@
 	};
 	
 	
-	jQuery.extend({
+	function Identity( v ) {
+		return v;
+	}
+	function Thrower( ex ) {
+		throw ex;
+	}
+	
+	function adoptValue( value, resolve, reject ) {
+		var method;
+	
+		try {
+	
+			// Check for promise aspect first to privilege synchronous behavior
+			if ( value && jQuery.isFunction( ( method = value.promise ) ) ) {
+				method.call( value ).done( resolve ).fail( reject );
+	
+			// Other thenables
+			} else if ( value && jQuery.isFunction( ( method = value.then ) ) ) {
+				method.call( value, resolve, reject );
+	
+			// Other non-thenables
+			} else {
+	
+				// Support: Android 4.0 only
+				// Strict mode functions invoked without .call/.apply get global-object context
+				resolve.call( undefined, value );
+			}
+	
+		// For Promises/A+, convert exceptions into rejections
+		// Since jQuery.when doesn't unwrap thenables, we can skip the extra checks appearing in
+		// Deferred#then to conditionally suppress rejection.
+		} catch ( value ) {
+	
+			// Support: Android 4.0 only
+			// Strict mode functions invoked without .call/.apply get global-object context
+			reject.call( undefined, value );
+		}
+	}
+	
+	jQuery.extend( {
 	
 		Deferred: function( func ) {
 			var tuples = [
-					// action, add listener, listener list, final state
-					[ "resolve", "done", jQuery.Callbacks("once memory"), "resolved" ],
-					[ "reject", "fail", jQuery.Callbacks("once memory"), "rejected" ],
-					[ "notify", "progress", jQuery.Callbacks("memory") ]
+	
+					// action, add listener, callbacks,
+					// ... .then handlers, argument index, [final state]
+					[ "notify", "progress", jQuery.Callbacks( "memory" ),
+						jQuery.Callbacks( "memory" ), 2 ],
+					[ "resolve", "done", jQuery.Callbacks( "once memory" ),
+						jQuery.Callbacks( "once memory" ), 0, "resolved" ],
+					[ "reject", "fail", jQuery.Callbacks( "once memory" ),
+						jQuery.Callbacks( "once memory" ), 1, "rejected" ]
 				],
 				state = "pending",
 				promise = {
@@ -25529,27 +25852,206 @@
 						deferred.done( arguments ).fail( arguments );
 						return this;
 					},
-					then: function( /* fnDone, fnFail, fnProgress */ ) {
+					"catch": function( fn ) {
+						return promise.then( null, fn );
+					},
+	
+					// Keep pipe for back-compat
+					pipe: function( /* fnDone, fnFail, fnProgress */ ) {
 						var fns = arguments;
-						return jQuery.Deferred(function( newDefer ) {
+	
+						return jQuery.Deferred( function( newDefer ) {
 							jQuery.each( tuples, function( i, tuple ) {
-								var fn = jQuery.isFunction( fns[ i ] ) && fns[ i ];
-								// deferred[ done | fail | progress ] for forwarding actions to newDefer
-								deferred[ tuple[1] ](function() {
+	
+								// Map tuples (progress, done, fail) to arguments (done, fail, progress)
+								var fn = jQuery.isFunction( fns[ tuple[ 4 ] ] ) && fns[ tuple[ 4 ] ];
+	
+								// deferred.progress(function() { bind to newDefer or newDefer.notify })
+								// deferred.done(function() { bind to newDefer or newDefer.resolve })
+								// deferred.fail(function() { bind to newDefer or newDefer.reject })
+								deferred[ tuple[ 1 ] ]( function() {
 									var returned = fn && fn.apply( this, arguments );
 									if ( returned && jQuery.isFunction( returned.promise ) ) {
 										returned.promise()
+											.progress( newDefer.notify )
 											.done( newDefer.resolve )
-											.fail( newDefer.reject )
-											.progress( newDefer.notify );
+											.fail( newDefer.reject );
 									} else {
-										newDefer[ tuple[ 0 ] + "With" ]( this === promise ? newDefer.promise() : this, fn ? [ returned ] : arguments );
+										newDefer[ tuple[ 0 ] + "With" ](
+											this,
+											fn ? [ returned ] : arguments
+										);
 									}
-								});
-							});
+								} );
+							} );
 							fns = null;
-						}).promise();
+						} ).promise();
 					},
+					then: function( onFulfilled, onRejected, onProgress ) {
+						var maxDepth = 0;
+						function resolve( depth, deferred, handler, special ) {
+							return function() {
+								var that = this,
+									args = arguments,
+									mightThrow = function() {
+										var returned, then;
+	
+										// Support: Promises/A+ section 2.3.3.3.3
+										// https://promisesaplus.com/#point-59
+										// Ignore double-resolution attempts
+										if ( depth < maxDepth ) {
+											return;
+										}
+	
+										returned = handler.apply( that, args );
+	
+										// Support: Promises/A+ section 2.3.1
+										// https://promisesaplus.com/#point-48
+										if ( returned === deferred.promise() ) {
+											throw new TypeError( "Thenable self-resolution" );
+										}
+	
+										// Support: Promises/A+ sections 2.3.3.1, 3.5
+										// https://promisesaplus.com/#point-54
+										// https://promisesaplus.com/#point-75
+										// Retrieve `then` only once
+										then = returned &&
+	
+											// Support: Promises/A+ section 2.3.4
+											// https://promisesaplus.com/#point-64
+											// Only check objects and functions for thenability
+											( typeof returned === "object" ||
+												typeof returned === "function" ) &&
+											returned.then;
+	
+										// Handle a returned thenable
+										if ( jQuery.isFunction( then ) ) {
+	
+											// Special processors (notify) just wait for resolution
+											if ( special ) {
+												then.call(
+													returned,
+													resolve( maxDepth, deferred, Identity, special ),
+													resolve( maxDepth, deferred, Thrower, special )
+												);
+	
+											// Normal processors (resolve) also hook into progress
+											} else {
+	
+												// ...and disregard older resolution values
+												maxDepth++;
+	
+												then.call(
+													returned,
+													resolve( maxDepth, deferred, Identity, special ),
+													resolve( maxDepth, deferred, Thrower, special ),
+													resolve( maxDepth, deferred, Identity,
+														deferred.notifyWith )
+												);
+											}
+	
+										// Handle all other returned values
+										} else {
+	
+											// Only substitute handlers pass on context
+											// and multiple values (non-spec behavior)
+											if ( handler !== Identity ) {
+												that = undefined;
+												args = [ returned ];
+											}
+	
+											// Process the value(s)
+											// Default process is resolve
+											( special || deferred.resolveWith )( that, args );
+										}
+									},
+	
+									// Only normal processors (resolve) catch and reject exceptions
+									process = special ?
+										mightThrow :
+										function() {
+											try {
+												mightThrow();
+											} catch ( e ) {
+	
+												if ( jQuery.Deferred.exceptionHook ) {
+													jQuery.Deferred.exceptionHook( e,
+														process.stackTrace );
+												}
+	
+												// Support: Promises/A+ section 2.3.3.3.4.1
+												// https://promisesaplus.com/#point-61
+												// Ignore post-resolution exceptions
+												if ( depth + 1 >= maxDepth ) {
+	
+													// Only substitute handlers pass on context
+													// and multiple values (non-spec behavior)
+													if ( handler !== Thrower ) {
+														that = undefined;
+														args = [ e ];
+													}
+	
+													deferred.rejectWith( that, args );
+												}
+											}
+										};
+	
+								// Support: Promises/A+ section 2.3.3.3.1
+								// https://promisesaplus.com/#point-57
+								// Re-resolve promises immediately to dodge false rejection from
+								// subsequent errors
+								if ( depth ) {
+									process();
+								} else {
+	
+									// Call an optional hook to record the stack, in case of exception
+									// since it's otherwise lost when execution goes async
+									if ( jQuery.Deferred.getStackHook ) {
+										process.stackTrace = jQuery.Deferred.getStackHook();
+									}
+									window.setTimeout( process );
+								}
+							};
+						}
+	
+						return jQuery.Deferred( function( newDefer ) {
+	
+							// progress_handlers.add( ... )
+							tuples[ 0 ][ 3 ].add(
+								resolve(
+									0,
+									newDefer,
+									jQuery.isFunction( onProgress ) ?
+										onProgress :
+										Identity,
+									newDefer.notifyWith
+								)
+							);
+	
+							// fulfilled_handlers.add( ... )
+							tuples[ 1 ][ 3 ].add(
+								resolve(
+									0,
+									newDefer,
+									jQuery.isFunction( onFulfilled ) ?
+										onFulfilled :
+										Identity
+								)
+							);
+	
+							// rejected_handlers.add( ... )
+							tuples[ 2 ][ 3 ].add(
+								resolve(
+									0,
+									newDefer,
+									jQuery.isFunction( onRejected ) ?
+										onRejected :
+										Thrower
+								)
+							);
+						} ).promise();
+					},
+	
 					// Get a promise for this deferred
 					// If obj is provided, the promise aspect is added to the object
 					promise: function( obj ) {
@@ -25558,34 +26060,53 @@
 				},
 				deferred = {};
 	
-			// Keep pipe for back-compat
-			promise.pipe = promise.then;
-	
 			// Add list-specific methods
 			jQuery.each( tuples, function( i, tuple ) {
 				var list = tuple[ 2 ],
-					stateString = tuple[ 3 ];
+					stateString = tuple[ 5 ];
 	
-				// promise[ done | fail | progress ] = list.add
-				promise[ tuple[1] ] = list.add;
+				// promise.progress = list.add
+				// promise.done = list.add
+				// promise.fail = list.add
+				promise[ tuple[ 1 ] ] = list.add;
 	
 				// Handle state
 				if ( stateString ) {
-					list.add(function() {
-						// state = [ resolved | rejected ]
-						state = stateString;
+					list.add(
+						function() {
 	
-					// [ reject_list | resolve_list ].disable; progress_list.lock
-					}, tuples[ i ^ 1 ][ 2 ].disable, tuples[ 2 ][ 2 ].lock );
+							// state = "resolved" (i.e., fulfilled)
+							// state = "rejected"
+							state = stateString;
+						},
+	
+						// rejected_callbacks.disable
+						// fulfilled_callbacks.disable
+						tuples[ 3 - i ][ 2 ].disable,
+	
+						// progress_callbacks.lock
+						tuples[ 0 ][ 2 ].lock
+					);
 				}
 	
-				// deferred[ resolve | reject | notify ]
-				deferred[ tuple[0] ] = function() {
-					deferred[ tuple[0] + "With" ]( this === deferred ? promise : this, arguments );
+				// progress_handlers.fire
+				// fulfilled_handlers.fire
+				// rejected_handlers.fire
+				list.add( tuple[ 3 ].fire );
+	
+				// deferred.notify = function() { deferred.notifyWith(...) }
+				// deferred.resolve = function() { deferred.resolveWith(...) }
+				// deferred.reject = function() { deferred.rejectWith(...) }
+				deferred[ tuple[ 0 ] ] = function() {
+					deferred[ tuple[ 0 ] + "With" ]( this === deferred ? undefined : this, arguments );
 					return this;
 				};
-				deferred[ tuple[0] + "With" ] = list.fireWith;
-			});
+	
+				// deferred.notifyWith = list.fireWith
+				// deferred.resolveWith = list.fireWith
+				// deferred.rejectWith = list.fireWith
+				deferred[ tuple[ 0 ] + "With" ] = list.fireWith;
+			} );
 	
 			// Make the deferred a promise
 			promise.promise( deferred );
@@ -25600,71 +26121,100 @@
 		},
 	
 		// Deferred helper
-		when: function( subordinate /* , ..., subordinateN */ ) {
-			var i = 0,
+		when: function( singleValue ) {
+			var
+	
+				// count of uncompleted subordinates
+				remaining = arguments.length,
+	
+				// count of unprocessed arguments
+				i = remaining,
+	
+				// subordinate fulfillment data
+				resolveContexts = Array( i ),
 				resolveValues = slice.call( arguments ),
-				length = resolveValues.length,
 	
-				// the count of uncompleted subordinates
-				remaining = length !== 1 || ( subordinate && jQuery.isFunction( subordinate.promise ) ) ? length : 0,
+				// the master Deferred
+				master = jQuery.Deferred(),
 	
-				// the master Deferred. If resolveValues consist of only a single Deferred, just use that.
-				deferred = remaining === 1 ? subordinate : jQuery.Deferred(),
-	
-				// Update function for both resolve and progress values
-				updateFunc = function( i, contexts, values ) {
+				// subordinate callback factory
+				updateFunc = function( i ) {
 					return function( value ) {
-						contexts[ i ] = this;
-						values[ i ] = arguments.length > 1 ? slice.call( arguments ) : value;
-						if ( values === progressValues ) {
-							deferred.notifyWith( contexts, values );
-	
-						} else if ( !(--remaining) ) {
-							deferred.resolveWith( contexts, values );
+						resolveContexts[ i ] = this;
+						resolveValues[ i ] = arguments.length > 1 ? slice.call( arguments ) : value;
+						if ( !( --remaining ) ) {
+							master.resolveWith( resolveContexts, resolveValues );
 						}
 					};
-				},
+				};
 	
-				progressValues, progressContexts, resolveContexts;
+			// Single- and empty arguments are adopted like Promise.resolve
+			if ( remaining <= 1 ) {
+				adoptValue( singleValue, master.done( updateFunc( i ) ).resolve, master.reject );
 	
-			// add listeners to Deferred subordinates; treat others as resolved
-			if ( length > 1 ) {
-				progressValues = new Array( length );
-				progressContexts = new Array( length );
-				resolveContexts = new Array( length );
-				for ( ; i < length; i++ ) {
-					if ( resolveValues[ i ] && jQuery.isFunction( resolveValues[ i ].promise ) ) {
-						resolveValues[ i ].promise()
-							.done( updateFunc( i, resolveContexts, resolveValues ) )
-							.fail( deferred.reject )
-							.progress( updateFunc( i, progressContexts, progressValues ) );
-					} else {
-						--remaining;
-					}
+				// Use .then() to unwrap secondary thenables (cf. gh-3000)
+				if ( master.state() === "pending" ||
+					jQuery.isFunction( resolveValues[ i ] && resolveValues[ i ].then ) ) {
+	
+					return master.then();
 				}
 			}
 	
-			// if we're not waiting on anything, resolve the master
-			if ( !remaining ) {
-				deferred.resolveWith( resolveContexts, resolveValues );
+			// Multiple arguments are aggregated like Promise.all array elements
+			while ( i-- ) {
+				adoptValue( resolveValues[ i ], updateFunc( i ), master.reject );
 			}
 	
-			return deferred.promise();
+			return master.promise();
 		}
-	});
+	} );
+	
+	
+	// These usually indicate a programmer mistake during development,
+	// warn about them ASAP rather than swallowing them by default.
+	var rerrorNames = /^(Eval|Internal|Range|Reference|Syntax|Type|URI)Error$/;
+	
+	jQuery.Deferred.exceptionHook = function( error, stack ) {
+	
+		// Support: IE 8 - 9 only
+		// Console exists when dev tools are open, which can happen at any time
+		if ( window.console && window.console.warn && error && rerrorNames.test( error.name ) ) {
+			window.console.warn( "jQuery.Deferred exception: " + error.message, error.stack, stack );
+		}
+	};
+	
+	
+	
+	
+	jQuery.readyException = function( error ) {
+		window.setTimeout( function() {
+			throw error;
+		} );
+	};
+	
+	
 	
 	
 	// The deferred used on DOM ready
-	var readyList;
+	var readyList = jQuery.Deferred();
 	
 	jQuery.fn.ready = function( fn ) {
-		// Add the callback
-		jQuery.ready.promise().done( fn );
+	
+		readyList
+			.then( fn )
+	
+			// Wrap jQuery.readyException in a function so that the lookup
+			// happens at the time of error handling instead of callback
+			// registration.
+			.catch( function( error ) {
+				jQuery.readyException( error );
+			} );
 	
 		return this;
 	};
 	
-	jQuery.extend({
+	jQuery.extend( {
+	
 		// Is the DOM ready to be used? Set to true once it occurs.
 		isReady: false,
 	
@@ -25689,11 +26239,6 @@
 				return;
 			}
 	
-			// Make sure body exists, at least, in case IE gets a little overzealous (ticket #5443).
-			if ( !document.body ) {
-				return setTimeout( jQuery.ready );
-			}
-	
 			// Remember that the DOM is ready
 			jQuery.isReady = true;
 	
@@ -25704,486 +26249,381 @@
 	
 			// If there are functions bound, to execute
 			readyList.resolveWith( document, [ jQuery ] );
-	
-			// Trigger any bound ready events
-			if ( jQuery.fn.triggerHandler ) {
-				jQuery( document ).triggerHandler( "ready" );
-				jQuery( document ).off( "ready" );
-			}
 		}
-	});
+	} );
 	
-	/**
-	 * Clean-up method for dom ready events
-	 */
-	function detach() {
-		if ( document.addEventListener ) {
-			document.removeEventListener( "DOMContentLoaded", completed, false );
-			window.removeEventListener( "load", completed, false );
+	jQuery.ready.then = readyList.then;
 	
-		} else {
-			document.detachEvent( "onreadystatechange", completed );
-			window.detachEvent( "onload", completed );
-		}
-	}
-	
-	/**
-	 * The ready event handler and self cleanup method
-	 */
+	// The ready event handler and self cleanup method
 	function completed() {
-		// readyState === "complete" is good enough for us to call the dom ready in oldIE
-		if ( document.addEventListener || event.type === "load" || document.readyState === "complete" ) {
-			detach();
-			jQuery.ready();
-		}
+		document.removeEventListener( "DOMContentLoaded", completed );
+		window.removeEventListener( "load", completed );
+		jQuery.ready();
 	}
 	
-	jQuery.ready.promise = function( obj ) {
-		if ( !readyList ) {
+	// Catch cases where $(document).ready() is called
+	// after the browser event has already occurred.
+	// Support: IE <=9 - 10 only
+	// Older IE sometimes signals "interactive" too soon
+	if ( document.readyState === "complete" ||
+		( document.readyState !== "loading" && !document.documentElement.doScroll ) ) {
 	
-			readyList = jQuery.Deferred();
+		// Handle it asynchronously to allow scripts the opportunity to delay ready
+		window.setTimeout( jQuery.ready );
 	
-			// Catch cases where $(document).ready() is called after the browser event has already occurred.
-			// we once tried to use readyState "interactive" here, but it caused issues like the one
-			// discovered by ChrisS here: http://bugs.jquery.com/ticket/12282#comment:15
-			if ( document.readyState === "complete" ) {
-				// Handle it asynchronously to allow scripts the opportunity to delay ready
-				setTimeout( jQuery.ready );
+	} else {
 	
-			// Standards-based browsers support DOMContentLoaded
-			} else if ( document.addEventListener ) {
-				// Use the handy event callback
-				document.addEventListener( "DOMContentLoaded", completed, false );
+		// Use the handy event callback
+		document.addEventListener( "DOMContentLoaded", completed );
 	
-				// A fallback to window.onload, that will always work
-				window.addEventListener( "load", completed, false );
+		// A fallback to window.onload, that will always work
+		window.addEventListener( "load", completed );
+	}
 	
-			// If IE event model is used
-			} else {
-				// Ensure firing before onload, maybe late but safe also for iframes
-				document.attachEvent( "onreadystatechange", completed );
 	
-				// A fallback to window.onload, that will always work
-				window.attachEvent( "onload", completed );
 	
-				// If IE and not a frame
-				// continually check to see if the document is ready
-				var top = false;
 	
-				try {
-					top = window.frameElement == null && document.documentElement;
-				} catch(e) {}
+	// Multifunctional method to get and set values of a collection
+	// The value/s can optionally be executed if it's a function
+	var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
+		var i = 0,
+			len = elems.length,
+			bulk = key == null;
 	
-				if ( top && top.doScroll ) {
-					(function doScrollCheck() {
-						if ( !jQuery.isReady ) {
+		// Sets many values
+		if ( jQuery.type( key ) === "object" ) {
+			chainable = true;
+			for ( i in key ) {
+				access( elems, fn, i, key[ i ], true, emptyGet, raw );
+			}
 	
-							try {
-								// Use the trick by Diego Perini
-								// http://javascript.nwbox.com/IEContentLoaded/
-								top.doScroll("left");
-							} catch(e) {
-								return setTimeout( doScrollCheck, 50 );
-							}
+		// Sets one value
+		} else if ( value !== undefined ) {
+			chainable = true;
 	
-							// detach all dom ready events
-							detach();
+			if ( !jQuery.isFunction( value ) ) {
+				raw = true;
+			}
 	
-							// and execute any waiting functions
-							jQuery.ready();
-						}
-					})();
+			if ( bulk ) {
+	
+				// Bulk operations run against the entire set
+				if ( raw ) {
+					fn.call( elems, value );
+					fn = null;
+	
+				// ...except when executing function values
+				} else {
+					bulk = fn;
+					fn = function( elem, key, value ) {
+						return bulk.call( jQuery( elem ), value );
+					};
+				}
+			}
+	
+			if ( fn ) {
+				for ( ; i < len; i++ ) {
+					fn(
+						elems[ i ], key, raw ?
+						value :
+						value.call( elems[ i ], i, fn( elems[ i ], key ) )
+					);
 				}
 			}
 		}
-		return readyList.promise( obj );
+	
+		if ( chainable ) {
+			return elems;
+		}
+	
+		// Gets
+		if ( bulk ) {
+			return fn.call( elems );
+		}
+	
+		return len ? fn( elems[ 0 ], key ) : emptyGet;
+	};
+	var acceptData = function( owner ) {
+	
+		// Accepts only:
+		//  - Node
+		//    - Node.ELEMENT_NODE
+		//    - Node.DOCUMENT_NODE
+		//  - Object
+		//    - Any
+		return owner.nodeType === 1 || owner.nodeType === 9 || !( +owner.nodeType );
 	};
 	
 	
-	var strundefined = typeof undefined;
 	
 	
-	
-	// Support: IE<9
-	// Iteration over object's inherited properties before its own
-	var i;
-	for ( i in jQuery( support ) ) {
-		break;
+	function Data() {
+		this.expando = jQuery.expando + Data.uid++;
 	}
-	support.ownLast = i !== "0";
 	
-	// Note: most support tests are defined in their respective modules.
-	// false until the test is run
-	support.inlineBlockNeedsLayout = false;
+	Data.uid = 1;
 	
-	// Execute ASAP in case we need to set body.style.zoom
-	jQuery(function() {
-		// Minified: var a,b,c,d
-		var val, div, body, container;
+	Data.prototype = {
 	
-		body = document.getElementsByTagName( "body" )[ 0 ];
-		if ( !body || !body.style ) {
-			// Return for frameset docs that don't have a body
-			return;
-		}
+		cache: function( owner ) {
 	
-		// Setup
-		div = document.createElement( "div" );
-		container = document.createElement( "div" );
-		container.style.cssText = "position:absolute;border:0;width:0;height:0;top:0;left:-9999px";
-		body.appendChild( container ).appendChild( div );
+			// Check if the owner object already has a cache
+			var value = owner[ this.expando ];
 	
-		if ( typeof div.style.zoom !== strundefined ) {
-			// Support: IE<8
-			// Check if natively block-level elements act like inline-block
-			// elements when setting their display to 'inline' and giving
-			// them layout
-			div.style.cssText = "display:inline;margin:0;border:0;padding:1px;width:1px;zoom:1";
+			// If not, create one
+			if ( !value ) {
+				value = {};
 	
-			support.inlineBlockNeedsLayout = val = div.offsetWidth === 3;
-			if ( val ) {
-				// Prevent IE 6 from affecting layout for positioned elements #11048
-				// Prevent IE from shrinking the body in IE 7 mode #12869
-				// Support: IE<8
-				body.style.zoom = 1;
+				// We can accept data for non-element nodes in modern browsers,
+				// but we should not, see #8335.
+				// Always return an empty object.
+				if ( acceptData( owner ) ) {
+	
+					// If it is a node unlikely to be stringify-ed or looped over
+					// use plain assignment
+					if ( owner.nodeType ) {
+						owner[ this.expando ] = value;
+	
+					// Otherwise secure it in a non-enumerable property
+					// configurable must be true to allow the property to be
+					// deleted when data is removed
+					} else {
+						Object.defineProperty( owner, this.expando, {
+							value: value,
+							configurable: true
+						} );
+					}
+				}
 			}
-		}
 	
-		body.removeChild( container );
-	});
+			return value;
+		},
+		set: function( owner, data, value ) {
+			var prop,
+				cache = this.cache( owner );
 	
+			// Handle: [ owner, key, value ] args
+			// Always use camelCase key (gh-2257)
+			if ( typeof data === "string" ) {
+				cache[ jQuery.camelCase( data ) ] = value;
 	
+			// Handle: [ owner, { properties } ] args
+			} else {
 	
-	
-	(function() {
-		var div = document.createElement( "div" );
-	
-		// Execute the test only if not already executed in another module.
-		if (support.deleteExpando == null) {
-			// Support: IE<9
-			support.deleteExpando = true;
-			try {
-				delete div.test;
-			} catch( e ) {
-				support.deleteExpando = false;
+				// Copy the properties one-by-one to the cache object
+				for ( prop in data ) {
+					cache[ jQuery.camelCase( prop ) ] = data[ prop ];
+				}
 			}
+			return cache;
+		},
+		get: function( owner, key ) {
+			return key === undefined ?
+				this.cache( owner ) :
+	
+				// Always use camelCase key (gh-2257)
+				owner[ this.expando ] && owner[ this.expando ][ jQuery.camelCase( key ) ];
+		},
+		access: function( owner, key, value ) {
+	
+			// In cases where either:
+			//
+			//   1. No key was specified
+			//   2. A string key was specified, but no value provided
+			//
+			// Take the "read" path and allow the get method to determine
+			// which value to return, respectively either:
+			//
+			//   1. The entire cache object
+			//   2. The data stored at the key
+			//
+			if ( key === undefined ||
+					( ( key && typeof key === "string" ) && value === undefined ) ) {
+	
+				return this.get( owner, key );
+			}
+	
+			// When the key is not a string, or both a key and value
+			// are specified, set or extend (existing objects) with either:
+			//
+			//   1. An object of properties
+			//   2. A key and value
+			//
+			this.set( owner, key, value );
+	
+			// Since the "set" path can have two possible entry points
+			// return the expected data based on which path was taken[*]
+			return value !== undefined ? value : key;
+		},
+		remove: function( owner, key ) {
+			var i,
+				cache = owner[ this.expando ];
+	
+			if ( cache === undefined ) {
+				return;
+			}
+	
+			if ( key !== undefined ) {
+	
+				// Support array or space separated string of keys
+				if ( jQuery.isArray( key ) ) {
+	
+					// If key is an array of keys...
+					// We always set camelCase keys, so remove that.
+					key = key.map( jQuery.camelCase );
+				} else {
+					key = jQuery.camelCase( key );
+	
+					// If a key with the spaces exists, use it.
+					// Otherwise, create an array by matching non-whitespace
+					key = key in cache ?
+						[ key ] :
+						( key.match( rnothtmlwhite ) || [] );
+				}
+	
+				i = key.length;
+	
+				while ( i-- ) {
+					delete cache[ key[ i ] ];
+				}
+			}
+	
+			// Remove the expando if there's no more data
+			if ( key === undefined || jQuery.isEmptyObject( cache ) ) {
+	
+				// Support: Chrome <=35 - 45
+				// Webkit & Blink performance suffers when deleting properties
+				// from DOM nodes, so set to undefined instead
+				// https://bugs.chromium.org/p/chromium/issues/detail?id=378607 (bug restricted)
+				if ( owner.nodeType ) {
+					owner[ this.expando ] = undefined;
+				} else {
+					delete owner[ this.expando ];
+				}
+			}
+		},
+		hasData: function( owner ) {
+			var cache = owner[ this.expando ];
+			return cache !== undefined && !jQuery.isEmptyObject( cache );
 		}
-	
-		// Null elements to avoid leaks in IE.
-		div = null;
-	})();
-	
-	
-	/**
-	 * Determines whether an object can have data
-	 */
-	jQuery.acceptData = function( elem ) {
-		var noData = jQuery.noData[ (elem.nodeName + " ").toLowerCase() ],
-			nodeType = +elem.nodeType || 1;
-	
-		// Do not set data on non-element DOM nodes because it will not be cleared (#8335).
-		return nodeType !== 1 && nodeType !== 9 ?
-			false :
-	
-			// Nodes accept data unless otherwise specified; rejection can be conditional
-			!noData || noData !== true && elem.getAttribute("classid") === noData;
 	};
+	var dataPriv = new Data();
 	
+	var dataUser = new Data();
+	
+	
+	
+	//	Implementation Summary
+	//
+	//	1. Enforce API surface and semantic compatibility with 1.9.x branch
+	//	2. Improve the module's maintainability by reducing the storage
+	//		paths to a single mechanism.
+	//	3. Use the same single mechanism to support "private" and "user" data.
+	//	4. _Never_ expose "private" data to user code (TODO: Drop _data, _removeData)
+	//	5. Avoid exposing implementation details on user objects (eg. expando properties)
+	//	6. Provide a clear path for implementation upgrade to WeakMap in 2014
 	
 	var rbrace = /^(?:\{[\w\W]*\}|\[[\w\W]*\])$/,
-		rmultiDash = /([A-Z])/g;
+		rmultiDash = /[A-Z]/g;
 	
-	function dataAttr( elem, key, data ) {
-		// If nothing was found internally, try to fetch any
-		// data from the HTML5 data-* attribute
-		if ( data === undefined && elem.nodeType === 1 ) {
+	function getData( data ) {
+		if ( data === "true" ) {
+			return true;
+		}
 	
-			var name = "data-" + key.replace( rmultiDash, "-$1" ).toLowerCase();
+		if ( data === "false" ) {
+			return false;
+		}
 	
-			data = elem.getAttribute( name );
+		if ( data === "null" ) {
+			return null;
+		}
 	
-			if ( typeof data === "string" ) {
-				try {
-					data = data === "true" ? true :
-						data === "false" ? false :
-						data === "null" ? null :
-						// Only convert to a number if it doesn't change the string
-						+data + "" === data ? +data :
-						rbrace.test( data ) ? jQuery.parseJSON( data ) :
-						data;
-				} catch( e ) {}
+		// Only convert to a number if it doesn't change the string
+		if ( data === +data + "" ) {
+			return +data;
+		}
 	
-				// Make sure we set the data so it isn't changed later
-				jQuery.data( elem, key, data );
-	
-			} else {
-				data = undefined;
-			}
+		if ( rbrace.test( data ) ) {
+			return JSON.parse( data );
 		}
 	
 		return data;
 	}
 	
-	// checks a cache object for emptiness
-	function isEmptyDataObject( obj ) {
+	function dataAttr( elem, key, data ) {
 		var name;
-		for ( name in obj ) {
 	
-			// if the public data object is empty, the private is still empty
-			if ( name === "data" && jQuery.isEmptyObject( obj[name] ) ) {
-				continue;
-			}
-			if ( name !== "toJSON" ) {
-				return false;
-			}
-		}
+		// If nothing was found internally, try to fetch any
+		// data from the HTML5 data-* attribute
+		if ( data === undefined && elem.nodeType === 1 ) {
+			name = "data-" + key.replace( rmultiDash, "-$&" ).toLowerCase();
+			data = elem.getAttribute( name );
 	
-		return true;
-	}
+			if ( typeof data === "string" ) {
+				try {
+					data = getData( data );
+				} catch ( e ) {}
 	
-	function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
-		if ( !jQuery.acceptData( elem ) ) {
-			return;
-		}
-	
-		var ret, thisCache,
-			internalKey = jQuery.expando,
-	
-			// We have to handle DOM nodes and JS objects differently because IE6-7
-			// can't GC object references properly across the DOM-JS boundary
-			isNode = elem.nodeType,
-	
-			// Only DOM nodes need the global jQuery cache; JS object data is
-			// attached directly to the object so GC can occur automatically
-			cache = isNode ? jQuery.cache : elem,
-	
-			// Only defining an ID for JS objects if its cache already exists allows
-			// the code to shortcut on the same path as a DOM node with no cache
-			id = isNode ? elem[ internalKey ] : elem[ internalKey ] && internalKey;
-	
-		// Avoid doing any more work than we need to when trying to get data on an
-		// object that has no data at all
-		if ( (!id || !cache[id] || (!pvt && !cache[id].data)) && data === undefined && typeof name === "string" ) {
-			return;
-		}
-	
-		if ( !id ) {
-			// Only DOM nodes need a new unique ID for each element since their data
-			// ends up in the global cache
-			if ( isNode ) {
-				id = elem[ internalKey ] = deletedIds.pop() || jQuery.guid++;
+				// Make sure we set the data so it isn't changed later
+				dataUser.set( elem, key, data );
 			} else {
-				id = internalKey;
+				data = undefined;
 			}
 		}
-	
-		if ( !cache[ id ] ) {
-			// Avoid exposing jQuery metadata on plain JS objects when the object
-			// is serialized using JSON.stringify
-			cache[ id ] = isNode ? {} : { toJSON: jQuery.noop };
-		}
-	
-		// An object can be passed to jQuery.data instead of a key/value pair; this gets
-		// shallow copied over onto the existing cache
-		if ( typeof name === "object" || typeof name === "function" ) {
-			if ( pvt ) {
-				cache[ id ] = jQuery.extend( cache[ id ], name );
-			} else {
-				cache[ id ].data = jQuery.extend( cache[ id ].data, name );
-			}
-		}
-	
-		thisCache = cache[ id ];
-	
-		// jQuery data() is stored in a separate object inside the object's internal data
-		// cache in order to avoid key collisions between internal data and user-defined
-		// data.
-		if ( !pvt ) {
-			if ( !thisCache.data ) {
-				thisCache.data = {};
-			}
-	
-			thisCache = thisCache.data;
-		}
-	
-		if ( data !== undefined ) {
-			thisCache[ jQuery.camelCase( name ) ] = data;
-		}
-	
-		// Check for both converted-to-camel and non-converted data property names
-		// If a data property was specified
-		if ( typeof name === "string" ) {
-	
-			// First Try to find as-is property data
-			ret = thisCache[ name ];
-	
-			// Test for null|undefined property data
-			if ( ret == null ) {
-	
-				// Try to find the camelCased property
-				ret = thisCache[ jQuery.camelCase( name ) ];
-			}
-		} else {
-			ret = thisCache;
-		}
-	
-		return ret;
+		return data;
 	}
 	
-	function internalRemoveData( elem, name, pvt ) {
-		if ( !jQuery.acceptData( elem ) ) {
-			return;
-		}
-	
-		var thisCache, i,
-			isNode = elem.nodeType,
-	
-			// See jQuery.data for more information
-			cache = isNode ? jQuery.cache : elem,
-			id = isNode ? elem[ jQuery.expando ] : jQuery.expando;
-	
-		// If there is already no cache entry for this object, there is no
-		// purpose in continuing
-		if ( !cache[ id ] ) {
-			return;
-		}
-	
-		if ( name ) {
-	
-			thisCache = pvt ? cache[ id ] : cache[ id ].data;
-	
-			if ( thisCache ) {
-	
-				// Support array or space separated string names for data keys
-				if ( !jQuery.isArray( name ) ) {
-	
-					// try the string as a key before any manipulation
-					if ( name in thisCache ) {
-						name = [ name ];
-					} else {
-	
-						// split the camel cased version by spaces unless a key with the spaces exists
-						name = jQuery.camelCase( name );
-						if ( name in thisCache ) {
-							name = [ name ];
-						} else {
-							name = name.split(" ");
-						}
-					}
-				} else {
-					// If "name" is an array of keys...
-					// When data is initially created, via ("key", "val") signature,
-					// keys will be converted to camelCase.
-					// Since there is no way to tell _how_ a key was added, remove
-					// both plain key and camelCase key. #12786
-					// This will only penalize the array argument path.
-					name = name.concat( jQuery.map( name, jQuery.camelCase ) );
-				}
-	
-				i = name.length;
-				while ( i-- ) {
-					delete thisCache[ name[i] ];
-				}
-	
-				// If there is no data left in the cache, we want to continue
-				// and let the cache object itself get destroyed
-				if ( pvt ? !isEmptyDataObject(thisCache) : !jQuery.isEmptyObject(thisCache) ) {
-					return;
-				}
-			}
-		}
-	
-		// See jQuery.data for more information
-		if ( !pvt ) {
-			delete cache[ id ].data;
-	
-			// Don't destroy the parent cache unless the internal data object
-			// had been the only thing left in it
-			if ( !isEmptyDataObject( cache[ id ] ) ) {
-				return;
-			}
-		}
-	
-		// Destroy the cache
-		if ( isNode ) {
-			jQuery.cleanData( [ elem ], true );
-	
-		// Use delete when supported for expandos or `cache` is not a window per isWindow (#10080)
-		/* jshint eqeqeq: false */
-		} else if ( support.deleteExpando || cache != cache.window ) {
-			/* jshint eqeqeq: true */
-			delete cache[ id ];
-	
-		// When all else fails, null
-		} else {
-			cache[ id ] = null;
-		}
-	}
-	
-	jQuery.extend({
-		cache: {},
-	
-		// The following elements (space-suffixed to avoid Object.prototype collisions)
-		// throw uncatchable exceptions if you attempt to set expando properties
-		noData: {
-			"applet ": true,
-			"embed ": true,
-			// ...but Flash objects (which have this classid) *can* handle expandos
-			"object ": "clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
-		},
-	
+	jQuery.extend( {
 		hasData: function( elem ) {
-			elem = elem.nodeType ? jQuery.cache[ elem[jQuery.expando] ] : elem[ jQuery.expando ];
-			return !!elem && !isEmptyDataObject( elem );
+			return dataUser.hasData( elem ) || dataPriv.hasData( elem );
 		},
 	
 		data: function( elem, name, data ) {
-			return internalData( elem, name, data );
+			return dataUser.access( elem, name, data );
 		},
 	
 		removeData: function( elem, name ) {
-			return internalRemoveData( elem, name );
+			dataUser.remove( elem, name );
 		},
 	
-		// For internal use only.
+		// TODO: Now that all calls to _data and _removeData have been replaced
+		// with direct calls to dataPriv methods, these can be deprecated.
 		_data: function( elem, name, data ) {
-			return internalData( elem, name, data, true );
+			return dataPriv.access( elem, name, data );
 		},
 	
 		_removeData: function( elem, name ) {
-			return internalRemoveData( elem, name, true );
+			dataPriv.remove( elem, name );
 		}
-	});
+	} );
 	
-	jQuery.fn.extend({
+	jQuery.fn.extend( {
 		data: function( key, value ) {
 			var i, name, data,
-				elem = this[0],
+				elem = this[ 0 ],
 				attrs = elem && elem.attributes;
-	
-			// Special expections of .data basically thwart jQuery.access,
-			// so implement the relevant behavior ourselves
 	
 			// Gets all values
 			if ( key === undefined ) {
 				if ( this.length ) {
-					data = jQuery.data( elem );
+					data = dataUser.get( elem );
 	
-					if ( elem.nodeType === 1 && !jQuery._data( elem, "parsedAttrs" ) ) {
+					if ( elem.nodeType === 1 && !dataPriv.get( elem, "hasDataAttrs" ) ) {
 						i = attrs.length;
 						while ( i-- ) {
 	
-							// Support: IE11+
+							// Support: IE 11 only
 							// The attrs elements can be null (#14894)
 							if ( attrs[ i ] ) {
 								name = attrs[ i ].name;
 								if ( name.indexOf( "data-" ) === 0 ) {
-									name = jQuery.camelCase( name.slice(5) );
+									name = jQuery.camelCase( name.slice( 5 ) );
 									dataAttr( elem, name, data[ name ] );
 								}
 							}
 						}
-						jQuery._data( elem, "parsedAttrs", true );
+						dataPriv.set( elem, "hasDataAttrs", true );
 					}
 				}
 	
@@ -26192,43 +26632,68 @@
 	
 			// Sets multiple values
 			if ( typeof key === "object" ) {
-				return this.each(function() {
-					jQuery.data( this, key );
-				});
+				return this.each( function() {
+					dataUser.set( this, key );
+				} );
 			}
 	
-			return arguments.length > 1 ?
+			return access( this, function( value ) {
+				var data;
 	
-				// Sets one value
-				this.each(function() {
-					jQuery.data( this, key, value );
-				}) :
+				// The calling jQuery object (element matches) is not empty
+				// (and therefore has an element appears at this[ 0 ]) and the
+				// `value` parameter was not undefined. An empty jQuery object
+				// will result in `undefined` for elem = this[ 0 ] which will
+				// throw an exception if an attempt to read a data cache is made.
+				if ( elem && value === undefined ) {
 	
-				// Gets one value
-				// Try to fetch any internally stored data first
-				elem ? dataAttr( elem, key, jQuery.data( elem, key ) ) : undefined;
+					// Attempt to get data from the cache
+					// The key will always be camelCased in Data
+					data = dataUser.get( elem, key );
+					if ( data !== undefined ) {
+						return data;
+					}
+	
+					// Attempt to "discover" the data in
+					// HTML5 custom data-* attrs
+					data = dataAttr( elem, key );
+					if ( data !== undefined ) {
+						return data;
+					}
+	
+					// We tried really hard, but the data doesn't exist.
+					return;
+				}
+	
+				// Set the data...
+				this.each( function() {
+	
+					// We always store the camelCased key
+					dataUser.set( this, key, value );
+				} );
+			}, null, value, arguments.length > 1, null, true );
 		},
 	
 		removeData: function( key ) {
-			return this.each(function() {
-				jQuery.removeData( this, key );
-			});
+			return this.each( function() {
+				dataUser.remove( this, key );
+			} );
 		}
-	});
+	} );
 	
 	
-	jQuery.extend({
+	jQuery.extend( {
 		queue: function( elem, type, data ) {
 			var queue;
 	
 			if ( elem ) {
 				type = ( type || "fx" ) + "queue";
-				queue = jQuery._data( elem, type );
+				queue = dataPriv.get( elem, type );
 	
 				// Speed up dequeue by getting out quickly if this is just a lookup
 				if ( data ) {
-					if ( !queue || jQuery.isArray(data) ) {
-						queue = jQuery._data( elem, type, jQuery.makeArray(data) );
+					if ( !queue || jQuery.isArray( data ) ) {
+						queue = dataPriv.access( elem, type, jQuery.makeArray( data ) );
 					} else {
 						queue.push( data );
 					}
@@ -26262,7 +26727,7 @@
 					queue.unshift( "inprogress" );
 				}
 	
-				// clear up the last queue stop function
+				// Clear up the last queue stop function
 				delete hooks.stop;
 				fn.call( elem, next, hooks );
 			}
@@ -26272,19 +26737,18 @@
 			}
 		},
 	
-		// not intended for public consumption - generates a queueHooks object, or returns the current one
+		// Not public - generate a queueHooks object, or return the current one
 		_queueHooks: function( elem, type ) {
 			var key = type + "queueHooks";
-			return jQuery._data( elem, key ) || jQuery._data( elem, key, {
-				empty: jQuery.Callbacks("once memory").add(function() {
-					jQuery._removeData( elem, type + "queue" );
-					jQuery._removeData( elem, key );
-				})
-			});
+			return dataPriv.get( elem, key ) || dataPriv.access( elem, key, {
+				empty: jQuery.Callbacks( "once memory" ).add( function() {
+					dataPriv.remove( elem, [ type + "queue", key ] );
+				} )
+			} );
 		}
-	});
+	} );
 	
-	jQuery.fn.extend({
+	jQuery.fn.extend( {
 		queue: function( type, data ) {
 			var setter = 2;
 	
@@ -26295,30 +26759,31 @@
 			}
 	
 			if ( arguments.length < setter ) {
-				return jQuery.queue( this[0], type );
+				return jQuery.queue( this[ 0 ], type );
 			}
 	
 			return data === undefined ?
 				this :
-				this.each(function() {
+				this.each( function() {
 					var queue = jQuery.queue( this, type, data );
 	
-					// ensure a hooks for this queue
+					// Ensure a hooks for this queue
 					jQuery._queueHooks( this, type );
 	
-					if ( type === "fx" && queue[0] !== "inprogress" ) {
+					if ( type === "fx" && queue[ 0 ] !== "inprogress" ) {
 						jQuery.dequeue( this, type );
 					}
-				});
+				} );
 		},
 		dequeue: function( type ) {
-			return this.each(function() {
+			return this.each( function() {
 				jQuery.dequeue( this, type );
-			});
+			} );
 		},
 		clearQueue: function( type ) {
 			return this.queue( type || "fx", [] );
 		},
+	
 		// Get a promise resolved when queues of a certain type
 		// are emptied (fx is the type by default)
 		promise: function( type, obj ) {
@@ -26340,7 +26805,7 @@
 			type = type || "fx";
 	
 			while ( i-- ) {
-				tmp = jQuery._data( elements[ i ], type + "queueHooks" );
+				tmp = dataPriv.get( elements[ i ], type + "queueHooks" );
 				if ( tmp && tmp.empty ) {
 					count++;
 					tmp.empty.add( resolve );
@@ -26349,171 +26814,408 @@
 			resolve();
 			return defer.promise( obj );
 		}
-	});
-	var pnum = (/[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/).source;
+	} );
+	var pnum = ( /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/ ).source;
+	
+	var rcssNum = new RegExp( "^(?:([+-])=|)(" + pnum + ")([a-z%]*)$", "i" );
+	
 	
 	var cssExpand = [ "Top", "Right", "Bottom", "Left" ];
 	
-	var isHidden = function( elem, el ) {
-			// isHidden might be called from jQuery#filter function;
+	var isHiddenWithinTree = function( elem, el ) {
+	
+			// isHiddenWithinTree might be called from jQuery#filter function;
 			// in that case, element will be second argument
 			elem = el || elem;
-			return jQuery.css( elem, "display" ) === "none" || !jQuery.contains( elem.ownerDocument, elem );
+	
+			// Inline style trumps all
+			return elem.style.display === "none" ||
+				elem.style.display === "" &&
+	
+				// Otherwise, check computed style
+				// Support: Firefox <=43 - 45
+				// Disconnected elements can have computed display: none, so first confirm that elem is
+				// in the document.
+				jQuery.contains( elem.ownerDocument, elem ) &&
+	
+				jQuery.css( elem, "display" ) === "none";
 		};
 	
+	var swap = function( elem, options, callback, args ) {
+		var ret, name,
+			old = {};
+	
+		// Remember the old values, and insert the new ones
+		for ( name in options ) {
+			old[ name ] = elem.style[ name ];
+			elem.style[ name ] = options[ name ];
+		}
+	
+		ret = callback.apply( elem, args || [] );
+	
+		// Revert the old values
+		for ( name in options ) {
+			elem.style[ name ] = old[ name ];
+		}
+	
+		return ret;
+	};
 	
 	
-	// Multifunctional method to get and set values of a collection
-	// The value/s can optionally be executed if it's a function
-	var access = jQuery.access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
-		var i = 0,
-			length = elems.length,
-			bulk = key == null;
 	
-		// Sets many values
-		if ( jQuery.type( key ) === "object" ) {
-			chainable = true;
-			for ( i in key ) {
-				jQuery.access( elems, fn, i, key[i], true, emptyGet, raw );
+	
+	function adjustCSS( elem, prop, valueParts, tween ) {
+		var adjusted,
+			scale = 1,
+			maxIterations = 20,
+			currentValue = tween ?
+				function() {
+					return tween.cur();
+				} :
+				function() {
+					return jQuery.css( elem, prop, "" );
+				},
+			initial = currentValue(),
+			unit = valueParts && valueParts[ 3 ] || ( jQuery.cssNumber[ prop ] ? "" : "px" ),
+	
+			// Starting value computation is required for potential unit mismatches
+			initialInUnit = ( jQuery.cssNumber[ prop ] || unit !== "px" && +initial ) &&
+				rcssNum.exec( jQuery.css( elem, prop ) );
+	
+		if ( initialInUnit && initialInUnit[ 3 ] !== unit ) {
+	
+			// Trust units reported by jQuery.css
+			unit = unit || initialInUnit[ 3 ];
+	
+			// Make sure we update the tween properties later on
+			valueParts = valueParts || [];
+	
+			// Iteratively approximate from a nonzero starting point
+			initialInUnit = +initial || 1;
+	
+			do {
+	
+				// If previous iteration zeroed out, double until we get *something*.
+				// Use string for doubling so we don't accidentally see scale as unchanged below
+				scale = scale || ".5";
+	
+				// Adjust and apply
+				initialInUnit = initialInUnit / scale;
+				jQuery.style( elem, prop, initialInUnit + unit );
+	
+			// Update scale, tolerating zero or NaN from tween.cur()
+			// Break the loop if scale is unchanged or perfect, or if we've just had enough.
+			} while (
+				scale !== ( scale = currentValue() / initial ) && scale !== 1 && --maxIterations
+			);
+		}
+	
+		if ( valueParts ) {
+			initialInUnit = +initialInUnit || +initial || 0;
+	
+			// Apply relative offset (+=/-=) if specified
+			adjusted = valueParts[ 1 ] ?
+				initialInUnit + ( valueParts[ 1 ] + 1 ) * valueParts[ 2 ] :
+				+valueParts[ 2 ];
+			if ( tween ) {
+				tween.unit = unit;
+				tween.start = initialInUnit;
+				tween.end = adjusted;
+			}
+		}
+		return adjusted;
+	}
+	
+	
+	var defaultDisplayMap = {};
+	
+	function getDefaultDisplay( elem ) {
+		var temp,
+			doc = elem.ownerDocument,
+			nodeName = elem.nodeName,
+			display = defaultDisplayMap[ nodeName ];
+	
+		if ( display ) {
+			return display;
+		}
+	
+		temp = doc.body.appendChild( doc.createElement( nodeName ) );
+		display = jQuery.css( temp, "display" );
+	
+		temp.parentNode.removeChild( temp );
+	
+		if ( display === "none" ) {
+			display = "block";
+		}
+		defaultDisplayMap[ nodeName ] = display;
+	
+		return display;
+	}
+	
+	function showHide( elements, show ) {
+		var display, elem,
+			values = [],
+			index = 0,
+			length = elements.length;
+	
+		// Determine new display value for elements that need to change
+		for ( ; index < length; index++ ) {
+			elem = elements[ index ];
+			if ( !elem.style ) {
+				continue;
 			}
 	
-		// Sets one value
-		} else if ( value !== undefined ) {
-			chainable = true;
+			display = elem.style.display;
+			if ( show ) {
 	
-			if ( !jQuery.isFunction( value ) ) {
-				raw = true;
-			}
-	
-			if ( bulk ) {
-				// Bulk operations run against the entire set
-				if ( raw ) {
-					fn.call( elems, value );
-					fn = null;
-	
-				// ...except when executing function values
-				} else {
-					bulk = fn;
-					fn = function( elem, key, value ) {
-						return bulk.call( jQuery( elem ), value );
-					};
+				// Since we force visibility upon cascade-hidden elements, an immediate (and slow)
+				// check is required in this first loop unless we have a nonempty display value (either
+				// inline or about-to-be-restored)
+				if ( display === "none" ) {
+					values[ index ] = dataPriv.get( elem, "display" ) || null;
+					if ( !values[ index ] ) {
+						elem.style.display = "";
+					}
 				}
-			}
+				if ( elem.style.display === "" && isHiddenWithinTree( elem ) ) {
+					values[ index ] = getDefaultDisplay( elem );
+				}
+			} else {
+				if ( display !== "none" ) {
+					values[ index ] = "none";
 	
-			if ( fn ) {
-				for ( ; i < length; i++ ) {
-					fn( elems[i], key, raw ? value : value.call( elems[i], i, fn( elems[i], key ) ) );
+					// Remember what we're overwriting
+					dataPriv.set( elem, "display", display );
 				}
 			}
 		}
 	
-		return chainable ?
-			elems :
+		// Set the display of the elements in a second loop to avoid constant reflow
+		for ( index = 0; index < length; index++ ) {
+			if ( values[ index ] != null ) {
+				elements[ index ].style.display = values[ index ];
+			}
+		}
 	
-			// Gets
-			bulk ?
-				fn.call( elems ) :
-				length ? fn( elems[0], key ) : emptyGet;
+		return elements;
+	}
+	
+	jQuery.fn.extend( {
+		show: function() {
+			return showHide( this, true );
+		},
+		hide: function() {
+			return showHide( this );
+		},
+		toggle: function( state ) {
+			if ( typeof state === "boolean" ) {
+				return state ? this.show() : this.hide();
+			}
+	
+			return this.each( function() {
+				if ( isHiddenWithinTree( this ) ) {
+					jQuery( this ).show();
+				} else {
+					jQuery( this ).hide();
+				}
+			} );
+		}
+	} );
+	var rcheckableType = ( /^(?:checkbox|radio)$/i );
+	
+	var rtagName = ( /<([a-z][^\/\0>\x20\t\r\n\f]+)/i );
+	
+	var rscriptType = ( /^$|\/(?:java|ecma)script/i );
+	
+	
+	
+	// We have to close these tags to support XHTML (#13200)
+	var wrapMap = {
+	
+		// Support: IE <=9 only
+		option: [ 1, "<select multiple='multiple'>", "</select>" ],
+	
+		// XHTML parsers do not magically insert elements in the
+		// same way that tag soup parsers do. So we cannot shorten
+		// this by omitting <tbody> or other required elements.
+		thead: [ 1, "<table>", "</table>" ],
+		col: [ 2, "<table><colgroup>", "</colgroup></table>" ],
+		tr: [ 2, "<table><tbody>", "</tbody></table>" ],
+		td: [ 3, "<table><tbody><tr>", "</tr></tbody></table>" ],
+	
+		_default: [ 0, "", "" ]
 	};
-	var rcheckableType = (/^(?:checkbox|radio)$/i);
+	
+	// Support: IE <=9 only
+	wrapMap.optgroup = wrapMap.option;
+	
+	wrapMap.tbody = wrapMap.tfoot = wrapMap.colgroup = wrapMap.caption = wrapMap.thead;
+	wrapMap.th = wrapMap.td;
 	
 	
+	function getAll( context, tag ) {
 	
-	(function() {
-		// Minified: var a,b,c
-		var input = document.createElement( "input" ),
-			div = document.createElement( "div" ),
-			fragment = document.createDocumentFragment();
+		// Support: IE <=9 - 11 only
+		// Use typeof to avoid zero-argument method invocation on host objects (#15151)
+		var ret;
 	
-		// Setup
-		div.innerHTML = "  <link/><table></table><a href='/a'>a</a><input type='checkbox'/>";
+		if ( typeof context.getElementsByTagName !== "undefined" ) {
+			ret = context.getElementsByTagName( tag || "*" );
 	
-		// IE strips leading whitespace when .innerHTML is used
-		support.leadingWhitespace = div.firstChild.nodeType === 3;
+		} else if ( typeof context.querySelectorAll !== "undefined" ) {
+			ret = context.querySelectorAll( tag || "*" );
 	
-		// Make sure that tbody elements aren't automatically inserted
-		// IE will insert them into empty tables
-		support.tbody = !div.getElementsByTagName( "tbody" ).length;
+		} else {
+			ret = [];
+		}
 	
-		// Make sure that link elements get serialized correctly by innerHTML
-		// This requires a wrapper element in IE
-		support.htmlSerialize = !!div.getElementsByTagName( "link" ).length;
+		if ( tag === undefined || tag && jQuery.nodeName( context, tag ) ) {
+			return jQuery.merge( [ context ], ret );
+		}
 	
-		// Makes sure cloning an html5 element does not cause problems
-		// Where outerHTML is undefined, this still works
-		support.html5Clone =
-			document.createElement( "nav" ).cloneNode( true ).outerHTML !== "<:nav></:nav>";
+		return ret;
+	}
 	
-		// Check if a disconnected checkbox will retain its checked
-		// value of true after appended to the DOM (IE6/7)
-		input.type = "checkbox";
-		input.checked = true;
-		fragment.appendChild( input );
-		support.appendChecked = input.checked;
 	
-		// Make sure textarea (and checkbox) defaultValue is properly cloned
-		// Support: IE6-IE11+
-		div.innerHTML = "<textarea>x</textarea>";
-		support.noCloneChecked = !!div.cloneNode( true ).lastChild.defaultValue;
+	// Mark scripts as having already been evaluated
+	function setGlobalEval( elems, refElements ) {
+		var i = 0,
+			l = elems.length;
 	
-		// #11217 - WebKit loses check when the name is after the checked attribute
-		fragment.appendChild( div );
-		div.innerHTML = "<input type='radio' checked='checked' name='t'/>";
+		for ( ; i < l; i++ ) {
+			dataPriv.set(
+				elems[ i ],
+				"globalEval",
+				!refElements || dataPriv.get( refElements[ i ], "globalEval" )
+			);
+		}
+	}
 	
-		// Support: Safari 5.1, iOS 5.1, Android 4.x, Android 2.3
-		// old WebKit doesn't clone checked state correctly in fragments
+	
+	var rhtml = /<|&#?\w+;/;
+	
+	function buildFragment( elems, context, scripts, selection, ignored ) {
+		var elem, tmp, tag, wrap, contains, j,
+			fragment = context.createDocumentFragment(),
+			nodes = [],
+			i = 0,
+			l = elems.length;
+	
+		for ( ; i < l; i++ ) {
+			elem = elems[ i ];
+	
+			if ( elem || elem === 0 ) {
+	
+				// Add nodes directly
+				if ( jQuery.type( elem ) === "object" ) {
+	
+					// Support: Android <=4.0 only, PhantomJS 1 only
+					// push.apply(_, arraylike) throws on ancient WebKit
+					jQuery.merge( nodes, elem.nodeType ? [ elem ] : elem );
+	
+				// Convert non-html into a text node
+				} else if ( !rhtml.test( elem ) ) {
+					nodes.push( context.createTextNode( elem ) );
+	
+				// Convert html into DOM nodes
+				} else {
+					tmp = tmp || fragment.appendChild( context.createElement( "div" ) );
+	
+					// Deserialize a standard representation
+					tag = ( rtagName.exec( elem ) || [ "", "" ] )[ 1 ].toLowerCase();
+					wrap = wrapMap[ tag ] || wrapMap._default;
+					tmp.innerHTML = wrap[ 1 ] + jQuery.htmlPrefilter( elem ) + wrap[ 2 ];
+	
+					// Descend through wrappers to the right content
+					j = wrap[ 0 ];
+					while ( j-- ) {
+						tmp = tmp.lastChild;
+					}
+	
+					// Support: Android <=4.0 only, PhantomJS 1 only
+					// push.apply(_, arraylike) throws on ancient WebKit
+					jQuery.merge( nodes, tmp.childNodes );
+	
+					// Remember the top-level container
+					tmp = fragment.firstChild;
+	
+					// Ensure the created nodes are orphaned (#12392)
+					tmp.textContent = "";
+				}
+			}
+		}
+	
+		// Remove wrapper from fragment
+		fragment.textContent = "";
+	
+		i = 0;
+		while ( ( elem = nodes[ i++ ] ) ) {
+	
+			// Skip elements already in the context collection (trac-4087)
+			if ( selection && jQuery.inArray( elem, selection ) > -1 ) {
+				if ( ignored ) {
+					ignored.push( elem );
+				}
+				continue;
+			}
+	
+			contains = jQuery.contains( elem.ownerDocument, elem );
+	
+			// Append to fragment
+			tmp = getAll( fragment.appendChild( elem ), "script" );
+	
+			// Preserve script evaluation history
+			if ( contains ) {
+				setGlobalEval( tmp );
+			}
+	
+			// Capture executables
+			if ( scripts ) {
+				j = 0;
+				while ( ( elem = tmp[ j++ ] ) ) {
+					if ( rscriptType.test( elem.type || "" ) ) {
+						scripts.push( elem );
+					}
+				}
+			}
+		}
+	
+		return fragment;
+	}
+	
+	
+	( function() {
+		var fragment = document.createDocumentFragment(),
+			div = fragment.appendChild( document.createElement( "div" ) ),
+			input = document.createElement( "input" );
+	
+		// Support: Android 4.0 - 4.3 only
+		// Check state lost if the name is set (#11217)
+		// Support: Windows Web Apps (WWA)
+		// `name` and `type` must use .setAttribute for WWA (#14901)
+		input.setAttribute( "type", "radio" );
+		input.setAttribute( "checked", "checked" );
+		input.setAttribute( "name", "t" );
+	
+		div.appendChild( input );
+	
+		// Support: Android <=4.1 only
+		// Older WebKit doesn't clone checked state correctly in fragments
 		support.checkClone = div.cloneNode( true ).cloneNode( true ).lastChild.checked;
 	
-		// Support: IE<9
-		// Opera does not clone events (and typeof div.attachEvent === undefined).
-		// IE9-10 clones events bound via attachEvent, but they don't trigger with .click()
-		support.noCloneEvent = true;
-		if ( div.attachEvent ) {
-			div.attachEvent( "onclick", function() {
-				support.noCloneEvent = false;
-			});
-	
-			div.cloneNode( true ).click();
-		}
-	
-		// Execute the test only if not already executed in another module.
-		if (support.deleteExpando == null) {
-			// Support: IE<9
-			support.deleteExpando = true;
-			try {
-				delete div.test;
-			} catch( e ) {
-				support.deleteExpando = false;
-			}
-		}
-	})();
+		// Support: IE <=11 only
+		// Make sure textarea (and checkbox) defaultValue is properly cloned
+		div.innerHTML = "<textarea>x</textarea>";
+		support.noCloneChecked = !!div.cloneNode( true ).lastChild.defaultValue;
+	} )();
+	var documentElement = document.documentElement;
 	
 	
-	(function() {
-		var i, eventName,
-			div = document.createElement( "div" );
 	
-		// Support: IE<9 (lack submit/change bubble), Firefox 23+ (lack focusin event)
-		for ( i in { submit: true, change: true, focusin: true }) {
-			eventName = "on" + i;
-	
-			if ( !(support[ i + "Bubbles" ] = eventName in window) ) {
-				// Beware of CSP restrictions (https://developer.mozilla.org/en/Security/CSP)
-				div.setAttribute( eventName, "t" );
-				support[ i + "Bubbles" ] = div.attributes[ eventName ].expando === false;
-			}
-		}
-	
-		// Null elements to avoid leaks in IE.
-		div = null;
-	})();
-	
-	
-	var rformElems = /^(?:input|select|textarea)$/i,
+	var
 		rkeyEvent = /^key/,
-		rmouseEvent = /^(?:mouse|pointer|contextmenu)|click/,
-		rfocusMorph = /^(?:focusinfocus|focusoutblur)$/,
-		rtypenamespace = /^([^.]*)(?:\.(.+)|)$/;
+		rmouseEvent = /^(?:mouse|pointer|contextmenu|drag|drop)|click/,
+		rtypenamespace = /^([^.]*)(?:\.(.+)|)/;
 	
 	function returnTrue() {
 		return true;
@@ -26523,10 +27225,73 @@
 		return false;
 	}
 	
+	// Support: IE <=9 only
+	// See #13393 for more info
 	function safeActiveElement() {
 		try {
 			return document.activeElement;
 		} catch ( err ) { }
+	}
+	
+	function on( elem, types, selector, data, fn, one ) {
+		var origFn, type;
+	
+		// Types can be a map of types/handlers
+		if ( typeof types === "object" ) {
+	
+			// ( types-Object, selector, data )
+			if ( typeof selector !== "string" ) {
+	
+				// ( types-Object, data )
+				data = data || selector;
+				selector = undefined;
+			}
+			for ( type in types ) {
+				on( elem, type, selector, data, types[ type ], one );
+			}
+			return elem;
+		}
+	
+		if ( data == null && fn == null ) {
+	
+			// ( types, fn )
+			fn = selector;
+			data = selector = undefined;
+		} else if ( fn == null ) {
+			if ( typeof selector === "string" ) {
+	
+				// ( types, selector, fn )
+				fn = data;
+				data = undefined;
+			} else {
+	
+				// ( types, data, fn )
+				fn = data;
+				data = selector;
+				selector = undefined;
+			}
+		}
+		if ( fn === false ) {
+			fn = returnFalse;
+		} else if ( !fn ) {
+			return elem;
+		}
+	
+		if ( one === 1 ) {
+			origFn = fn;
+			fn = function( event ) {
+	
+				// Can use an empty set, since event contains the info
+				jQuery().off( event );
+				return origFn.apply( this, arguments );
+			};
+	
+			// Use same guid so caller can remove using origFn
+			fn.guid = origFn.guid || ( origFn.guid = jQuery.guid++ );
+		}
+		return elem.each( function() {
+			jQuery.event.add( this, types, fn, data, selector );
+		} );
 	}
 	
 	/*
@@ -26538,10 +27303,11 @@
 		global: {},
 	
 		add: function( elem, types, handler, data, selector ) {
-			var tmp, events, t, handleObjIn,
-				special, eventHandle, handleObj,
-				handlers, type, namespaces, origType,
-				elemData = jQuery._data( elem );
+	
+			var handleObjIn, eventHandle, tmp,
+				events, t, handleObj,
+				special, handlers, type, namespaces, origType,
+				elemData = dataPriv.get( elem );
 	
 			// Don't attach events to noData or text/comment nodes (but allow plain objects)
 			if ( !elemData ) {
@@ -26555,34 +27321,38 @@
 				selector = handleObjIn.selector;
 			}
 	
+			// Ensure that invalid selectors throw exceptions at attach time
+			// Evaluate against documentElement in case elem is a non-element node (e.g., document)
+			if ( selector ) {
+				jQuery.find.matchesSelector( documentElement, selector );
+			}
+	
 			// Make sure that the handler has a unique ID, used to find/remove it later
 			if ( !handler.guid ) {
 				handler.guid = jQuery.guid++;
 			}
 	
 			// Init the element's event structure and main handler, if this is the first
-			if ( !(events = elemData.events) ) {
+			if ( !( events = elemData.events ) ) {
 				events = elemData.events = {};
 			}
-			if ( !(eventHandle = elemData.handle) ) {
+			if ( !( eventHandle = elemData.handle ) ) {
 				eventHandle = elemData.handle = function( e ) {
+	
 					// Discard the second event of a jQuery.event.trigger() and
 					// when an event is called after a page has unloaded
-					return typeof jQuery !== strundefined && (!e || jQuery.event.triggered !== e.type) ?
-						jQuery.event.dispatch.apply( eventHandle.elem, arguments ) :
-						undefined;
+					return typeof jQuery !== "undefined" && jQuery.event.triggered !== e.type ?
+						jQuery.event.dispatch.apply( elem, arguments ) : undefined;
 				};
-				// Add elem as a property of the handle fn to prevent a memory leak with IE non-native events
-				eventHandle.elem = elem;
 			}
 	
 			// Handle multiple events separated by a space
-			types = ( types || "" ).match( rnotwhite ) || [ "" ];
+			types = ( types || "" ).match( rnothtmlwhite ) || [ "" ];
 			t = types.length;
 			while ( t-- ) {
-				tmp = rtypenamespace.exec( types[t] ) || [];
-				type = origType = tmp[1];
-				namespaces = ( tmp[2] || "" ).split( "." ).sort();
+				tmp = rtypenamespace.exec( types[ t ] ) || [];
+				type = origType = tmp[ 1 ];
+				namespaces = ( tmp[ 2 ] || "" ).split( "." ).sort();
 	
 				// There *must* be a type, no attaching namespace-only handlers
 				if ( !type ) {
@@ -26599,7 +27369,7 @@
 				special = jQuery.event.special[ type ] || {};
 	
 				// handleObj is passed to all event handlers
-				handleObj = jQuery.extend({
+				handleObj = jQuery.extend( {
 					type: type,
 					origType: origType,
 					data: data,
@@ -26607,22 +27377,20 @@
 					guid: handler.guid,
 					selector: selector,
 					needsContext: selector && jQuery.expr.match.needsContext.test( selector ),
-					namespace: namespaces.join(".")
+					namespace: namespaces.join( "." )
 				}, handleObjIn );
 	
 				// Init the event handler queue if we're the first
-				if ( !(handlers = events[ type ]) ) {
+				if ( !( handlers = events[ type ] ) ) {
 					handlers = events[ type ] = [];
 					handlers.delegateCount = 0;
 	
-					// Only use addEventListener/attachEvent if the special events handler returns false
-					if ( !special.setup || special.setup.call( elem, data, namespaces, eventHandle ) === false ) {
-						// Bind the global event handler to the element
-						if ( elem.addEventListener ) {
-							elem.addEventListener( type, eventHandle, false );
+					// Only use addEventListener if the special events handler returns false
+					if ( !special.setup ||
+						special.setup.call( elem, data, namespaces, eventHandle ) === false ) {
 	
-						} else if ( elem.attachEvent ) {
-							elem.attachEvent( "on" + type, eventHandle );
+						if ( elem.addEventListener ) {
+							elem.addEventListener( type, eventHandle );
 						}
 					}
 				}
@@ -26646,29 +27414,27 @@
 				jQuery.event.global[ type ] = true;
 			}
 	
-			// Nullify elem to prevent memory leaks in IE
-			elem = null;
 		},
 	
 		// Detach an event or set of events from an element
 		remove: function( elem, types, handler, selector, mappedTypes ) {
-			var j, handleObj, tmp,
-				origCount, t, events,
-				special, handlers, type,
-				namespaces, origType,
-				elemData = jQuery.hasData( elem ) && jQuery._data( elem );
 	
-			if ( !elemData || !(events = elemData.events) ) {
+			var j, origCount, tmp,
+				events, t, handleObj,
+				special, handlers, type, namespaces, origType,
+				elemData = dataPriv.hasData( elem ) && dataPriv.get( elem );
+	
+			if ( !elemData || !( events = elemData.events ) ) {
 				return;
 			}
 	
 			// Once for each type.namespace in types; type may be omitted
-			types = ( types || "" ).match( rnotwhite ) || [ "" ];
+			types = ( types || "" ).match( rnothtmlwhite ) || [ "" ];
 			t = types.length;
 			while ( t-- ) {
-				tmp = rtypenamespace.exec( types[t] ) || [];
-				type = origType = tmp[1];
-				namespaces = ( tmp[2] || "" ).split( "." ).sort();
+				tmp = rtypenamespace.exec( types[ t ] ) || [];
+				type = origType = tmp[ 1 ];
+				namespaces = ( tmp[ 2 ] || "" ).split( "." ).sort();
 	
 				// Unbind all events (on this namespace, if provided) for the element
 				if ( !type ) {
@@ -26681,7 +27447,8 @@
 				special = jQuery.event.special[ type ] || {};
 				type = ( selector ? special.delegateType : special.bindType ) || type;
 				handlers = events[ type ] || [];
-				tmp = tmp[2] && new RegExp( "(^|\\.)" + namespaces.join("\\.(?:.*\\.|)") + "(\\.|$)" );
+				tmp = tmp[ 2 ] &&
+					new RegExp( "(^|\\.)" + namespaces.join( "\\.(?:.*\\.|)" ) + "(\\.|$)" );
 	
 				// Remove matching events
 				origCount = j = handlers.length;
@@ -26691,7 +27458,8 @@
 					if ( ( mappedTypes || origType === handleObj.origType ) &&
 						( !handler || handler.guid === handleObj.guid ) &&
 						( !tmp || tmp.test( handleObj.namespace ) ) &&
-						( !selector || selector === handleObj.selector || selector === "**" && handleObj.selector ) ) {
+						( !selector || selector === handleObj.selector ||
+							selector === "**" && handleObj.selector ) ) {
 						handlers.splice( j, 1 );
 	
 						if ( handleObj.selector ) {
@@ -26706,7 +27474,9 @@
 				// Remove generic event handler if we removed something and no more handlers exist
 				// (avoids potential for endless recursion during removal of special event handlers)
 				if ( origCount && !handlers.length ) {
-					if ( !special.teardown || special.teardown.call( elem, namespaces, elemData.handle ) === false ) {
+					if ( !special.teardown ||
+						special.teardown.call( elem, namespaces, elemData.handle ) === false ) {
+	
 						jQuery.removeEvent( elem, type, elemData.handle );
 					}
 	
@@ -26714,167 +27484,29 @@
 				}
 			}
 	
-			// Remove the expando if it's no longer used
+			// Remove data and the expando if it's no longer used
 			if ( jQuery.isEmptyObject( events ) ) {
-				delete elemData.handle;
-	
-				// removeData also checks for emptiness and clears the expando if empty
-				// so use it instead of delete
-				jQuery._removeData( elem, "events" );
+				dataPriv.remove( elem, "handle events" );
 			}
 		},
 	
-		trigger: function( event, data, elem, onlyHandlers ) {
-			var handle, ontype, cur,
-				bubbleType, special, tmp, i,
-				eventPath = [ elem || document ],
-				type = hasOwn.call( event, "type" ) ? event.type : event,
-				namespaces = hasOwn.call( event, "namespace" ) ? event.namespace.split(".") : [];
-	
-			cur = tmp = elem = elem || document;
-	
-			// Don't do events on text and comment nodes
-			if ( elem.nodeType === 3 || elem.nodeType === 8 ) {
-				return;
-			}
-	
-			// focus/blur morphs to focusin/out; ensure we're not firing them right now
-			if ( rfocusMorph.test( type + jQuery.event.triggered ) ) {
-				return;
-			}
-	
-			if ( type.indexOf(".") >= 0 ) {
-				// Namespaced trigger; create a regexp to match event type in handle()
-				namespaces = type.split(".");
-				type = namespaces.shift();
-				namespaces.sort();
-			}
-			ontype = type.indexOf(":") < 0 && "on" + type;
-	
-			// Caller can pass in a jQuery.Event object, Object, or just an event type string
-			event = event[ jQuery.expando ] ?
-				event :
-				new jQuery.Event( type, typeof event === "object" && event );
-	
-			// Trigger bitmask: & 1 for native handlers; & 2 for jQuery (always true)
-			event.isTrigger = onlyHandlers ? 2 : 3;
-			event.namespace = namespaces.join(".");
-			event.namespace_re = event.namespace ?
-				new RegExp( "(^|\\.)" + namespaces.join("\\.(?:.*\\.|)") + "(\\.|$)" ) :
-				null;
-	
-			// Clean up the event in case it is being reused
-			event.result = undefined;
-			if ( !event.target ) {
-				event.target = elem;
-			}
-	
-			// Clone any incoming data and prepend the event, creating the handler arg list
-			data = data == null ?
-				[ event ] :
-				jQuery.makeArray( data, [ event ] );
-	
-			// Allow special events to draw outside the lines
-			special = jQuery.event.special[ type ] || {};
-			if ( !onlyHandlers && special.trigger && special.trigger.apply( elem, data ) === false ) {
-				return;
-			}
-	
-			// Determine event propagation path in advance, per W3C events spec (#9951)
-			// Bubble up to document, then to window; watch for a global ownerDocument var (#9724)
-			if ( !onlyHandlers && !special.noBubble && !jQuery.isWindow( elem ) ) {
-	
-				bubbleType = special.delegateType || type;
-				if ( !rfocusMorph.test( bubbleType + type ) ) {
-					cur = cur.parentNode;
-				}
-				for ( ; cur; cur = cur.parentNode ) {
-					eventPath.push( cur );
-					tmp = cur;
-				}
-	
-				// Only add window if we got to document (e.g., not plain obj or detached DOM)
-				if ( tmp === (elem.ownerDocument || document) ) {
-					eventPath.push( tmp.defaultView || tmp.parentWindow || window );
-				}
-			}
-	
-			// Fire handlers on the event path
-			i = 0;
-			while ( (cur = eventPath[i++]) && !event.isPropagationStopped() ) {
-	
-				event.type = i > 1 ?
-					bubbleType :
-					special.bindType || type;
-	
-				// jQuery handler
-				handle = ( jQuery._data( cur, "events" ) || {} )[ event.type ] && jQuery._data( cur, "handle" );
-				if ( handle ) {
-					handle.apply( cur, data );
-				}
-	
-				// Native handler
-				handle = ontype && cur[ ontype ];
-				if ( handle && handle.apply && jQuery.acceptData( cur ) ) {
-					event.result = handle.apply( cur, data );
-					if ( event.result === false ) {
-						event.preventDefault();
-					}
-				}
-			}
-			event.type = type;
-	
-			// If nobody prevented the default action, do it now
-			if ( !onlyHandlers && !event.isDefaultPrevented() ) {
-	
-				if ( (!special._default || special._default.apply( eventPath.pop(), data ) === false) &&
-					jQuery.acceptData( elem ) ) {
-	
-					// Call a native DOM method on the target with the same name name as the event.
-					// Can't use an .isFunction() check here because IE6/7 fails that test.
-					// Don't do default actions on window, that's where global variables be (#6170)
-					if ( ontype && elem[ type ] && !jQuery.isWindow( elem ) ) {
-	
-						// Don't re-trigger an onFOO event when we call its FOO() method
-						tmp = elem[ ontype ];
-	
-						if ( tmp ) {
-							elem[ ontype ] = null;
-						}
-	
-						// Prevent re-triggering of the same event, since we already bubbled it above
-						jQuery.event.triggered = type;
-						try {
-							elem[ type ]();
-						} catch ( e ) {
-							// IE<9 dies on focus/blur to hidden element (#1486,#12518)
-							// only reproducible on winXP IE8 native, not IE9 in IE8 mode
-						}
-						jQuery.event.triggered = undefined;
-	
-						if ( tmp ) {
-							elem[ ontype ] = tmp;
-						}
-					}
-				}
-			}
-	
-			return event.result;
-		},
-	
-		dispatch: function( event ) {
+		dispatch: function( nativeEvent ) {
 	
 			// Make a writable jQuery.Event from the native event object
-			event = jQuery.event.fix( event );
+			var event = jQuery.event.fix( nativeEvent );
 	
-			var i, ret, handleObj, matched, j,
-				handlerQueue = [],
-				args = slice.call( arguments ),
-				handlers = ( jQuery._data( this, "events" ) || {} )[ event.type ] || [],
+			var i, j, ret, matched, handleObj, handlerQueue,
+				args = new Array( arguments.length ),
+				handlers = ( dataPriv.get( this, "events" ) || {} )[ event.type ] || [],
 				special = jQuery.event.special[ event.type ] || {};
 	
 			// Use the fix-ed jQuery.Event rather than the (read-only) native event
-			args[0] = event;
+			args[ 0 ] = event;
+	
+			for ( i = 1; i < arguments.length; i++ ) {
+				args[ i ] = arguments[ i ];
+			}
+	
 			event.delegateTarget = this;
 	
 			// Call the preDispatch hook for the mapped type, and let it bail if desired
@@ -26887,24 +27519,25 @@
 	
 			// Run delegates first; they may want to stop propagation beneath us
 			i = 0;
-			while ( (matched = handlerQueue[ i++ ]) && !event.isPropagationStopped() ) {
+			while ( ( matched = handlerQueue[ i++ ] ) && !event.isPropagationStopped() ) {
 				event.currentTarget = matched.elem;
 	
 				j = 0;
-				while ( (handleObj = matched.handlers[ j++ ]) && !event.isImmediatePropagationStopped() ) {
+				while ( ( handleObj = matched.handlers[ j++ ] ) &&
+					!event.isImmediatePropagationStopped() ) {
 	
-					// Triggered event must either 1) have no namespace, or
-					// 2) have namespace(s) a subset or equal to those in the bound event (both can have no namespace).
-					if ( !event.namespace_re || event.namespace_re.test( handleObj.namespace ) ) {
+					// Triggered event must either 1) have no namespace, or 2) have namespace(s)
+					// a subset or equal to those in the bound event (both can have no namespace).
+					if ( !event.rnamespace || event.rnamespace.test( handleObj.namespace ) ) {
 	
 						event.handleObj = handleObj;
 						event.data = handleObj.data;
 	
-						ret = ( (jQuery.event.special[ handleObj.origType ] || {}).handle || handleObj.handler )
-								.apply( matched.elem, args );
+						ret = ( ( jQuery.event.special[ handleObj.origType ] || {} ).handle ||
+							handleObj.handler ).apply( matched.elem, args );
 	
 						if ( ret !== undefined ) {
-							if ( (event.result = ret) === false ) {
+							if ( ( event.result = ret ) === false ) {
 								event.preventDefault();
 								event.stopPropagation();
 							}
@@ -26922,167 +27555,110 @@
 		},
 	
 		handlers: function( event, handlers ) {
-			var sel, handleObj, matches, i,
+			var i, handleObj, sel, matchedHandlers, matchedSelectors,
 				handlerQueue = [],
 				delegateCount = handlers.delegateCount,
 				cur = event.target;
 	
 			// Find delegate handlers
-			// Black-hole SVG <use> instance trees (#13180)
-			// Avoid non-left-click bubbling in Firefox (#3861)
-			if ( delegateCount && cur.nodeType && (!event.button || event.type !== "click") ) {
+			if ( delegateCount &&
 	
-				/* jshint eqeqeq: false */
-				for ( ; cur != this; cur = cur.parentNode || this ) {
-					/* jshint eqeqeq: true */
+				// Support: IE <=9
+				// Black-hole SVG <use> instance trees (trac-13180)
+				cur.nodeType &&
+	
+				// Support: Firefox <=42
+				// Suppress spec-violating clicks indicating a non-primary pointer button (trac-3861)
+				// https://www.w3.org/TR/DOM-Level-3-Events/#event-type-click
+				// Support: IE 11 only
+				// ...but not arrow key "clicks" of radio inputs, which can have `button` -1 (gh-2343)
+				!( event.type === "click" && event.button >= 1 ) ) {
+	
+				for ( ; cur !== this; cur = cur.parentNode || this ) {
 	
 					// Don't check non-elements (#13208)
 					// Don't process clicks on disabled elements (#6911, #8165, #11382, #11764)
-					if ( cur.nodeType === 1 && (cur.disabled !== true || event.type !== "click") ) {
-						matches = [];
+					if ( cur.nodeType === 1 && !( event.type === "click" && cur.disabled === true ) ) {
+						matchedHandlers = [];
+						matchedSelectors = {};
 						for ( i = 0; i < delegateCount; i++ ) {
 							handleObj = handlers[ i ];
 	
 							// Don't conflict with Object.prototype properties (#13203)
 							sel = handleObj.selector + " ";
 	
-							if ( matches[ sel ] === undefined ) {
-								matches[ sel ] = handleObj.needsContext ?
-									jQuery( sel, this ).index( cur ) >= 0 :
+							if ( matchedSelectors[ sel ] === undefined ) {
+								matchedSelectors[ sel ] = handleObj.needsContext ?
+									jQuery( sel, this ).index( cur ) > -1 :
 									jQuery.find( sel, this, null, [ cur ] ).length;
 							}
-							if ( matches[ sel ] ) {
-								matches.push( handleObj );
+							if ( matchedSelectors[ sel ] ) {
+								matchedHandlers.push( handleObj );
 							}
 						}
-						if ( matches.length ) {
-							handlerQueue.push({ elem: cur, handlers: matches });
+						if ( matchedHandlers.length ) {
+							handlerQueue.push( { elem: cur, handlers: matchedHandlers } );
 						}
 					}
 				}
 			}
 	
 			// Add the remaining (directly-bound) handlers
+			cur = this;
 			if ( delegateCount < handlers.length ) {
-				handlerQueue.push({ elem: this, handlers: handlers.slice( delegateCount ) });
+				handlerQueue.push( { elem: cur, handlers: handlers.slice( delegateCount ) } );
 			}
 	
 			return handlerQueue;
 		},
 	
-		fix: function( event ) {
-			if ( event[ jQuery.expando ] ) {
-				return event;
-			}
+		addProp: function( name, hook ) {
+			Object.defineProperty( jQuery.Event.prototype, name, {
+				enumerable: true,
+				configurable: true,
 	
-			// Create a writable copy of the event object and normalize some properties
-			var i, prop, copy,
-				type = event.type,
-				originalEvent = event,
-				fixHook = this.fixHooks[ type ];
+				get: jQuery.isFunction( hook ) ?
+					function() {
+						if ( this.originalEvent ) {
+								return hook( this.originalEvent );
+						}
+					} :
+					function() {
+						if ( this.originalEvent ) {
+								return this.originalEvent[ name ];
+						}
+					},
 	
-			if ( !fixHook ) {
-				this.fixHooks[ type ] = fixHook =
-					rmouseEvent.test( type ) ? this.mouseHooks :
-					rkeyEvent.test( type ) ? this.keyHooks :
-					{};
-			}
-			copy = fixHook.props ? this.props.concat( fixHook.props ) : this.props;
-	
-			event = new jQuery.Event( originalEvent );
-	
-			i = copy.length;
-			while ( i-- ) {
-				prop = copy[ i ];
-				event[ prop ] = originalEvent[ prop ];
-			}
-	
-			// Support: IE<9
-			// Fix target property (#1925)
-			if ( !event.target ) {
-				event.target = originalEvent.srcElement || document;
-			}
-	
-			// Support: Chrome 23+, Safari?
-			// Target should not be a text node (#504, #13143)
-			if ( event.target.nodeType === 3 ) {
-				event.target = event.target.parentNode;
-			}
-	
-			// Support: IE<9
-			// For mouse/key events, metaKey==false if it's undefined (#3368, #11328)
-			event.metaKey = !!event.metaKey;
-	
-			return fixHook.filter ? fixHook.filter( event, originalEvent ) : event;
+				set: function( value ) {
+					Object.defineProperty( this, name, {
+						enumerable: true,
+						configurable: true,
+						writable: true,
+						value: value
+					} );
+				}
+			} );
 		},
 	
-		// Includes some event props shared by KeyEvent and MouseEvent
-		props: "altKey bubbles cancelable ctrlKey currentTarget eventPhase metaKey relatedTarget shiftKey target timeStamp view which".split(" "),
-	
-		fixHooks: {},
-	
-		keyHooks: {
-			props: "char charCode key keyCode".split(" "),
-			filter: function( event, original ) {
-	
-				// Add which for key events
-				if ( event.which == null ) {
-					event.which = original.charCode != null ? original.charCode : original.keyCode;
-				}
-	
-				return event;
-			}
-		},
-	
-		mouseHooks: {
-			props: "button buttons clientX clientY fromElement offsetX offsetY pageX pageY screenX screenY toElement".split(" "),
-			filter: function( event, original ) {
-				var body, eventDoc, doc,
-					button = original.button,
-					fromElement = original.fromElement;
-	
-				// Calculate pageX/Y if missing and clientX/Y available
-				if ( event.pageX == null && original.clientX != null ) {
-					eventDoc = event.target.ownerDocument || document;
-					doc = eventDoc.documentElement;
-					body = eventDoc.body;
-	
-					event.pageX = original.clientX + ( doc && doc.scrollLeft || body && body.scrollLeft || 0 ) - ( doc && doc.clientLeft || body && body.clientLeft || 0 );
-					event.pageY = original.clientY + ( doc && doc.scrollTop  || body && body.scrollTop  || 0 ) - ( doc && doc.clientTop  || body && body.clientTop  || 0 );
-				}
-	
-				// Add relatedTarget, if necessary
-				if ( !event.relatedTarget && fromElement ) {
-					event.relatedTarget = fromElement === event.target ? original.toElement : fromElement;
-				}
-	
-				// Add which for click: 1 === left; 2 === middle; 3 === right
-				// Note: button is not normalized, so don't use it
-				if ( !event.which && button !== undefined ) {
-					event.which = ( button & 1 ? 1 : ( button & 2 ? 3 : ( button & 4 ? 2 : 0 ) ) );
-				}
-	
-				return event;
-			}
+		fix: function( originalEvent ) {
+			return originalEvent[ jQuery.expando ] ?
+				originalEvent :
+				new jQuery.Event( originalEvent );
 		},
 	
 		special: {
 			load: {
+	
 				// Prevent triggered image.load events from bubbling to window.load
 				noBubble: true
 			},
 			focus: {
+	
 				// Fire native event if possible so blur/focus sequence is correct
 				trigger: function() {
 					if ( this !== safeActiveElement() && this.focus ) {
-						try {
-							this.focus();
-							return false;
-						} catch ( e ) {
-							// Support: IE<9
-							// If we error on focus to hidden element (#1486, #12518),
-							// let .trigger() run the handlers
-						}
+						this.focus();
+						return false;
 					}
 				},
 				delegateType: "focusin"
@@ -27097,9 +27673,10 @@
 				delegateType: "focusout"
 			},
 			click: {
+	
 				// For checkbox, fire native event so checked state will be right
 				trigger: function() {
-					if ( jQuery.nodeName( this, "input" ) && this.type === "checkbox" && this.click ) {
+					if ( this.type === "checkbox" && this.click && jQuery.nodeName( this, "input" ) ) {
 						this.click();
 						return false;
 					}
@@ -27121,56 +27698,21 @@
 					}
 				}
 			}
-		},
-	
-		simulate: function( type, elem, event, bubble ) {
-			// Piggyback on a donor event to simulate a different one.
-			// Fake originalEvent to avoid donor's stopPropagation, but if the
-			// simulated event prevents default then we do the same on the donor.
-			var e = jQuery.extend(
-				new jQuery.Event(),
-				event,
-				{
-					type: type,
-					isSimulated: true,
-					originalEvent: {}
-				}
-			);
-			if ( bubble ) {
-				jQuery.event.trigger( e, null, elem );
-			} else {
-				jQuery.event.dispatch.call( elem, e );
-			}
-			if ( e.isDefaultPrevented() ) {
-				event.preventDefault();
-			}
 		}
 	};
 	
-	jQuery.removeEvent = document.removeEventListener ?
-		function( elem, type, handle ) {
-			if ( elem.removeEventListener ) {
-				elem.removeEventListener( type, handle, false );
-			}
-		} :
-		function( elem, type, handle ) {
-			var name = "on" + type;
+	jQuery.removeEvent = function( elem, type, handle ) {
 	
-			if ( elem.detachEvent ) {
-	
-				// #8545, #7054, preventing memory leaks for custom events in IE6-8
-				// detachEvent needed property on element, by name of that event, to properly expose it to GC
-				if ( typeof elem[ name ] === strundefined ) {
-					elem[ name ] = null;
-				}
-	
-				elem.detachEvent( name, handle );
-			}
-		};
+		// This "if" is needed for plain objects
+		if ( elem.removeEventListener ) {
+			elem.removeEventListener( type, handle );
+		}
+	};
 	
 	jQuery.Event = function( src, props ) {
+	
 		// Allow instantiation without the 'new' keyword
-		if ( !(this instanceof jQuery.Event) ) {
+		if ( !( this instanceof jQuery.Event ) ) {
 			return new jQuery.Event( src, props );
 		}
 	
@@ -27183,10 +27725,21 @@
 			// by a handler lower down the tree; reflect the correct value.
 			this.isDefaultPrevented = src.defaultPrevented ||
 					src.defaultPrevented === undefined &&
-					// Support: IE < 9, Android < 4.0
+	
+					// Support: Android <=2.3 only
 					src.returnValue === false ?
 				returnTrue :
 				returnFalse;
+	
+			// Create target properties
+			// Support: Safari <=6 - 7 only
+			// Target should not be a text node (#504, #13143)
+			this.target = ( src.target && src.target.nodeType === 3 ) ?
+				src.target.parentNode :
+				src.target;
+	
+			this.currentTarget = src.currentTarget;
+			this.relatedTarget = src.relatedTarget;
 	
 		// Event type
 		} else {
@@ -27206,52 +27759,38 @@
 	};
 	
 	// jQuery.Event is based on DOM3 Events as specified by the ECMAScript Language Binding
-	// http://www.w3.org/TR/2003/WD-DOM-Level-3-Events-20030331/ecma-script-binding.html
+	// https://www.w3.org/TR/2003/WD-DOM-Level-3-Events-20030331/ecma-script-binding.html
 	jQuery.Event.prototype = {
+		constructor: jQuery.Event,
 		isDefaultPrevented: returnFalse,
 		isPropagationStopped: returnFalse,
 		isImmediatePropagationStopped: returnFalse,
+		isSimulated: false,
 	
 		preventDefault: function() {
 			var e = this.originalEvent;
 	
 			this.isDefaultPrevented = returnTrue;
-			if ( !e ) {
-				return;
-			}
 	
-			// If preventDefault exists, run it on the original event
-			if ( e.preventDefault ) {
+			if ( e && !this.isSimulated ) {
 				e.preventDefault();
-	
-			// Support: IE
-			// Otherwise set the returnValue property of the original event to false
-			} else {
-				e.returnValue = false;
 			}
 		},
 		stopPropagation: function() {
 			var e = this.originalEvent;
 	
 			this.isPropagationStopped = returnTrue;
-			if ( !e ) {
-				return;
-			}
-			// If stopPropagation exists, run it on the original event
-			if ( e.stopPropagation ) {
+	
+			if ( e && !this.isSimulated ) {
 				e.stopPropagation();
 			}
-	
-			// Support: IE
-			// Set the cancelBubble property of the original event to true
-			e.cancelBubble = true;
 		},
 		stopImmediatePropagation: function() {
 			var e = this.originalEvent;
 	
 			this.isImmediatePropagationStopped = returnTrue;
 	
-			if ( e && e.stopImmediatePropagation ) {
+			if ( e && !this.isSimulated ) {
 				e.stopImmediatePropagation();
 			}
 	
@@ -27259,8 +27798,76 @@
 		}
 	};
 	
+	// Includes all common event props including KeyEvent and MouseEvent specific props
+	jQuery.each( {
+		altKey: true,
+		bubbles: true,
+		cancelable: true,
+		changedTouches: true,
+		ctrlKey: true,
+		detail: true,
+		eventPhase: true,
+		metaKey: true,
+		pageX: true,
+		pageY: true,
+		shiftKey: true,
+		view: true,
+		"char": true,
+		charCode: true,
+		key: true,
+		keyCode: true,
+		button: true,
+		buttons: true,
+		clientX: true,
+		clientY: true,
+		offsetX: true,
+		offsetY: true,
+		pointerId: true,
+		pointerType: true,
+		screenX: true,
+		screenY: true,
+		targetTouches: true,
+		toElement: true,
+		touches: true,
+	
+		which: function( event ) {
+			var button = event.button;
+	
+			// Add which for key events
+			if ( event.which == null && rkeyEvent.test( event.type ) ) {
+				return event.charCode != null ? event.charCode : event.keyCode;
+			}
+	
+			// Add which for click: 1 === left; 2 === middle; 3 === right
+			if ( !event.which && button !== undefined && rmouseEvent.test( event.type ) ) {
+				if ( button & 1 ) {
+					return 1;
+				}
+	
+				if ( button & 2 ) {
+					return 3;
+				}
+	
+				if ( button & 4 ) {
+					return 2;
+				}
+	
+				return 0;
+			}
+	
+			return event.which;
+		}
+	}, jQuery.event.addProp );
+	
 	// Create mouseenter/leave events using mouseover/out and event-time checks
-	jQuery.each({
+	// so that event delegation works in jQuery.
+	// Do the same for pointerenter/pointerleave and pointerover/pointerout
+	//
+	// Support: Safari 7 only
+	// Safari sends mouseenter too often; see:
+	// https://bugs.chromium.org/p/chromium/issues/detail?id=470258
+	// for the description of the bug (it existed in older Chrome versions as well).
+	jQuery.each( {
 		mouseenter: "mouseover",
 		mouseleave: "mouseout",
 		pointerenter: "pointerover",
@@ -27276,9 +27883,9 @@
 					related = event.relatedTarget,
 					handleObj = event.handleObj;
 	
-				// For mousenter/leave call the handler if related is outside the target.
+				// For mouseenter/leave call the handler if related is outside the target.
 				// NB: No relatedTarget if the mouse left/entered the browser window
-				if ( !related || (related !== target && !jQuery.contains( target, related )) ) {
+				if ( !related || ( related !== target && !jQuery.contains( target, related ) ) ) {
 					event.type = handleObj.origType;
 					ret = handleObj.handler.apply( this, arguments );
 					event.type = fix;
@@ -27286,219 +27893,33 @@
 				return ret;
 			}
 		};
-	});
+	} );
 	
-	// IE submit delegation
-	if ( !support.submitBubbles ) {
+	jQuery.fn.extend( {
 	
-		jQuery.event.special.submit = {
-			setup: function() {
-				// Only need this for delegated form submit events
-				if ( jQuery.nodeName( this, "form" ) ) {
-					return false;
-				}
-	
-				// Lazy-add a submit handler when a descendant form may potentially be submitted
-				jQuery.event.add( this, "click._submit keypress._submit", function( e ) {
-					// Node name check avoids a VML-related crash in IE (#9807)
-					var elem = e.target,
-						form = jQuery.nodeName( elem, "input" ) || jQuery.nodeName( elem, "button" ) ? elem.form : undefined;
-					if ( form && !jQuery._data( form, "submitBubbles" ) ) {
-						jQuery.event.add( form, "submit._submit", function( event ) {
-							event._submit_bubble = true;
-						});
-						jQuery._data( form, "submitBubbles", true );
-					}
-				});
-				// return undefined since we don't need an event listener
-			},
-	
-			postDispatch: function( event ) {
-				// If form was submitted by the user, bubble the event up the tree
-				if ( event._submit_bubble ) {
-					delete event._submit_bubble;
-					if ( this.parentNode && !event.isTrigger ) {
-						jQuery.event.simulate( "submit", this.parentNode, event, true );
-					}
-				}
-			},
-	
-			teardown: function() {
-				// Only need this for delegated form submit events
-				if ( jQuery.nodeName( this, "form" ) ) {
-					return false;
-				}
-	
-				// Remove delegated handlers; cleanData eventually reaps submit handlers attached above
-				jQuery.event.remove( this, "._submit" );
-			}
-		};
-	}
-	
-	// IE change delegation and checkbox/radio fix
-	if ( !support.changeBubbles ) {
-	
-		jQuery.event.special.change = {
-	
-			setup: function() {
-	
-				if ( rformElems.test( this.nodeName ) ) {
-					// IE doesn't fire change on a check/radio until blur; trigger it on click
-					// after a propertychange. Eat the blur-change in special.change.handle.
-					// This still fires onchange a second time for check/radio after blur.
-					if ( this.type === "checkbox" || this.type === "radio" ) {
-						jQuery.event.add( this, "propertychange._change", function( event ) {
-							if ( event.originalEvent.propertyName === "checked" ) {
-								this._just_changed = true;
-							}
-						});
-						jQuery.event.add( this, "click._change", function( event ) {
-							if ( this._just_changed && !event.isTrigger ) {
-								this._just_changed = false;
-							}
-							// Allow triggered, simulated change events (#11500)
-							jQuery.event.simulate( "change", this, event, true );
-						});
-					}
-					return false;
-				}
-				// Delegated event; lazy-add a change handler on descendant inputs
-				jQuery.event.add( this, "beforeactivate._change", function( e ) {
-					var elem = e.target;
-	
-					if ( rformElems.test( elem.nodeName ) && !jQuery._data( elem, "changeBubbles" ) ) {
-						jQuery.event.add( elem, "change._change", function( event ) {
-							if ( this.parentNode && !event.isSimulated && !event.isTrigger ) {
-								jQuery.event.simulate( "change", this.parentNode, event, true );
-							}
-						});
-						jQuery._data( elem, "changeBubbles", true );
-					}
-				});
-			},
-	
-			handle: function( event ) {
-				var elem = event.target;
-	
-				// Swallow native change events from checkbox/radio, we already triggered them above
-				if ( this !== elem || event.isSimulated || event.isTrigger || (elem.type !== "radio" && elem.type !== "checkbox") ) {
-					return event.handleObj.handler.apply( this, arguments );
-				}
-			},
-	
-			teardown: function() {
-				jQuery.event.remove( this, "._change" );
-	
-				return !rformElems.test( this.nodeName );
-			}
-		};
-	}
-	
-	// Create "bubbling" focus and blur events
-	if ( !support.focusinBubbles ) {
-		jQuery.each({ focus: "focusin", blur: "focusout" }, function( orig, fix ) {
-	
-			// Attach a single capturing handler on the document while someone wants focusin/focusout
-			var handler = function( event ) {
-					jQuery.event.simulate( fix, event.target, jQuery.event.fix( event ), true );
-				};
-	
-			jQuery.event.special[ fix ] = {
-				setup: function() {
-					var doc = this.ownerDocument || this,
-						attaches = jQuery._data( doc, fix );
-	
-					if ( !attaches ) {
-						doc.addEventListener( orig, handler, true );
-					}
-					jQuery._data( doc, fix, ( attaches || 0 ) + 1 );
-				},
-				teardown: function() {
-					var doc = this.ownerDocument || this,
-						attaches = jQuery._data( doc, fix ) - 1;
-	
-					if ( !attaches ) {
-						doc.removeEventListener( orig, handler, true );
-						jQuery._removeData( doc, fix );
-					} else {
-						jQuery._data( doc, fix, attaches );
-					}
-				}
-			};
-		});
-	}
-	
-	jQuery.fn.extend({
-	
-		on: function( types, selector, data, fn, /*INTERNAL*/ one ) {
-			var type, origFn;
-	
-			// Types can be a map of types/handlers
-			if ( typeof types === "object" ) {
-				// ( types-Object, selector, data )
-				if ( typeof selector !== "string" ) {
-					// ( types-Object, data )
-					data = data || selector;
-					selector = undefined;
-				}
-				for ( type in types ) {
-					this.on( type, selector, data, types[ type ], one );
-				}
-				return this;
-			}
-	
-			if ( data == null && fn == null ) {
-				// ( types, fn )
-				fn = selector;
-				data = selector = undefined;
-			} else if ( fn == null ) {
-				if ( typeof selector === "string" ) {
-					// ( types, selector, fn )
-					fn = data;
-					data = undefined;
-				} else {
-					// ( types, data, fn )
-					fn = data;
-					data = selector;
-					selector = undefined;
-				}
-			}
-			if ( fn === false ) {
-				fn = returnFalse;
-			} else if ( !fn ) {
-				return this;
-			}
-	
-			if ( one === 1 ) {
-				origFn = fn;
-				fn = function( event ) {
-					// Can use an empty set, since event contains the info
-					jQuery().off( event );
-					return origFn.apply( this, arguments );
-				};
-				// Use same guid so caller can remove using origFn
-				fn.guid = origFn.guid || ( origFn.guid = jQuery.guid++ );
-			}
-			return this.each( function() {
-				jQuery.event.add( this, types, fn, data, selector );
-			});
+		on: function( types, selector, data, fn ) {
+			return on( this, types, selector, data, fn );
 		},
 		one: function( types, selector, data, fn ) {
-			return this.on( types, selector, data, fn, 1 );
+			return on( this, types, selector, data, fn, 1 );
 		},
 		off: function( types, selector, fn ) {
 			var handleObj, type;
 			if ( types && types.preventDefault && types.handleObj ) {
+	
 				// ( event )  dispatched jQuery.Event
 				handleObj = types.handleObj;
 				jQuery( types.delegateTarget ).off(
-					handleObj.namespace ? handleObj.origType + "." + handleObj.namespace : handleObj.origType,
+					handleObj.namespace ?
+						handleObj.origType + "." + handleObj.namespace :
+						handleObj.origType,
 					handleObj.selector,
 					handleObj.handler
 				);
 				return this;
 			}
 			if ( typeof types === "object" ) {
+	
 				// ( types-object [, selector] )
 				for ( type in types ) {
 					this.off( type, selector, types[ type ] );
@@ -27506,6 +27927,7 @@
 				return this;
 			}
 			if ( selector === false || typeof selector === "function" ) {
+	
 				// ( types [, fn] )
 				fn = selector;
 				selector = undefined;
@@ -27513,263 +27935,238 @@
 			if ( fn === false ) {
 				fn = returnFalse;
 			}
-			return this.each(function() {
+			return this.each( function() {
 				jQuery.event.remove( this, types, fn, selector );
-			});
-		},
-	
-		trigger: function( type, data ) {
-			return this.each(function() {
-				jQuery.event.trigger( type, data, this );
-			});
-		},
-		triggerHandler: function( type, data ) {
-			var elem = this[0];
-			if ( elem ) {
-				return jQuery.event.trigger( type, data, elem, true );
-			}
+			} );
 		}
-	});
+	} );
 	
 	
-	function createSafeFragment( document ) {
-		var list = nodeNames.split( "|" ),
-			safeFrag = document.createDocumentFragment();
+	var
 	
-		if ( safeFrag.createElement ) {
-			while ( list.length ) {
-				safeFrag.createElement(
-					list.pop()
-				);
-			}
-		}
-		return safeFrag;
-	}
+		/* eslint-disable max-len */
 	
-	var nodeNames = "abbr|article|aside|audio|bdi|canvas|data|datalist|details|figcaption|figure|footer|" +
-			"header|hgroup|mark|meter|nav|output|progress|section|summary|time|video",
-		rinlinejQuery = / jQuery\d+="(?:null|\d+)"/g,
-		rnoshimcache = new RegExp("<(?:" + nodeNames + ")[\\s/>]", "i"),
-		rleadingWhitespace = /^\s+/,
-		rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi,
-		rtagName = /<([\w:]+)/,
-		rtbody = /<tbody/i,
-		rhtml = /<|&#?\w+;/,
-		rnoInnerhtml = /<(?:script|style|link)/i,
+		// See https://github.com/eslint/eslint/issues/3229
+		rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([a-z][^\/\0>\x20\t\r\n\f]*)[^>]*)\/>/gi,
+	
+		/* eslint-enable */
+	
+		// Support: IE <=10 - 11, Edge 12 - 13
+		// In IE/Edge using regex groups here causes severe slowdowns.
+		// See https://connect.microsoft.com/IE/feedback/details/1736512/
+		rnoInnerhtml = /<script|<style|<link/i,
+	
 		// checked="checked" or checked
 		rchecked = /checked\s*(?:[^=]|=\s*.checked.)/i,
-		rscriptType = /^$|\/(?:java|ecma)script/i,
 		rscriptTypeMasked = /^true\/(.*)/,
-		rcleanScript = /^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g,
+		rcleanScript = /^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g;
 	
-		// We have to close these tags to support XHTML (#13200)
-		wrapMap = {
-			option: [ 1, "<select multiple='multiple'>", "</select>" ],
-			legend: [ 1, "<fieldset>", "</fieldset>" ],
-			area: [ 1, "<map>", "</map>" ],
-			param: [ 1, "<object>", "</object>" ],
-			thead: [ 1, "<table>", "</table>" ],
-			tr: [ 2, "<table><tbody>", "</tbody></table>" ],
-			col: [ 2, "<table><tbody></tbody><colgroup>", "</colgroup></table>" ],
-			td: [ 3, "<table><tbody><tr>", "</tr></tbody></table>" ],
-	
-			// IE6-8 can't serialize link, script, style, or any html5 (NoScope) tags,
-			// unless wrapped in a div with non-breaking characters in front of it.
-			_default: support.htmlSerialize ? [ 0, "", "" ] : [ 1, "X<div>", "</div>"  ]
-		},
-		safeFragment = createSafeFragment( document ),
-		fragmentDiv = safeFragment.appendChild( document.createElement("div") );
-	
-	wrapMap.optgroup = wrapMap.option;
-	wrapMap.tbody = wrapMap.tfoot = wrapMap.colgroup = wrapMap.caption = wrapMap.thead;
-	wrapMap.th = wrapMap.td;
-	
-	function getAll( context, tag ) {
-		var elems, elem,
-			i = 0,
-			found = typeof context.getElementsByTagName !== strundefined ? context.getElementsByTagName( tag || "*" ) :
-				typeof context.querySelectorAll !== strundefined ? context.querySelectorAll( tag || "*" ) :
-				undefined;
-	
-		if ( !found ) {
-			for ( found = [], elems = context.childNodes || context; (elem = elems[i]) != null; i++ ) {
-				if ( !tag || jQuery.nodeName( elem, tag ) ) {
-					found.push( elem );
-				} else {
-					jQuery.merge( found, getAll( elem, tag ) );
-				}
-			}
-		}
-	
-		return tag === undefined || tag && jQuery.nodeName( context, tag ) ?
-			jQuery.merge( [ context ], found ) :
-			found;
-	}
-	
-	// Used in buildFragment, fixes the defaultChecked property
-	function fixDefaultChecked( elem ) {
-		if ( rcheckableType.test( elem.type ) ) {
-			elem.defaultChecked = elem.checked;
-		}
-	}
-	
-	// Support: IE<8
-	// Manipulating tables requires a tbody
 	function manipulationTarget( elem, content ) {
-		return jQuery.nodeName( elem, "table" ) &&
-			jQuery.nodeName( content.nodeType !== 11 ? content : content.firstChild, "tr" ) ?
+		if ( jQuery.nodeName( elem, "table" ) &&
+			jQuery.nodeName( content.nodeType !== 11 ? content : content.firstChild, "tr" ) ) {
 	
-			elem.getElementsByTagName("tbody")[0] ||
-				elem.appendChild( elem.ownerDocument.createElement("tbody") ) :
-			elem;
+			return elem.getElementsByTagName( "tbody" )[ 0 ] || elem;
+		}
+	
+		return elem;
 	}
 	
 	// Replace/restore the type attribute of script elements for safe DOM manipulation
 	function disableScript( elem ) {
-		elem.type = (jQuery.find.attr( elem, "type" ) !== null) + "/" + elem.type;
+		elem.type = ( elem.getAttribute( "type" ) !== null ) + "/" + elem.type;
 		return elem;
 	}
 	function restoreScript( elem ) {
 		var match = rscriptTypeMasked.exec( elem.type );
+	
 		if ( match ) {
-			elem.type = match[1];
+			elem.type = match[ 1 ];
 		} else {
-			elem.removeAttribute("type");
+			elem.removeAttribute( "type" );
 		}
+	
 		return elem;
 	}
 	
-	// Mark scripts as having already been evaluated
-	function setGlobalEval( elems, refElements ) {
-		var elem,
-			i = 0;
-		for ( ; (elem = elems[i]) != null; i++ ) {
-			jQuery._data( elem, "globalEval", !refElements || jQuery._data( refElements[i], "globalEval" ) );
-		}
-	}
-	
 	function cloneCopyEvent( src, dest ) {
+		var i, l, type, pdataOld, pdataCur, udataOld, udataCur, events;
 	
-		if ( dest.nodeType !== 1 || !jQuery.hasData( src ) ) {
-			return;
-		}
-	
-		var type, i, l,
-			oldData = jQuery._data( src ),
-			curData = jQuery._data( dest, oldData ),
-			events = oldData.events;
-	
-		if ( events ) {
-			delete curData.handle;
-			curData.events = {};
-	
-			for ( type in events ) {
-				for ( i = 0, l = events[ type ].length; i < l; i++ ) {
-					jQuery.event.add( dest, type, events[ type ][ i ] );
-				}
-			}
-		}
-	
-		// make the cloned public data object a copy from the original
-		if ( curData.data ) {
-			curData.data = jQuery.extend( {}, curData.data );
-		}
-	}
-	
-	function fixCloneNodeIssues( src, dest ) {
-		var nodeName, e, data;
-	
-		// We do not need to do anything for non-Elements
 		if ( dest.nodeType !== 1 ) {
 			return;
 		}
 	
-		nodeName = dest.nodeName.toLowerCase();
+		// 1. Copy private data: events, handlers, etc.
+		if ( dataPriv.hasData( src ) ) {
+			pdataOld = dataPriv.access( src );
+			pdataCur = dataPriv.set( dest, pdataOld );
+			events = pdataOld.events;
 	
-		// IE6-8 copies events bound via attachEvent when using cloneNode.
-		if ( !support.noCloneEvent && dest[ jQuery.expando ] ) {
-			data = jQuery._data( dest );
+			if ( events ) {
+				delete pdataCur.handle;
+				pdataCur.events = {};
 	
-			for ( e in data.events ) {
-				jQuery.removeEvent( dest, e, data.handle );
+				for ( type in events ) {
+					for ( i = 0, l = events[ type ].length; i < l; i++ ) {
+						jQuery.event.add( dest, type, events[ type ][ i ] );
+					}
+				}
 			}
-	
-			// Event data gets referenced instead of copied if the expando gets copied too
-			dest.removeAttribute( jQuery.expando );
 		}
 	
-		// IE blanks contents when cloning scripts, and tries to evaluate newly-set text
-		if ( nodeName === "script" && dest.text !== src.text ) {
-			disableScript( dest ).text = src.text;
-			restoreScript( dest );
+		// 2. Copy user data
+		if ( dataUser.hasData( src ) ) {
+			udataOld = dataUser.access( src );
+			udataCur = jQuery.extend( {}, udataOld );
 	
-		// IE6-10 improperly clones children of object elements using classid.
-		// IE10 throws NoModificationAllowedError if parent is null, #12132.
-		} else if ( nodeName === "object" ) {
-			if ( dest.parentNode ) {
-				dest.outerHTML = src.outerHTML;
-			}
+			dataUser.set( dest, udataCur );
+		}
+	}
 	
-			// This path appears unavoidable for IE9. When cloning an object
-			// element in IE9, the outerHTML strategy above is not sufficient.
-			// If the src has innerHTML and the destination does not,
-			// copy the src.innerHTML into the dest.innerHTML. #10324
-			if ( support.html5Clone && ( src.innerHTML && !jQuery.trim(dest.innerHTML) ) ) {
-				dest.innerHTML = src.innerHTML;
-			}
+	// Fix IE bugs, see support tests
+	function fixInput( src, dest ) {
+		var nodeName = dest.nodeName.toLowerCase();
 	
-		} else if ( nodeName === "input" && rcheckableType.test( src.type ) ) {
-			// IE6-8 fails to persist the checked state of a cloned checkbox
-			// or radio button. Worse, IE6-7 fail to give the cloned element
-			// a checked appearance if the defaultChecked value isn't also set
+		// Fails to persist the checked state of a cloned checkbox or radio button.
+		if ( nodeName === "input" && rcheckableType.test( src.type ) ) {
+			dest.checked = src.checked;
 	
-			dest.defaultChecked = dest.checked = src.checked;
-	
-			// IE6-7 get confused and end up setting the value of a cloned
-			// checkbox/radio button to an empty string instead of "on"
-			if ( dest.value !== src.value ) {
-				dest.value = src.value;
-			}
-	
-		// IE6-8 fails to return the selected option to the default selected
-		// state when cloning options
-		} else if ( nodeName === "option" ) {
-			dest.defaultSelected = dest.selected = src.defaultSelected;
-	
-		// IE6-8 fails to set the defaultValue to the correct value when
-		// cloning other types of input fields
+		// Fails to return the selected option to the default selected state when cloning options
 		} else if ( nodeName === "input" || nodeName === "textarea" ) {
 			dest.defaultValue = src.defaultValue;
 		}
 	}
 	
-	jQuery.extend({
-		clone: function( elem, dataAndEvents, deepDataAndEvents ) {
-			var destElements, node, clone, i, srcElements,
-				inPage = jQuery.contains( elem.ownerDocument, elem );
+	function domManip( collection, args, callback, ignored ) {
 	
-			if ( support.html5Clone || jQuery.isXMLDoc(elem) || !rnoshimcache.test( "<" + elem.nodeName + ">" ) ) {
-				clone = elem.cloneNode( true );
+		// Flatten any nested arrays
+		args = concat.apply( [], args );
 	
-			// IE<=8 does not properly clone detached, unknown element nodes
-			} else {
-				fragmentDiv.innerHTML = elem.outerHTML;
-				fragmentDiv.removeChild( clone = fragmentDiv.firstChild );
+		var fragment, first, scripts, hasScripts, node, doc,
+			i = 0,
+			l = collection.length,
+			iNoClone = l - 1,
+			value = args[ 0 ],
+			isFunction = jQuery.isFunction( value );
+	
+		// We can't cloneNode fragments that contain checked, in WebKit
+		if ( isFunction ||
+				( l > 1 && typeof value === "string" &&
+					!support.checkClone && rchecked.test( value ) ) ) {
+			return collection.each( function( index ) {
+				var self = collection.eq( index );
+				if ( isFunction ) {
+					args[ 0 ] = value.call( this, index, self.html() );
+				}
+				domManip( self, args, callback, ignored );
+			} );
+		}
+	
+		if ( l ) {
+			fragment = buildFragment( args, collection[ 0 ].ownerDocument, false, collection, ignored );
+			first = fragment.firstChild;
+	
+			if ( fragment.childNodes.length === 1 ) {
+				fragment = first;
 			}
 	
-			if ( (!support.noCloneEvent || !support.noCloneChecked) &&
-					(elem.nodeType === 1 || elem.nodeType === 11) && !jQuery.isXMLDoc(elem) ) {
+			// Require either new content or an interest in ignored elements to invoke the callback
+			if ( first || ignored ) {
+				scripts = jQuery.map( getAll( fragment, "script" ), disableScript );
+				hasScripts = scripts.length;
 	
-				// We eschew Sizzle here for performance reasons: http://jsperf.com/getall-vs-sizzle/2
+				// Use the original fragment for the last item
+				// instead of the first because it can end up
+				// being emptied incorrectly in certain situations (#8070).
+				for ( ; i < l; i++ ) {
+					node = fragment;
+	
+					if ( i !== iNoClone ) {
+						node = jQuery.clone( node, true, true );
+	
+						// Keep references to cloned scripts for later restoration
+						if ( hasScripts ) {
+	
+							// Support: Android <=4.0 only, PhantomJS 1 only
+							// push.apply(_, arraylike) throws on ancient WebKit
+							jQuery.merge( scripts, getAll( node, "script" ) );
+						}
+					}
+	
+					callback.call( collection[ i ], node, i );
+				}
+	
+				if ( hasScripts ) {
+					doc = scripts[ scripts.length - 1 ].ownerDocument;
+	
+					// Reenable scripts
+					jQuery.map( scripts, restoreScript );
+	
+					// Evaluate executable scripts on first document insertion
+					for ( i = 0; i < hasScripts; i++ ) {
+						node = scripts[ i ];
+						if ( rscriptType.test( node.type || "" ) &&
+							!dataPriv.access( node, "globalEval" ) &&
+							jQuery.contains( doc, node ) ) {
+	
+							if ( node.src ) {
+	
+								// Optional AJAX dependency, but won't run scripts if not present
+								if ( jQuery._evalUrl ) {
+									jQuery._evalUrl( node.src );
+								}
+							} else {
+								DOMEval( node.textContent.replace( rcleanScript, "" ), doc );
+							}
+						}
+					}
+				}
+			}
+		}
+	
+		return collection;
+	}
+	
+	function remove( elem, selector, keepData ) {
+		var node,
+			nodes = selector ? jQuery.filter( selector, elem ) : elem,
+			i = 0;
+	
+		for ( ; ( node = nodes[ i ] ) != null; i++ ) {
+			if ( !keepData && node.nodeType === 1 ) {
+				jQuery.cleanData( getAll( node ) );
+			}
+	
+			if ( node.parentNode ) {
+				if ( keepData && jQuery.contains( node.ownerDocument, node ) ) {
+					setGlobalEval( getAll( node, "script" ) );
+				}
+				node.parentNode.removeChild( node );
+			}
+		}
+	
+		return elem;
+	}
+	
+	jQuery.extend( {
+		htmlPrefilter: function( html ) {
+			return html.replace( rxhtmlTag, "<$1></$2>" );
+		},
+	
+		clone: function( elem, dataAndEvents, deepDataAndEvents ) {
+			var i, l, srcElements, destElements,
+				clone = elem.cloneNode( true ),
+				inPage = jQuery.contains( elem.ownerDocument, elem );
+	
+			// Fix IE cloning issues
+			if ( !support.noCloneChecked && ( elem.nodeType === 1 || elem.nodeType === 11 ) &&
+					!jQuery.isXMLDoc( elem ) ) {
+	
+				// We eschew Sizzle here for performance reasons: https://jsperf.com/getall-vs-sizzle/2
 				destElements = getAll( clone );
 				srcElements = getAll( elem );
 	
-				// Fix all IE cloning issues
-				for ( i = 0; (node = srcElements[i]) != null; ++i ) {
-					// Ensure that the destination node is not null; Fixes #9587
-					if ( destElements[i] ) {
-						fixCloneNodeIssues( node, destElements[i] );
-					}
+				for ( i = 0, l = srcElements.length; i < l; i++ ) {
+					fixInput( srcElements[ i ], destElements[ i ] );
 				}
 			}
 	
@@ -27779,8 +28176,8 @@
 					srcElements = srcElements || getAll( elem );
 					destElements = destElements || getAll( clone );
 	
-					for ( i = 0; (node = srcElements[i]) != null; i++ ) {
-						cloneCopyEvent( node, destElements[i] );
+					for ( i = 0, l = srcElements.length; i < l; i++ ) {
+						cloneCopyEvent( srcElements[ i ], destElements[ i ] );
 					}
 				} else {
 					cloneCopyEvent( elem, clone );
@@ -27793,154 +28190,18 @@
 				setGlobalEval( destElements, !inPage && getAll( elem, "script" ) );
 			}
 	
-			destElements = srcElements = node = null;
-	
 			// Return the cloned set
 			return clone;
 		},
 	
-		buildFragment: function( elems, context, scripts, selection ) {
-			var j, elem, contains,
-				tmp, tag, tbody, wrap,
-				l = elems.length,
-	
-				// Ensure a safe fragment
-				safe = createSafeFragment( context ),
-	
-				nodes = [],
+		cleanData: function( elems ) {
+			var data, elem, type,
+				special = jQuery.event.special,
 				i = 0;
 	
-			for ( ; i < l; i++ ) {
-				elem = elems[ i ];
-	
-				if ( elem || elem === 0 ) {
-	
-					// Add nodes directly
-					if ( jQuery.type( elem ) === "object" ) {
-						jQuery.merge( nodes, elem.nodeType ? [ elem ] : elem );
-	
-					// Convert non-html into a text node
-					} else if ( !rhtml.test( elem ) ) {
-						nodes.push( context.createTextNode( elem ) );
-	
-					// Convert html into DOM nodes
-					} else {
-						tmp = tmp || safe.appendChild( context.createElement("div") );
-	
-						// Deserialize a standard representation
-						tag = (rtagName.exec( elem ) || [ "", "" ])[ 1 ].toLowerCase();
-						wrap = wrapMap[ tag ] || wrapMap._default;
-	
-						tmp.innerHTML = wrap[1] + elem.replace( rxhtmlTag, "<$1></$2>" ) + wrap[2];
-	
-						// Descend through wrappers to the right content
-						j = wrap[0];
-						while ( j-- ) {
-							tmp = tmp.lastChild;
-						}
-	
-						// Manually add leading whitespace removed by IE
-						if ( !support.leadingWhitespace && rleadingWhitespace.test( elem ) ) {
-							nodes.push( context.createTextNode( rleadingWhitespace.exec( elem )[0] ) );
-						}
-	
-						// Remove IE's autoinserted <tbody> from table fragments
-						if ( !support.tbody ) {
-	
-							// String was a <table>, *may* have spurious <tbody>
-							elem = tag === "table" && !rtbody.test( elem ) ?
-								tmp.firstChild :
-	
-								// String was a bare <thead> or <tfoot>
-								wrap[1] === "<table>" && !rtbody.test( elem ) ?
-									tmp :
-									0;
-	
-							j = elem && elem.childNodes.length;
-							while ( j-- ) {
-								if ( jQuery.nodeName( (tbody = elem.childNodes[j]), "tbody" ) && !tbody.childNodes.length ) {
-									elem.removeChild( tbody );
-								}
-							}
-						}
-	
-						jQuery.merge( nodes, tmp.childNodes );
-	
-						// Fix #12392 for WebKit and IE > 9
-						tmp.textContent = "";
-	
-						// Fix #12392 for oldIE
-						while ( tmp.firstChild ) {
-							tmp.removeChild( tmp.firstChild );
-						}
-	
-						// Remember the top-level container for proper cleanup
-						tmp = safe.lastChild;
-					}
-				}
-			}
-	
-			// Fix #11356: Clear elements from fragment
-			if ( tmp ) {
-				safe.removeChild( tmp );
-			}
-	
-			// Reset defaultChecked for any radios and checkboxes
-			// about to be appended to the DOM in IE 6/7 (#8060)
-			if ( !support.appendChecked ) {
-				jQuery.grep( getAll( nodes, "input" ), fixDefaultChecked );
-			}
-	
-			i = 0;
-			while ( (elem = nodes[ i++ ]) ) {
-	
-				// #4087 - If origin and destination elements are the same, and this is
-				// that element, do not do anything
-				if ( selection && jQuery.inArray( elem, selection ) !== -1 ) {
-					continue;
-				}
-	
-				contains = jQuery.contains( elem.ownerDocument, elem );
-	
-				// Append to fragment
-				tmp = getAll( safe.appendChild( elem ), "script" );
-	
-				// Preserve script evaluation history
-				if ( contains ) {
-					setGlobalEval( tmp );
-				}
-	
-				// Capture executables
-				if ( scripts ) {
-					j = 0;
-					while ( (elem = tmp[ j++ ]) ) {
-						if ( rscriptType.test( elem.type || "" ) ) {
-							scripts.push( elem );
-						}
-					}
-				}
-			}
-	
-			tmp = null;
-	
-			return safe;
-		},
-	
-		cleanData: function( elems, /* internal */ acceptData ) {
-			var elem, type, id, data,
-				i = 0,
-				internalKey = jQuery.expando,
-				cache = jQuery.cache,
-				deleteExpando = support.deleteExpando,
-				special = jQuery.event.special;
-	
-			for ( ; (elem = elems[i]) != null; i++ ) {
-				if ( acceptData || jQuery.acceptData( elem ) ) {
-	
-					id = elem[ internalKey ];
-					data = id && cache[ id ];
-	
-					if ( data ) {
+			for ( ; ( elem = elems[ i ] ) !== undefined; i++ ) {
+				if ( acceptData( elem ) ) {
+					if ( ( data = elem[ dataPriv.expando ] ) ) {
 						if ( data.events ) {
 							for ( type in data.events ) {
 								if ( special[ type ] ) {
@@ -27953,116 +28214,88 @@
 							}
 						}
 	
-						// Remove cache only if it was not already removed by jQuery.event.remove
-						if ( cache[ id ] ) {
+						// Support: Chrome <=35 - 45+
+						// Assign undefined instead of using delete, see Data#remove
+						elem[ dataPriv.expando ] = undefined;
+					}
+					if ( elem[ dataUser.expando ] ) {
 	
-							delete cache[ id ];
-	
-							// IE does not allow us to delete expando properties from nodes,
-							// nor does it have a removeAttribute function on Document nodes;
-							// we must handle all of these cases
-							if ( deleteExpando ) {
-								delete elem[ internalKey ];
-	
-							} else if ( typeof elem.removeAttribute !== strundefined ) {
-								elem.removeAttribute( internalKey );
-	
-							} else {
-								elem[ internalKey ] = null;
-							}
-	
-							deletedIds.push( id );
-						}
+						// Support: Chrome <=35 - 45+
+						// Assign undefined instead of using delete, see Data#remove
+						elem[ dataUser.expando ] = undefined;
 					}
 				}
 			}
 		}
-	});
+	} );
 	
-	jQuery.fn.extend({
+	jQuery.fn.extend( {
+		detach: function( selector ) {
+			return remove( this, selector, true );
+		},
+	
+		remove: function( selector ) {
+			return remove( this, selector );
+		},
+	
 		text: function( value ) {
 			return access( this, function( value ) {
 				return value === undefined ?
 					jQuery.text( this ) :
-					this.empty().append( ( this[0] && this[0].ownerDocument || document ).createTextNode( value ) );
+					this.empty().each( function() {
+						if ( this.nodeType === 1 || this.nodeType === 11 || this.nodeType === 9 ) {
+							this.textContent = value;
+						}
+					} );
 			}, null, value, arguments.length );
 		},
 	
 		append: function() {
-			return this.domManip( arguments, function( elem ) {
+			return domManip( this, arguments, function( elem ) {
 				if ( this.nodeType === 1 || this.nodeType === 11 || this.nodeType === 9 ) {
 					var target = manipulationTarget( this, elem );
 					target.appendChild( elem );
 				}
-			});
+			} );
 		},
 	
 		prepend: function() {
-			return this.domManip( arguments, function( elem ) {
+			return domManip( this, arguments, function( elem ) {
 				if ( this.nodeType === 1 || this.nodeType === 11 || this.nodeType === 9 ) {
 					var target = manipulationTarget( this, elem );
 					target.insertBefore( elem, target.firstChild );
 				}
-			});
+			} );
 		},
 	
 		before: function() {
-			return this.domManip( arguments, function( elem ) {
+			return domManip( this, arguments, function( elem ) {
 				if ( this.parentNode ) {
 					this.parentNode.insertBefore( elem, this );
 				}
-			});
+			} );
 		},
 	
 		after: function() {
-			return this.domManip( arguments, function( elem ) {
+			return domManip( this, arguments, function( elem ) {
 				if ( this.parentNode ) {
 					this.parentNode.insertBefore( elem, this.nextSibling );
 				}
-			});
-		},
-	
-		remove: function( selector, keepData /* Internal Use Only */ ) {
-			var elem,
-				elems = selector ? jQuery.filter( selector, this ) : this,
-				i = 0;
-	
-			for ( ; (elem = elems[i]) != null; i++ ) {
-	
-				if ( !keepData && elem.nodeType === 1 ) {
-					jQuery.cleanData( getAll( elem ) );
-				}
-	
-				if ( elem.parentNode ) {
-					if ( keepData && jQuery.contains( elem.ownerDocument, elem ) ) {
-						setGlobalEval( getAll( elem, "script" ) );
-					}
-					elem.parentNode.removeChild( elem );
-				}
-			}
-	
-			return this;
+			} );
 		},
 	
 		empty: function() {
 			var elem,
 				i = 0;
 	
-			for ( ; (elem = this[i]) != null; i++ ) {
-				// Remove element nodes and prevent memory leaks
+			for ( ; ( elem = this[ i ] ) != null; i++ ) {
 				if ( elem.nodeType === 1 ) {
+	
+					// Prevent memory leaks
 					jQuery.cleanData( getAll( elem, false ) );
-				}
 	
-				// Remove any remaining nodes
-				while ( elem.firstChild ) {
-					elem.removeChild( elem.firstChild );
-				}
-	
-				// If this is a select, ensure that it displays empty (#12336)
-				// Support: IE<9
-				if ( elem.options && jQuery.nodeName( elem, "select" ) ) {
-					elem.options.length = 0;
+					// Remove any remaining nodes
+					elem.textContent = "";
 				}
 			}
 	
@@ -28073,9 +28306,9 @@
 			dataAndEvents = dataAndEvents == null ? false : dataAndEvents;
 			deepDataAndEvents = deepDataAndEvents == null ? dataAndEvents : deepDataAndEvents;
 	
-			return this.map(function() {
+			return this.map( function() {
 				return jQuery.clone( this, dataAndEvents, deepDataAndEvents );
-			});
+			} );
 		},
 	
 		html: function( value ) {
@@ -28084,24 +28317,21 @@
 					i = 0,
 					l = this.length;
 	
-				if ( value === undefined ) {
-					return elem.nodeType === 1 ?
-						elem.innerHTML.replace( rinlinejQuery, "" ) :
-						undefined;
+				if ( value === undefined && elem.nodeType === 1 ) {
+					return elem.innerHTML;
 				}
 	
 				// See if we can take a shortcut and just use innerHTML
 				if ( typeof value === "string" && !rnoInnerhtml.test( value ) &&
-					( support.htmlSerialize || !rnoshimcache.test( value )  ) &&
-					( support.leadingWhitespace || !rleadingWhitespace.test( value ) ) &&
-					!wrapMap[ (rtagName.exec( value ) || [ "", "" ])[ 1 ].toLowerCase() ] ) {
+					!wrapMap[ ( rtagName.exec( value ) || [ "", "" ] )[ 1 ].toLowerCase() ] ) {
 	
-					value = value.replace( rxhtmlTag, "<$1></$2>" );
+					value = jQuery.htmlPrefilter( value );
 	
 					try {
-						for (; i < l; i++ ) {
+						for ( ; i < l; i++ ) {
+							elem = this[ i ] || {};
+	
 							// Remove element nodes and prevent memory leaks
-							elem = this[i] || {};
 							if ( elem.nodeType === 1 ) {
 								jQuery.cleanData( getAll( elem, false ) );
 								elem.innerHTML = value;
@@ -28111,7 +28341,7 @@
 						elem = 0;
 	
 					// If using innerHTML throws an exception, use the fallback method
-					} catch(e) {}
+					} catch ( e ) {}
 				}
 	
 				if ( elem ) {
@@ -28121,117 +28351,25 @@
 		},
 	
 		replaceWith: function() {
-			var arg = arguments[ 0 ];
+			var ignored = [];
 	
-			// Make the changes, replacing each context element with the new content
-			this.domManip( arguments, function( elem ) {
-				arg = this.parentNode;
+			// Make the changes, replacing each non-ignored context element with the new content
+			return domManip( this, arguments, function( elem ) {
+				var parent = this.parentNode;
 	
-				jQuery.cleanData( getAll( this ) );
-	
-				if ( arg ) {
-					arg.replaceChild( elem, this );
-				}
-			});
-	
-			// Force removal if there was no new content (e.g., from empty arguments)
-			return arg && (arg.length || arg.nodeType) ? this : this.remove();
-		},
-	
-		detach: function( selector ) {
-			return this.remove( selector, true );
-		},
-	
-		domManip: function( args, callback ) {
-	
-			// Flatten any nested arrays
-			args = concat.apply( [], args );
-	
-			var first, node, hasScripts,
-				scripts, doc, fragment,
-				i = 0,
-				l = this.length,
-				set = this,
-				iNoClone = l - 1,
-				value = args[0],
-				isFunction = jQuery.isFunction( value );
-	
-			// We can't cloneNode fragments that contain checked, in WebKit
-			if ( isFunction ||
-					( l > 1 && typeof value === "string" &&
-						!support.checkClone && rchecked.test( value ) ) ) {
-				return this.each(function( index ) {
-					var self = set.eq( index );
-					if ( isFunction ) {
-						args[0] = value.call( this, index, self.html() );
+				if ( jQuery.inArray( this, ignored ) < 0 ) {
+					jQuery.cleanData( getAll( this ) );
+					if ( parent ) {
+						parent.replaceChild( elem, this );
 					}
-					self.domManip( args, callback );
-				});
-			}
-	
-			if ( l ) {
-				fragment = jQuery.buildFragment( args, this[ 0 ].ownerDocument, false, this );
-				first = fragment.firstChild;
-	
-				if ( fragment.childNodes.length === 1 ) {
-					fragment = first;
 				}
 	
-				if ( first ) {
-					scripts = jQuery.map( getAll( fragment, "script" ), disableScript );
-					hasScripts = scripts.length;
-	
-					// Use the original fragment for the last item instead of the first because it can end up
-					// being emptied incorrectly in certain situations (#8070).
-					for ( ; i < l; i++ ) {
-						node = fragment;
-	
-						if ( i !== iNoClone ) {
-							node = jQuery.clone( node, true, true );
-	
-							// Keep references to cloned scripts for later restoration
-							if ( hasScripts ) {
-								jQuery.merge( scripts, getAll( node, "script" ) );
-							}
-						}
-	
-						callback.call( this[i], node, i );
-					}
-	
-					if ( hasScripts ) {
-						doc = scripts[ scripts.length - 1 ].ownerDocument;
-	
-						// Reenable scripts
-						jQuery.map( scripts, restoreScript );
-	
-						// Evaluate executable scripts on first document insertion
-						for ( i = 0; i < hasScripts; i++ ) {
-							node = scripts[ i ];
-							if ( rscriptType.test( node.type || "" ) &&
-								!jQuery._data( node, "globalEval" ) && jQuery.contains( doc, node ) ) {
-	
-								if ( node.src ) {
-									// Optional AJAX dependency, but won't run scripts if not present
-									if ( jQuery._evalUrl ) {
-										jQuery._evalUrl( node.src );
-									}
-								} else {
-									jQuery.globalEval( ( node.text || node.textContent || node.innerHTML || "" ).replace( rcleanScript, "" ) );
-								}
-							}
-						}
-					}
-	
-					// Fix #11809: Avoid leaking memory
-					fragment = first = null;
-				}
-			}
-	
-			return this;
+			// Force callback invocation
+			}, ignored );
 		}
-	});
+	} );
 	
-	jQuery.each({
+	jQuery.each( {
 		appendTo: "append",
 		prependTo: "prepend",
 		insertBefore: "before",
@@ -28240,579 +28378,272 @@
 	}, function( name, original ) {
 		jQuery.fn[ name ] = function( selector ) {
 			var elems,
-				i = 0,
 				ret = [],
 				insert = jQuery( selector ),
-				last = insert.length - 1;
+				last = insert.length - 1,
+				i = 0;
 	
 			for ( ; i <= last; i++ ) {
-				elems = i === last ? this : this.clone(true);
-				jQuery( insert[i] )[ original ]( elems );
+				elems = i === last ? this : this.clone( true );
+				jQuery( insert[ i ] )[ original ]( elems );
 	
-				// Modern browsers can apply jQuery collections as arrays, but oldIE needs a .get()
+				// Support: Android <=4.0 only, PhantomJS 1 only
+				// .get() because push.apply(_, arraylike) throws on ancient WebKit
 				push.apply( ret, elems.get() );
 			}
 	
 			return this.pushStack( ret );
 		};
-	});
-	
-	
-	var iframe,
-		elemdisplay = {};
-	
-	/**
-	 * Retrieve the actual display of a element
-	 * @param {String} name nodeName of the element
-	 * @param {Object} doc Document object
-	 */
-	// Called only from within defaultDisplay
-	function actualDisplay( name, doc ) {
-		var style,
-			elem = jQuery( doc.createElement( name ) ).appendTo( doc.body ),
-	
-			// getDefaultComputedStyle might be reliably used only on attached element
-			display = window.getDefaultComputedStyle && ( style = window.getDefaultComputedStyle( elem[ 0 ] ) ) ?
-	
-				// Use of this method is a temporary fix (more like optmization) until something better comes along,
-				// since it was removed from specification and supported only in FF
-				style.display : jQuery.css( elem[ 0 ], "display" );
-	
-		// We don't have any data stored on the element,
-		// so use "detach" method as fast way to get rid of the element
-		elem.detach();
-	
-		return display;
-	}
-	
-	/**
-	 * Try to determine the default display value of an element
-	 * @param {String} nodeName
-	 */
-	function defaultDisplay( nodeName ) {
-		var doc = document,
-			display = elemdisplay[ nodeName ];
-	
-		if ( !display ) {
-			display = actualDisplay( nodeName, doc );
-	
-			// If the simple way fails, read from inside an iframe
-			if ( display === "none" || !display ) {
-	
-				// Use the already-created iframe if possible
-				iframe = (iframe || jQuery( "<iframe frameborder='0' width='0' height='0'/>" )).appendTo( doc.documentElement );
-	
-				// Always write a new HTML skeleton so Webkit and Firefox don't choke on reuse
-				doc = ( iframe[ 0 ].contentWindow || iframe[ 0 ].contentDocument ).document;
-	
-				// Support: IE
-				doc.write();
-				doc.close();
-	
-				display = actualDisplay( nodeName, doc );
-				iframe.detach();
-			}
-	
-			// Store the correct default display
-			elemdisplay[ nodeName ] = display;
-		}
-	
-		return display;
-	}
-	
-	
-	(function() {
-		var shrinkWrapBlocksVal;
-	
-		support.shrinkWrapBlocks = function() {
-			if ( shrinkWrapBlocksVal != null ) {
-				return shrinkWrapBlocksVal;
-			}
-	
-			// Will be changed later if needed.
-			shrinkWrapBlocksVal = false;
-	
-			// Minified: var b,c,d
-			var div, body, container;
-	
-			body = document.getElementsByTagName( "body" )[ 0 ];
-			if ( !body || !body.style ) {
-				// Test fired too early or in an unsupported environment, exit.
-				return;
-			}
-	
-			// Setup
-			div = document.createElement( "div" );
-			container = document.createElement( "div" );
-			container.style.cssText = "position:absolute;border:0;width:0;height:0;top:0;left:-9999px";
-			body.appendChild( container ).appendChild( div );
-	
-			// Support: IE6
-			// Check if elements with layout shrink-wrap their children
-			if ( typeof div.style.zoom !== strundefined ) {
-				// Reset CSS: box-sizing; display; margin; border
-				div.style.cssText =
-					// Support: Firefox<29, Android 2.3
-					// Vendor-prefix box-sizing
-					"-webkit-box-sizing:content-box;-moz-box-sizing:content-box;" +
-					"box-sizing:content-box;display:block;margin:0;border:0;" +
-					"padding:1px;width:1px;zoom:1";
-				div.appendChild( document.createElement( "div" ) ).style.width = "5px";
-				shrinkWrapBlocksVal = div.offsetWidth !== 3;
-			}
-	
-			body.removeChild( container );
-	
-			return shrinkWrapBlocksVal;
-		};
-	
-	})();
-	var rmargin = (/^margin/);
+	} );
+	var rmargin = ( /^margin/ );
 	
 	var rnumnonpx = new RegExp( "^(" + pnum + ")(?!px)[a-z%]+$", "i" );
 	
+	var getStyles = function( elem ) {
 	
-	
-	var getStyles, curCSS,
-		rposition = /^(top|right|bottom|left)$/;
-	
-	if ( window.getComputedStyle ) {
-		getStyles = function( elem ) {
-			// Support: IE<=11+, Firefox<=30+ (#15098, #14150)
+			// Support: IE <=11 only, Firefox <=30 (#15098, #14150)
 			// IE throws on elements created in popups
 			// FF meanwhile throws on frame elements through "defaultView.getComputedStyle"
-			if ( elem.ownerDocument.defaultView.opener ) {
-				return elem.ownerDocument.defaultView.getComputedStyle( elem, null );
+			var view = elem.ownerDocument.defaultView;
+	
+			if ( !view || !view.opener ) {
+				view = window;
 			}
 	
-			return window.getComputedStyle( elem, null );
+			return view.getComputedStyle( elem );
 		};
 	
-		curCSS = function( elem, name, computed ) {
-			var width, minWidth, maxWidth, ret,
-				style = elem.style;
 	
-			computed = computed || getStyles( elem );
 	
-			// getPropertyValue is only needed for .css('filter') in IE9, see #12537
-			ret = computed ? computed.getPropertyValue( name ) || computed[ name ] : undefined;
+	( function() {
 	
-			if ( computed ) {
+		// Executing both pixelPosition & boxSizingReliable tests require only one layout
+		// so they're executed at the same time to save the second computation.
+		function computeStyleTests() {
 	
-				if ( ret === "" && !jQuery.contains( elem.ownerDocument, elem ) ) {
-					ret = jQuery.style( elem, name );
-				}
-	
-				// A tribute to the "awesome hack by Dean Edwards"
-				// Chrome < 17 and Safari 5.0 uses "computed value" instead of "used value" for margin-right
-				// Safari 5.1.7 (at least) returns percentage for a larger set of values, but width seems to be reliably pixels
-				// this is against the CSSOM draft spec: http://dev.w3.org/csswg/cssom/#resolved-values
-				if ( rnumnonpx.test( ret ) && rmargin.test( name ) ) {
-	
-					// Remember the original values
-					width = style.width;
-					minWidth = style.minWidth;
-					maxWidth = style.maxWidth;
-	
-					// Put in the new values to get a computed value out
-					style.minWidth = style.maxWidth = style.width = ret;
-					ret = computed.width;
-	
-					// Revert the changed values
-					style.width = width;
-					style.minWidth = minWidth;
-					style.maxWidth = maxWidth;
-				}
+			// This is a singleton, we need to execute it only once
+			if ( !div ) {
+				return;
 			}
 	
-			// Support: IE
-			// IE returns zIndex value as an integer.
-			return ret === undefined ?
-				ret :
-				ret + "";
-		};
-	} else if ( document.documentElement.currentStyle ) {
-		getStyles = function( elem ) {
-			return elem.currentStyle;
-		};
+			div.style.cssText =
+				"box-sizing:border-box;" +
+				"position:relative;display:block;" +
+				"margin:auto;border:1px;padding:1px;" +
+				"top:1%;width:50%";
+			div.innerHTML = "";
+			documentElement.appendChild( container );
 	
-		curCSS = function( elem, name, computed ) {
-			var left, rs, rsLeft, ret,
-				style = elem.style;
+			var divStyle = window.getComputedStyle( div );
+			pixelPositionVal = divStyle.top !== "1%";
 	
-			computed = computed || getStyles( elem );
-			ret = computed ? computed[ name ] : undefined;
+			// Support: Android 4.0 - 4.3 only, Firefox <=3 - 44
+			reliableMarginLeftVal = divStyle.marginLeft === "2px";
+			boxSizingReliableVal = divStyle.width === "4px";
 	
-			// Avoid setting ret to empty string here
-			// so we don't default to auto
-			if ( ret == null && style && style[ name ] ) {
-				ret = style[ name ];
+			// Support: Android 4.0 - 4.3 only
+			// Some styles come back with percentage values, even though they shouldn't
+			div.style.marginRight = "50%";
+			pixelMarginRightVal = divStyle.marginRight === "4px";
+	
+			documentElement.removeChild( container );
+	
+			// Nullify the div so it wouldn't be stored in the memory and
+			// it will also be a sign that checks already performed
+			div = null;
+		}
+	
+		var pixelPositionVal, boxSizingReliableVal, pixelMarginRightVal, reliableMarginLeftVal,
+			container = document.createElement( "div" ),
+			div = document.createElement( "div" );
+	
+		// Finish early in limited (non-browser) environments
+		if ( !div.style ) {
+			return;
+		}
+	
+		// Support: IE <=9 - 11 only
+		// Style of cloned element affects source element cloned (#8908)
+		div.style.backgroundClip = "content-box";
+		div.cloneNode( true ).style.backgroundClip = "";
+		support.clearCloneStyle = div.style.backgroundClip === "content-box";
+	
+		container.style.cssText = "border:0;width:8px;height:0;top:0;left:-9999px;" +
+			"padding:0;margin-top:1px;position:absolute";
+		container.appendChild( div );
+	
+		jQuery.extend( support, {
+			pixelPosition: function() {
+				computeStyleTests();
+				return pixelPositionVal;
+			},
+			boxSizingReliable: function() {
+				computeStyleTests();
+				return boxSizingReliableVal;
+			},
+			pixelMarginRight: function() {
+				computeStyleTests();
+				return pixelMarginRightVal;
+			},
+			reliableMarginLeft: function() {
+				computeStyleTests();
+				return reliableMarginLeftVal;
+			}
+		} );
+	} )();
+	
+	
+	function curCSS( elem, name, computed ) {
+		var width, minWidth, maxWidth, ret,
+			style = elem.style;
+	
+		computed = computed || getStyles( elem );
+	
+		// Support: IE <=9 only
+		// getPropertyValue is only needed for .css('filter') (#12537)
+		if ( computed ) {
+			ret = computed.getPropertyValue( name ) || computed[ name ];
+	
+			if ( ret === "" && !jQuery.contains( elem.ownerDocument, elem ) ) {
+				ret = jQuery.style( elem, name );
 			}
 	
-			// From the awesome hack by Dean Edwards
-			// http://erik.eae.net/archives/2007/07/27/18.54.15/#comment-102291
-	
-			// If we're not dealing with a regular pixel number
-			// but a number that has a weird ending, we need to convert it to pixels
-			// but not position css attributes, as those are proportional to the parent element instead
-			// and we can't measure the parent instead because it might trigger a "stacking dolls" problem
-			if ( rnumnonpx.test( ret ) && !rposition.test( name ) ) {
+			// A tribute to the "awesome hack by Dean Edwards"
+			// Android Browser returns percentage for some values,
+			// but width seems to be reliably pixels.
+			// This is against the CSSOM draft spec:
+			// https://drafts.csswg.org/cssom/#resolved-values
+			if ( !support.pixelMarginRight() && rnumnonpx.test( ret ) && rmargin.test( name ) ) {
 	
 				// Remember the original values
-				left = style.left;
-				rs = elem.runtimeStyle;
-				rsLeft = rs && rs.left;
+				width = style.width;
+				minWidth = style.minWidth;
+				maxWidth = style.maxWidth;
 	
 				// Put in the new values to get a computed value out
-				if ( rsLeft ) {
-					rs.left = elem.currentStyle.left;
-				}
-				style.left = name === "fontSize" ? "1em" : ret;
-				ret = style.pixelLeft + "px";
+				style.minWidth = style.maxWidth = style.width = ret;
+				ret = computed.width;
 	
 				// Revert the changed values
-				style.left = left;
-				if ( rsLeft ) {
-					rs.left = rsLeft;
-				}
+				style.width = width;
+				style.minWidth = minWidth;
+				style.maxWidth = maxWidth;
 			}
+		}
 	
-			// Support: IE
+		return ret !== undefined ?
+	
+			// Support: IE <=9 - 11 only
 			// IE returns zIndex value as an integer.
-			return ret === undefined ?
-				ret :
-				ret + "" || "auto";
-		};
+			ret + "" :
+			ret;
 	}
 	
 	
-	
-	
 	function addGetHookIf( conditionFn, hookFn ) {
+	
 		// Define the hook, we'll check on the first run if it's really needed.
 		return {
 			get: function() {
-				var condition = conditionFn();
+				if ( conditionFn() ) {
 	
-				if ( condition == null ) {
-					// The test was not ready at this point; screw the hook this time
-					// but check again when needed next time.
-					return;
-				}
-	
-				if ( condition ) {
-					// Hook not needed (or it's not possible to use it due to missing dependency),
-					// remove it.
-					// Since there are no other hooks for marginRight, remove the whole object.
+					// Hook not needed (or it's not possible to use it due
+					// to missing dependency), remove it.
 					delete this.get;
 					return;
 				}
 	
 				// Hook needed; redefine it so that the support test is not executed again.
-	
-				return (this.get = hookFn).apply( this, arguments );
+				return ( this.get = hookFn ).apply( this, arguments );
 			}
 		};
 	}
 	
 	
-	(function() {
-		// Minified: var b,c,d,e,f,g, h,i
-		var div, style, a, pixelPositionVal, boxSizingReliableVal,
-			reliableHiddenOffsetsVal, reliableMarginRightVal;
-	
-		// Setup
-		div = document.createElement( "div" );
-		div.innerHTML = "  <link/><table></table><a href='/a'>a</a><input type='checkbox'/>";
-		a = div.getElementsByTagName( "a" )[ 0 ];
-		style = a && a.style;
-	
-		// Finish early in limited (non-browser) environments
-		if ( !style ) {
-			return;
-		}
-	
-		style.cssText = "float:left;opacity:.5";
-	
-		// Support: IE<9
-		// Make sure that element opacity exists (as opposed to filter)
-		support.opacity = style.opacity === "0.5";
-	
-		// Verify style float existence
-		// (IE uses styleFloat instead of cssFloat)
-		support.cssFloat = !!style.cssFloat;
-	
-		div.style.backgroundClip = "content-box";
-		div.cloneNode( true ).style.backgroundClip = "";
-		support.clearCloneStyle = div.style.backgroundClip === "content-box";
-	
-		// Support: Firefox<29, Android 2.3
-		// Vendor-prefix box-sizing
-		support.boxSizing = style.boxSizing === "" || style.MozBoxSizing === "" ||
-			style.WebkitBoxSizing === "";
-	
-		jQuery.extend(support, {
-			reliableHiddenOffsets: function() {
-				if ( reliableHiddenOffsetsVal == null ) {
-					computeStyleTests();
-				}
-				return reliableHiddenOffsetsVal;
-			},
-	
-			boxSizingReliable: function() {
-				if ( boxSizingReliableVal == null ) {
-					computeStyleTests();
-				}
-				return boxSizingReliableVal;
-			},
-	
-			pixelPosition: function() {
-				if ( pixelPositionVal == null ) {
-					computeStyleTests();
-				}
-				return pixelPositionVal;
-			},
-	
-			// Support: Android 2.3
-			reliableMarginRight: function() {
-				if ( reliableMarginRightVal == null ) {
-					computeStyleTests();
-				}
-				return reliableMarginRightVal;
-			}
-		});
-	
-		function computeStyleTests() {
-			// Minified: var b,c,d,j
-			var div, body, container, contents;
-	
-			body = document.getElementsByTagName( "body" )[ 0 ];
-			if ( !body || !body.style ) {
-				// Test fired too early or in an unsupported environment, exit.
-				return;
-			}
-	
-			// Setup
-			div = document.createElement( "div" );
-			container = document.createElement( "div" );
-			container.style.cssText = "position:absolute;border:0;width:0;height:0;top:0;left:-9999px";
-			body.appendChild( container ).appendChild( div );
-	
-			div.style.cssText =
-				// Support: Firefox<29, Android 2.3
-				// Vendor-prefix box-sizing
-				"-webkit-box-sizing:border-box;-moz-box-sizing:border-box;" +
-				"box-sizing:border-box;display:block;margin-top:1%;top:1%;" +
-				"border:1px;padding:1px;width:4px;position:absolute";
-	
-			// Support: IE<9
-			// Assume reasonable values in the absence of getComputedStyle
-			pixelPositionVal = boxSizingReliableVal = false;
-			reliableMarginRightVal = true;
-	
-			// Check for getComputedStyle so that this code is not run in IE<9.
-			if ( window.getComputedStyle ) {
-				pixelPositionVal = ( window.getComputedStyle( div, null ) || {} ).top !== "1%";
-				boxSizingReliableVal =
-					( window.getComputedStyle( div, null ) || { width: "4px" } ).width === "4px";
-	
-				// Support: Android 2.3
-				// Div with explicit width and no margin-right incorrectly
-				// gets computed margin-right based on width of container (#3333)
-				// WebKit Bug 13343 - getComputedStyle returns wrong value for margin-right
-				contents = div.appendChild( document.createElement( "div" ) );
-	
-				// Reset CSS: box-sizing; display; margin; border; padding
-				contents.style.cssText = div.style.cssText =
-					// Support: Firefox<29, Android 2.3
-					// Vendor-prefix box-sizing
-					"-webkit-box-sizing:content-box;-moz-box-sizing:content-box;" +
-					"box-sizing:content-box;display:block;margin:0;border:0;padding:0";
-				contents.style.marginRight = contents.style.width = "0";
-				div.style.width = "1px";
-	
-				reliableMarginRightVal =
-					!parseFloat( ( window.getComputedStyle( contents, null ) || {} ).marginRight );
-	
-				div.removeChild( contents );
-			}
-	
-			// Support: IE8
-			// Check if table cells still have offsetWidth/Height when they are set
-			// to display:none and there are still other visible table cells in a
-			// table row; if so, offsetWidth/Height are not reliable for use when
-			// determining if an element has been hidden directly using
-			// display:none (it is still safe to use offsets if a parent element is
-			// hidden; don safety goggles and see bug #4512 for more information).
-			div.innerHTML = "<table><tr><td></td><td>t</td></tr></table>";
-			contents = div.getElementsByTagName( "td" );
-			contents[ 0 ].style.cssText = "margin:0;border:0;padding:0;display:none";
-			reliableHiddenOffsetsVal = contents[ 0 ].offsetHeight === 0;
-			if ( reliableHiddenOffsetsVal ) {
-				contents[ 0 ].style.display = "";
-				contents[ 1 ].style.display = "none";
-				reliableHiddenOffsetsVal = contents[ 0 ].offsetHeight === 0;
-			}
-	
-			body.removeChild( container );
-		}
-	
-	})();
-	
-	
-	// A method for quickly swapping in/out CSS properties to get correct calculations.
-	jQuery.swap = function( elem, options, callback, args ) {
-		var ret, name,
-			old = {};
-	
-		// Remember the old values, and insert the new ones
-		for ( name in options ) {
-			old[ name ] = elem.style[ name ];
-			elem.style[ name ] = options[ name ];
-		}
-	
-		ret = callback.apply( elem, args || [] );
-	
-		// Revert the old values
-		for ( name in options ) {
-			elem.style[ name ] = old[ name ];
-		}
-	
-		return ret;
-	};
-	
-	
 	var
-			ralpha = /alpha\([^)]*\)/i,
-		ropacity = /opacity\s*=\s*([^)]*)/,
 	
-		// swappable if display is none or starts with table except "table", "table-cell", or "table-caption"
-		// see here for display values: https://developer.mozilla.org/en-US/docs/CSS/display
+		// Swappable if display is none or starts with table
+		// except "table", "table-cell", or "table-caption"
+		// See here for display values: https://developer.mozilla.org/en-US/docs/CSS/display
 		rdisplayswap = /^(none|table(?!-c[ea]).+)/,
-		rnumsplit = new RegExp( "^(" + pnum + ")(.*)$", "i" ),
-		rrelNum = new RegExp( "^([+-])=(" + pnum + ")", "i" ),
-	
 		cssShow = { position: "absolute", visibility: "hidden", display: "block" },
 		cssNormalTransform = {
 			letterSpacing: "0",
 			fontWeight: "400"
 		},
 	
-		cssPrefixes = [ "Webkit", "O", "Moz", "ms" ];
+		cssPrefixes = [ "Webkit", "Moz", "ms" ],
+		emptyStyle = document.createElement( "div" ).style;
 	
+	// Return a css property mapped to a potentially vendor prefixed property
+	function vendorPropName( name ) {
 	
-	// return a css property mapped to a potentially vendor prefixed property
-	function vendorPropName( style, name ) {
-	
-		// shortcut for names that are not vendor prefixed
-		if ( name in style ) {
+		// Shortcut for names that are not vendor prefixed
+		if ( name in emptyStyle ) {
 			return name;
 		}
 	
-		// check for vendor prefixed names
-		var capName = name.charAt(0).toUpperCase() + name.slice(1),
-			origName = name,
+		// Check for vendor prefixed names
+		var capName = name[ 0 ].toUpperCase() + name.slice( 1 ),
 			i = cssPrefixes.length;
 	
 		while ( i-- ) {
 			name = cssPrefixes[ i ] + capName;
-			if ( name in style ) {
+			if ( name in emptyStyle ) {
 				return name;
 			}
 		}
-	
-		return origName;
-	}
-	
-	function showHide( elements, show ) {
-		var display, elem, hidden,
-			values = [],
-			index = 0,
-			length = elements.length;
-	
-		for ( ; index < length; index++ ) {
-			elem = elements[ index ];
-			if ( !elem.style ) {
-				continue;
-			}
-	
-			values[ index ] = jQuery._data( elem, "olddisplay" );
-			display = elem.style.display;
-			if ( show ) {
-				// Reset the inline display of this element to learn if it is
-				// being hidden by cascaded rules or not
-				if ( !values[ index ] && display === "none" ) {
-					elem.style.display = "";
-				}
-	
-				// Set elements which have been overridden with display: none
-				// in a stylesheet to whatever the default browser style is
-				// for such an element
-				if ( elem.style.display === "" && isHidden( elem ) ) {
-					values[ index ] = jQuery._data( elem, "olddisplay", defaultDisplay(elem.nodeName) );
-				}
-			} else {
-				hidden = isHidden( elem );
-	
-				if ( display && display !== "none" || !hidden ) {
-					jQuery._data( elem, "olddisplay", hidden ? display : jQuery.css( elem, "display" ) );
-				}
-			}
-		}
-	
-		// Set the display of most of the elements in a second loop
-		// to avoid the constant reflow
-		for ( index = 0; index < length; index++ ) {
-			elem = elements[ index ];
-			if ( !elem.style ) {
-				continue;
-			}
-			if ( !show || elem.style.display === "none" || elem.style.display === "" ) {
-				elem.style.display = show ? values[ index ] || "" : "none";
-			}
-		}
-	
-		return elements;
 	}
 	
 	function setPositiveNumber( elem, value, subtract ) {
-		var matches = rnumsplit.exec( value );
+	
+		// Any relative (+/-) values have already been
+		// normalized at this point
+		var matches = rcssNum.exec( value );
 		return matches ?
+	
 			// Guard against undefined "subtract", e.g., when used as in cssHooks
-			Math.max( 0, matches[ 1 ] - ( subtract || 0 ) ) + ( matches[ 2 ] || "px" ) :
+			Math.max( 0, matches[ 2 ] - ( subtract || 0 ) ) + ( matches[ 3 ] || "px" ) :
 			value;
 	}
 	
 	function augmentWidthOrHeight( elem, name, extra, isBorderBox, styles ) {
-		var i = extra === ( isBorderBox ? "border" : "content" ) ?
-			// If we already have the right measurement, avoid augmentation
-			4 :
-			// Otherwise initialize for horizontal or vertical properties
-			name === "width" ? 1 : 0,
-	
+		var i,
 			val = 0;
 	
+		// If we already have the right measurement, avoid augmentation
+		if ( extra === ( isBorderBox ? "border" : "content" ) ) {
+			i = 4;
+	
+		// Otherwise initialize for horizontal or vertical properties
+		} else {
+			i = name === "width" ? 1 : 0;
+		}
+	
 		for ( ; i < 4; i += 2 ) {
-			// both box models exclude margin, so add it if we want it
+	
+			// Both box models exclude margin, so add it if we want it
 			if ( extra === "margin" ) {
 				val += jQuery.css( elem, extra + cssExpand[ i ], true, styles );
 			}
 	
 			if ( isBorderBox ) {
+	
 				// border-box includes padding, so remove it if we want content
 				if ( extra === "content" ) {
 					val -= jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
 				}
 	
-				// at this point, extra isn't border nor margin, so remove border
+				// At this point, extra isn't border nor margin, so remove border
 				if ( extra !== "margin" ) {
 					val -= jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
 				}
 			} else {
-				// at this point, extra isn't content, so add padding
+	
+				// At this point, extra isn't content, so add padding
 				val += jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
 	
-				// at this point, extra isn't content nor padding, so add border
+				// At this point, extra isn't content nor padding, so add border
 				if ( extra !== "padding" ) {
 					val += jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
 				}
@@ -28825,15 +28656,23 @@
 	function getWidthOrHeight( elem, name, extra ) {
 	
 		// Start with offset property, which is equivalent to the border-box value
-		var valueIsBorderBox = true,
-			val = name === "width" ? elem.offsetWidth : elem.offsetHeight,
+		var val,
+			valueIsBorderBox = true,
 			styles = getStyles( elem ),
-			isBorderBox = support.boxSizing && jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
+			isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
 	
-		// some non-html elements return undefined for offsetWidth, so check for null/undefined
+		// Support: IE <=11 only
+		// Running getBoundingClientRect on a disconnected node
+		// in IE throws an error.
+		if ( elem.getClientRects().length ) {
+			val = elem.getBoundingClientRect()[ name ];
+		}
+	
+		// Some non-html elements return undefined for offsetWidth, so check for null/undefined
 		// svg - https://bugzilla.mozilla.org/show_bug.cgi?id=649285
 		// MathML - https://bugzilla.mozilla.org/show_bug.cgi?id=491668
 		if ( val <= 0 || val == null ) {
+	
 			// Fall back to computed then uncomputed css if necessary
 			val = curCSS( elem, name, styles );
 			if ( val < 0 || val == null ) {
@@ -28841,19 +28680,20 @@
 			}
 	
 			// Computed unit is not pixels. Stop here and return.
-			if ( rnumnonpx.test(val) ) {
+			if ( rnumnonpx.test( val ) ) {
 				return val;
 			}
 	
-			// we need the check for style in case a browser which returns unreliable values
+			// Check for style in case a browser which returns unreliable values
 			// for getComputedStyle silently falls back to the reliable elem.style
-			valueIsBorderBox = isBorderBox && ( support.boxSizingReliable() || val === elem.style[ name ] );
+			valueIsBorderBox = isBorderBox &&
+				( support.boxSizingReliable() || val === elem.style[ name ] );
 	
 			// Normalize "", auto, and prepare for extra
 			val = parseFloat( val ) || 0;
 		}
 	
-		// use the active box-sizing model to add/subtract irrelevant styles
+		// Use the active box-sizing model to add/subtract irrelevant styles
 		return ( val +
 			augmentWidthOrHeight(
 				elem,
@@ -28865,13 +28705,15 @@
 		) + "px";
 	}
 	
-	jQuery.extend({
+	jQuery.extend( {
+	
 		// Add in style property hooks for overriding the default
 		// behavior of getting and setting a style property
 		cssHooks: {
 			opacity: {
 				get: function( elem, computed ) {
 					if ( computed ) {
+	
 						// We should always get a number back from opacity
 						var ret = curCSS( elem, "opacity" );
 						return ret === "" ? "1" : ret;
@@ -28882,6 +28724,7 @@
 	
 		// Don't automatically add "px" to these possibly-unitless properties
 		cssNumber: {
+			"animationIterationCount": true,
 			"columnCount": true,
 			"fillOpacity": true,
 			"flexGrow": true,
@@ -28899,12 +28742,12 @@
 		// Add in properties whose names you wish to fix before
 		// setting or getting the value
 		cssProps: {
-			// normalize float css property
-			"float": support.cssFloat ? "cssFloat" : "styleFloat"
+			"float": "cssFloat"
 		},
 	
 		// Get and set the style property on a DOM Node
 		style: function( elem, name, value, extra ) {
+	
 			// Don't set styles on text and comment nodes
 			if ( !elem || elem.nodeType === 3 || elem.nodeType === 8 || !elem.style ) {
 				return;
@@ -28915,52 +28758,52 @@
 				origName = jQuery.camelCase( name ),
 				style = elem.style;
 	
-			name = jQuery.cssProps[ origName ] || ( jQuery.cssProps[ origName ] = vendorPropName( style, origName ) );
+			name = jQuery.cssProps[ origName ] ||
+				( jQuery.cssProps[ origName ] = vendorPropName( origName ) || origName );
 	
-			// gets hook for the prefixed version
-			// followed by the unprefixed version
+			// Gets hook for the prefixed version, then unprefixed version
 			hooks = jQuery.cssHooks[ name ] || jQuery.cssHooks[ origName ];
 	
 			// Check if we're setting a value
 			if ( value !== undefined ) {
 				type = typeof value;
 	
-				// convert relative number strings (+= or -=) to relative numbers. #7345
-				if ( type === "string" && (ret = rrelNum.exec( value )) ) {
-					value = ( ret[1] + 1 ) * ret[2] + parseFloat( jQuery.css( elem, name ) );
+				// Convert "+=" or "-=" to relative numbers (#7345)
+				if ( type === "string" && ( ret = rcssNum.exec( value ) ) && ret[ 1 ] ) {
+					value = adjustCSS( elem, name, ret );
+	
 					// Fixes bug #9237
 					type = "number";
 				}
 	
-				// Make sure that null and NaN values aren't set. See: #7116
+				// Make sure that null and NaN values aren't set (#7116)
 				if ( value == null || value !== value ) {
 					return;
 				}
 	
-				// If a number was passed in, add 'px' to the (except for certain CSS properties)
-				if ( type === "number" && !jQuery.cssNumber[ origName ] ) {
-					value += "px";
+				// If a number was passed in, add the unit (except for certain CSS properties)
+				if ( type === "number" ) {
+					value += ret && ret[ 3 ] || ( jQuery.cssNumber[ origName ] ? "" : "px" );
 				}
 	
-				// Fixes #8908, it can be done more correctly by specifing setters in cssHooks,
-				// but it would mean to define eight (for every problematic property) identical functions
-				if ( !support.clearCloneStyle && value === "" && name.indexOf("background") === 0 ) {
+				// background-* props affect original clone's values
+				if ( !support.clearCloneStyle && value === "" && name.indexOf( "background" ) === 0 ) {
 					style[ name ] = "inherit";
 				}
 	
 				// If a hook was provided, use that value, otherwise just set the specified value
-				if ( !hooks || !("set" in hooks) || (value = hooks.set( elem, value, extra )) !== undefined ) {
+				if ( !hooks || !( "set" in hooks ) ||
+					( value = hooks.set( elem, value, extra ) ) !== undefined ) {
 	
-					// Support: IE
-					// Swallow errors from 'invalid' CSS values (#5509)
-					try {
-						style[ name ] = value;
-					} catch(e) {}
+					style[ name ] = value;
 				}
 	
 			} else {
+	
 				// If a hook was provided get the non-computed value from there
-				if ( hooks && "get" in hooks && (ret = hooks.get( elem, false, extra )) !== undefined ) {
+				if ( hooks && "get" in hooks &&
+					( ret = hooks.get( elem, false, extra ) ) !== undefined ) {
+	
 					return ret;
 				}
 	
@@ -28970,14 +28813,14 @@
 		},
 	
 		css: function( elem, name, extra, styles ) {
-			var num, val, hooks,
+			var val, num, hooks,
 				origName = jQuery.camelCase( name );
 	
 			// Make sure that we're working with the right name
-			name = jQuery.cssProps[ origName ] || ( jQuery.cssProps[ origName ] = vendorPropName( elem.style, origName ) );
+			name = jQuery.cssProps[ origName ] ||
+				( jQuery.cssProps[ origName ] = vendorPropName( origName ) || origName );
 	
-			// gets hook for the prefixed version
-			// followed by the unprefixed version
+			// Try prefixed name followed by the unprefixed name
 			hooks = jQuery.cssHooks[ name ] || jQuery.cssHooks[ origName ];
 	
 			// If a hook was provided get the computed value from there
@@ -28990,106 +28833,82 @@
 				val = curCSS( elem, name, styles );
 			}
 	
-			//convert "normal" to computed value
+			// Convert "normal" to computed value
 			if ( val === "normal" && name in cssNormalTransform ) {
 				val = cssNormalTransform[ name ];
 			}
 	
-			// Return, converting to number if forced or a qualifier was provided and val looks numeric
+			// Make numeric if forced or a qualifier was provided and val looks numeric
 			if ( extra === "" || extra ) {
 				num = parseFloat( val );
-				return extra === true || jQuery.isNumeric( num ) ? num || 0 : val;
+				return extra === true || isFinite( num ) ? num || 0 : val;
 			}
 			return val;
 		}
-	});
+	} );
 	
-	jQuery.each([ "height", "width" ], function( i, name ) {
+	jQuery.each( [ "height", "width" ], function( i, name ) {
 		jQuery.cssHooks[ name ] = {
 			get: function( elem, computed, extra ) {
 				if ( computed ) {
-					// certain elements can have dimension info if we invisibly show them
-					// however, it must have a current display style that would benefit from this
-					return rdisplayswap.test( jQuery.css( elem, "display" ) ) && elem.offsetWidth === 0 ?
-						jQuery.swap( elem, cssShow, function() {
-							return getWidthOrHeight( elem, name, extra );
-						}) :
-						getWidthOrHeight( elem, name, extra );
+	
+					// Certain elements can have dimension info if we invisibly show them
+					// but it must have a current display style that would benefit
+					return rdisplayswap.test( jQuery.css( elem, "display" ) ) &&
+	
+						// Support: Safari 8+
+						// Table columns in Safari have non-zero offsetWidth & zero
+						// getBoundingClientRect().width unless display is changed.
+						// Support: IE <=11 only
+						// Running getBoundingClientRect on a disconnected node
+						// in IE throws an error.
+						( !elem.getClientRects().length || !elem.getBoundingClientRect().width ) ?
+							swap( elem, cssShow, function() {
+								return getWidthOrHeight( elem, name, extra );
+							} ) :
+							getWidthOrHeight( elem, name, extra );
 				}
 			},
 	
 			set: function( elem, value, extra ) {
-				var styles = extra && getStyles( elem );
-				return setPositiveNumber( elem, value, extra ?
-					augmentWidthOrHeight(
+				var matches,
+					styles = extra && getStyles( elem ),
+					subtract = extra && augmentWidthOrHeight(
 						elem,
 						name,
 						extra,
-						support.boxSizing && jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
+						jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
 						styles
-					) : 0
-				);
-			}
-		};
-	});
+					);
 	
-	if ( !support.opacity ) {
-		jQuery.cssHooks.opacity = {
-			get: function( elem, computed ) {
-				// IE uses filters for opacity
-				return ropacity.test( (computed && elem.currentStyle ? elem.currentStyle.filter : elem.style.filter) || "" ) ?
-					( 0.01 * parseFloat( RegExp.$1 ) ) + "" :
-					computed ? "1" : "";
-			},
+				// Convert to pixels if value adjustment is needed
+				if ( subtract && ( matches = rcssNum.exec( value ) ) &&
+					( matches[ 3 ] || "px" ) !== "px" ) {
 	
-			set: function( elem, value ) {
-				var style = elem.style,
-					currentStyle = elem.currentStyle,
-					opacity = jQuery.isNumeric( value ) ? "alpha(opacity=" + value * 100 + ")" : "",
-					filter = currentStyle && currentStyle.filter || style.filter || "";
-	
-				// IE has trouble with opacity if it does not have layout
-				// Force it by setting the zoom level
-				style.zoom = 1;
-	
-				// if setting opacity to 1, and no other filters exist - attempt to remove filter attribute #6652
-				// if value === "", then remove inline opacity #12685
-				if ( ( value >= 1 || value === "" ) &&
-						jQuery.trim( filter.replace( ralpha, "" ) ) === "" &&
-						style.removeAttribute ) {
-	
-					// Setting style.filter to null, "" & " " still leave "filter:" in the cssText
-					// if "filter:" is present at all, clearType is disabled, we want to avoid this
-					// style.removeAttribute is IE Only, but so apparently is this code path...
-					style.removeAttribute( "filter" );
-	
-					// if there is no filter style applied in a css rule or unset inline opacity, we are done
-					if ( value === "" || currentStyle && !currentStyle.filter ) {
-						return;
-					}
+					elem.style[ name ] = value;
+					value = jQuery.css( elem, name );
 				}
 	
-				// otherwise, set new filter values
-				style.filter = ralpha.test( filter ) ?
-					filter.replace( ralpha, opacity ) :
-					filter + " " + opacity;
+				return setPositiveNumber( elem, value, subtract );
 			}
 		};
-	}
+	} );
 	
-	jQuery.cssHooks.marginRight = addGetHookIf( support.reliableMarginRight,
+	jQuery.cssHooks.marginLeft = addGetHookIf( support.reliableMarginLeft,
 		function( elem, computed ) {
 			if ( computed ) {
-				// WebKit Bug 13343 - getComputedStyle returns wrong value for margin-right
-				// Work around by temporarily setting element display to inline-block
-				return jQuery.swap( elem, { "display": "inline-block" },
-					curCSS, [ elem, "marginRight" ] );
+				return ( parseFloat( curCSS( elem, "marginLeft" ) ) ||
+					elem.getBoundingClientRect().left -
+						swap( elem, { marginLeft: 0 }, function() {
+							return elem.getBoundingClientRect().left;
+						} )
+					) + "px";
 			}
 		}
 	);
 	
 	// These hooks are used by animate to expand properties
-	jQuery.each({
+	jQuery.each( {
 		margin: "",
 		padding: "",
 		border: "Width"
@@ -29099,8 +28918,8 @@
 				var i = 0,
 					expanded = {},
 	
-					// assumes a single number if not a string
-					parts = typeof value === "string" ? value.split(" ") : [ value ];
+					// Assumes a single number if not a string
+					parts = typeof value === "string" ? value.split( " " ) : [ value ];
 	
 				for ( ; i < 4; i++ ) {
 					expanded[ prefix + cssExpand[ i ] + suffix ] =
@@ -29114,9 +28933,9 @@
 		if ( !rmargin.test( prefix ) ) {
 			jQuery.cssHooks[ prefix + suffix ].set = setPositiveNumber;
 		}
-	});
+	} );
 	
-	jQuery.fn.extend({
+	jQuery.fn.extend( {
 		css: function( name, value ) {
 			return access( this, function( elem, name, value ) {
 				var styles, len,
@@ -29138,27 +28957,8 @@
 					jQuery.style( elem, name, value ) :
 					jQuery.css( elem, name );
 			}, name, value, arguments.length > 1 );
-		},
-		show: function() {
-			return showHide( this, true );
-		},
-		hide: function() {
-			return showHide( this );
-		},
-		toggle: function( state ) {
-			if ( typeof state === "boolean" ) {
-				return state ? this.show() : this.hide();
-			}
-	
-			return this.each(function() {
-				if ( isHidden( this ) ) {
-					jQuery( this ).show();
-				} else {
-					jQuery( this ).hide();
-				}
-			});
 		}
-	});
+	} );
 	
 	
 	function Tween( elem, options, prop, end, easing ) {
@@ -29171,7 +28971,7 @@
 		init: function( elem, options, prop, end, easing, unit ) {
 			this.elem = elem;
 			this.prop = prop;
-			this.easing = easing || "swing";
+			this.easing = easing || jQuery.easing._default;
 			this.options = options;
 			this.start = this.now = this.cur();
 			this.end = end;
@@ -29217,25 +29017,32 @@
 			get: function( tween ) {
 				var result;
 	
-				if ( tween.elem[ tween.prop ] != null &&
-					(!tween.elem.style || tween.elem.style[ tween.prop ] == null) ) {
+				// Use a property on the element directly when it is not a DOM element,
+				// or when there is no matching style property that exists.
+				if ( tween.elem.nodeType !== 1 ||
+					tween.elem[ tween.prop ] != null && tween.elem.style[ tween.prop ] == null ) {
 					return tween.elem[ tween.prop ];
 				}
 	
-				// passing an empty string as a 3rd parameter to .css will automatically
-				// attempt a parseFloat and fallback to a string if the parse fails
-				// so, simple values such as "10px" are parsed to Float.
-				// complex values such as "rotate(1rad)" are returned as is.
+				// Passing an empty string as a 3rd parameter to .css will automatically
+				// attempt a parseFloat and fallback to a string if the parse fails.
+				// Simple values such as "10px" are parsed to Float;
+				// complex values such as "rotate(1rad)" are returned as-is.
 				result = jQuery.css( tween.elem, tween.prop, "" );
+	
 				// Empty strings, null, undefined and "auto" are converted to 0.
 				return !result || result === "auto" ? 0 : result;
 			},
 			set: function( tween ) {
-				// use step hook for back compat - use cssHook if its there - use .style if its
-				// available and use plain properties where available
+	
+				// Use step hook for back compat.
+				// Use cssHook if its there.
+				// Use .style if available and use plain properties where available.
 				if ( jQuery.fx.step[ tween.prop ] ) {
 					jQuery.fx.step[ tween.prop ]( tween );
-				} else if ( tween.elem.style && ( tween.elem.style[ jQuery.cssProps[ tween.prop ] ] != null || jQuery.cssHooks[ tween.prop ] ) ) {
+				} else if ( tween.elem.nodeType === 1 &&
+					( tween.elem.style[ jQuery.cssProps[ tween.prop ] ] != null ||
+						jQuery.cssHooks[ tween.prop ] ) ) {
 					jQuery.style( tween.elem, tween.prop, tween.now + tween.unit );
 				} else {
 					tween.elem[ tween.prop ] = tween.now;
@@ -29244,9 +29051,8 @@
 		}
 	};
 	
-	// Support: IE <=9
+	// Support: IE <=9 only
 	// Panic based approach to setting things on disconnected nodes
-	
 	Tween.propHooks.scrollTop = Tween.propHooks.scrollLeft = {
 		set: function( tween ) {
 			if ( tween.elem.nodeType && tween.elem.parentNode ) {
@@ -29261,12 +29067,13 @@
 		},
 		swing: function( p ) {
 			return 0.5 - Math.cos( p * Math.PI ) / 2;
-		}
+		},
+		_default: "swing"
 	};
 	
 	jQuery.fx = Tween.prototype.init;
 	
-	// Back Compat <1.8 extension point
+	// Back compat <1.8 extension point
 	jQuery.fx.step = {};
 	
 	
@@ -29275,78 +29082,33 @@
 	var
 		fxNow, timerId,
 		rfxtypes = /^(?:toggle|show|hide)$/,
-		rfxnum = new RegExp( "^(?:([+-])=|)(" + pnum + ")([a-z%]*)$", "i" ),
-		rrun = /queueHooks$/,
-		animationPrefilters = [ defaultPrefilter ],
-		tweeners = {
-			"*": [ function( prop, value ) {
-				var tween = this.createTween( prop, value ),
-					target = tween.cur(),
-					parts = rfxnum.exec( value ),
-					unit = parts && parts[ 3 ] || ( jQuery.cssNumber[ prop ] ? "" : "px" ),
+		rrun = /queueHooks$/;
 	
-					// Starting value computation is required for potential unit mismatches
-					start = ( jQuery.cssNumber[ prop ] || unit !== "px" && +target ) &&
-						rfxnum.exec( jQuery.css( tween.elem, prop ) ),
-					scale = 1,
-					maxIterations = 20;
-	
-				if ( start && start[ 3 ] !== unit ) {
-					// Trust units reported by jQuery.css
-					unit = unit || start[ 3 ];
-	
-					// Make sure we update the tween properties later on
-					parts = parts || [];
-	
-					// Iteratively approximate from a nonzero starting point
-					start = +target || 1;
-	
-					do {
-						// If previous iteration zeroed out, double until we get *something*
-						// Use a string for doubling factor so we don't accidentally see scale as unchanged below
-						scale = scale || ".5";
-	
-						// Adjust and apply
-						start = start / scale;
-						jQuery.style( tween.elem, prop, start + unit );
-	
-					// Update scale, tolerating zero or NaN from tween.cur()
-					// And breaking the loop if scale is unchanged or perfect, or if we've just had enough
-					} while ( scale !== (scale = tween.cur() / target) && scale !== 1 && --maxIterations );
-				}
-	
-				// Update tween properties
-				if ( parts ) {
-					start = tween.start = +start || +target || 0;
-					tween.unit = unit;
-					// If a +=/-= token was provided, we're doing a relative animation
-					tween.end = parts[ 1 ] ?
-						start + ( parts[ 1 ] + 1 ) * parts[ 2 ] :
-						+parts[ 2 ];
-				}
-	
-				return tween;
-			} ]
-		};
+	function raf() {
+		if ( timerId ) {
+			window.requestAnimationFrame( raf );
+			jQuery.fx.tick();
+		}
+	}
 	
 	// Animations created synchronously will run synchronously
 	function createFxNow() {
-		setTimeout(function() {
+		window.setTimeout( function() {
 			fxNow = undefined;
-		});
+		} );
 		return ( fxNow = jQuery.now() );
 	}
 	
 	// Generate parameters to create a standard animation
 	function genFx( type, includeWidth ) {
 		var which,
-			attrs = { height: type },
-			i = 0;
+			i = 0,
+			attrs = { height: type };
 	
-		// if we include width, step value is 1 to do all cssExpand values,
-		// if we don't include width, step value is 2 to skip over Left and Right
+		// If we include width, step value is 1 to do all cssExpand values,
+		// otherwise step value is 2 to skip over Left and Right
 		includeWidth = includeWidth ? 1 : 0;
-		for ( ; i < 4 ; i += 2 - includeWidth ) {
+		for ( ; i < 4; i += 2 - includeWidth ) {
 			which = cssExpand[ i ];
 			attrs[ "margin" + which ] = attrs[ "padding" + which ] = type;
 		}
@@ -29360,28 +29122,28 @@
 	
 	function createTween( value, prop, animation ) {
 		var tween,
-			collection = ( tweeners[ prop ] || [] ).concat( tweeners[ "*" ] ),
+			collection = ( Animation.tweeners[ prop ] || [] ).concat( Animation.tweeners[ "*" ] ),
 			index = 0,
 			length = collection.length;
 		for ( ; index < length; index++ ) {
-			if ( (tween = collection[ index ].call( animation, prop, value )) ) {
+			if ( ( tween = collection[ index ].call( animation, prop, value ) ) ) {
 	
-				// we're done with this property
+				// We're done with this property
 				return tween;
 			}
 		}
 	}
 	
 	function defaultPrefilter( elem, props, opts ) {
-		/* jshint validthis: true */
-		var prop, value, toggle, tween, hooks, oldfire, display, checkDisplay,
+		var prop, value, toggle, hooks, oldfire, propTween, restoreDisplay, display,
+			isBox = "width" in props || "height" in props,
 			anim = this,
 			orig = {},
 			style = elem.style,
-			hidden = elem.nodeType && isHidden( elem ),
-			dataShow = jQuery._data( elem, "fxshow" );
+			hidden = elem.nodeType && isHiddenWithinTree( elem ),
+			dataShow = dataPriv.get( elem, "fxshow" );
 	
-		// handle queue: false promises
+		// Queue-skipping animations hijack the fx hooks
 		if ( !opts.queue ) {
 			hooks = jQuery._queueHooks( elem, "fx" );
 			if ( hooks.unqueued == null ) {
@@ -29395,122 +29157,151 @@
 			}
 			hooks.unqueued++;
 	
-			anim.always(function() {
-				// doing this makes sure that the complete handler will be called
-				// before this completes
-				anim.always(function() {
+			anim.always( function() {
+	
+				// Ensure the complete handler is called before this completes
+				anim.always( function() {
 					hooks.unqueued--;
 					if ( !jQuery.queue( elem, "fx" ).length ) {
 						hooks.empty.fire();
 					}
-				});
-			});
+				} );
+			} );
 		}
 	
-		// height/width overflow pass
-		if ( elem.nodeType === 1 && ( "height" in props || "width" in props ) ) {
-			// Make sure that nothing sneaks out
-			// Record all 3 overflow attributes because IE does not
-			// change the overflow attribute when overflowX and
-			// overflowY are set to the same value
+		// Detect show/hide animations
+		for ( prop in props ) {
+			value = props[ prop ];
+			if ( rfxtypes.test( value ) ) {
+				delete props[ prop ];
+				toggle = toggle || value === "toggle";
+				if ( value === ( hidden ? "hide" : "show" ) ) {
+	
+					// Pretend to be hidden if this is a "show" and
+					// there is still data from a stopped show/hide
+					if ( value === "show" && dataShow && dataShow[ prop ] !== undefined ) {
+						hidden = true;
+	
+					// Ignore all other no-op show/hide data
+					} else {
+						continue;
+					}
+				}
+				orig[ prop ] = dataShow && dataShow[ prop ] || jQuery.style( elem, prop );
+			}
+		}
+	
+		// Bail out if this is a no-op like .hide().hide()
+		propTween = !jQuery.isEmptyObject( props );
+		if ( !propTween && jQuery.isEmptyObject( orig ) ) {
+			return;
+		}
+	
+		// Restrict "overflow" and "display" styles during box animations
+		if ( isBox && elem.nodeType === 1 ) {
+	
+			// Support: IE <=9 - 11, Edge 12 - 13
+			// Record all 3 overflow attributes because IE does not infer the shorthand
+			// from identically-valued overflowX and overflowY
 			opts.overflow = [ style.overflow, style.overflowX, style.overflowY ];
 	
-			// Set display property to inline-block for height/width
-			// animations on inline elements that are having width/height animated
+			// Identify a display type, preferring old show/hide data over the CSS cascade
+			restoreDisplay = dataShow && dataShow.display;
+			if ( restoreDisplay == null ) {
+				restoreDisplay = dataPriv.get( elem, "display" );
+			}
 			display = jQuery.css( elem, "display" );
-	
-			// Test default display if display is currently "none"
-			checkDisplay = display === "none" ?
-				jQuery._data( elem, "olddisplay" ) || defaultDisplay( elem.nodeName ) : display;
-	
-			if ( checkDisplay === "inline" && jQuery.css( elem, "float" ) === "none" ) {
-	
-				// inline-level elements accept inline-block;
-				// block-level elements need to be inline with layout
-				if ( !support.inlineBlockNeedsLayout || defaultDisplay( elem.nodeName ) === "inline" ) {
-					style.display = "inline-block";
+			if ( display === "none" ) {
+				if ( restoreDisplay ) {
+					display = restoreDisplay;
 				} else {
-					style.zoom = 1;
+	
+					// Get nonempty value(s) by temporarily forcing visibility
+					showHide( [ elem ], true );
+					restoreDisplay = elem.style.display || restoreDisplay;
+					display = jQuery.css( elem, "display" );
+					showHide( [ elem ] );
+				}
+			}
+	
+			// Animate inline elements as inline-block
+			if ( display === "inline" || display === "inline-block" && restoreDisplay != null ) {
+				if ( jQuery.css( elem, "float" ) === "none" ) {
+	
+					// Restore the original display value at the end of pure show/hide animations
+					if ( !propTween ) {
+						anim.done( function() {
+							style.display = restoreDisplay;
+						} );
+						if ( restoreDisplay == null ) {
+							display = style.display;
+							restoreDisplay = display === "none" ? "" : display;
+						}
+					}
+					style.display = "inline-block";
 				}
 			}
 		}
 	
 		if ( opts.overflow ) {
 			style.overflow = "hidden";
-			if ( !support.shrinkWrapBlocks() ) {
-				anim.always(function() {
-					style.overflow = opts.overflow[ 0 ];
-					style.overflowX = opts.overflow[ 1 ];
-					style.overflowY = opts.overflow[ 2 ];
-				});
-			}
+			anim.always( function() {
+				style.overflow = opts.overflow[ 0 ];
+				style.overflowX = opts.overflow[ 1 ];
+				style.overflowY = opts.overflow[ 2 ];
+			} );
 		}
 	
-		// show/hide pass
-		for ( prop in props ) {
-			value = props[ prop ];
-			if ( rfxtypes.exec( value ) ) {
-				delete props[ prop ];
-				toggle = toggle || value === "toggle";
-				if ( value === ( hidden ? "hide" : "show" ) ) {
+		// Implement show/hide animations
+		propTween = false;
+		for ( prop in orig ) {
 	
-					// If there is dataShow left over from a stopped hide or show and we are going to proceed with show, we should pretend to be hidden
-					if ( value === "show" && dataShow && dataShow[ prop ] !== undefined ) {
-						hidden = true;
-					} else {
-						continue;
+			// General show/hide setup for this element animation
+			if ( !propTween ) {
+				if ( dataShow ) {
+					if ( "hidden" in dataShow ) {
+						hidden = dataShow.hidden;
 					}
+				} else {
+					dataShow = dataPriv.access( elem, "fxshow", { display: restoreDisplay } );
 				}
-				orig[ prop ] = dataShow && dataShow[ prop ] || jQuery.style( elem, prop );
 	
-			// Any non-fx value stops us from restoring the original display value
-			} else {
-				display = undefined;
-			}
-		}
-	
-		if ( !jQuery.isEmptyObject( orig ) ) {
-			if ( dataShow ) {
-				if ( "hidden" in dataShow ) {
-					hidden = dataShow.hidden;
+				// Store hidden/visible for toggle so `.stop().toggle()` "reverses"
+				if ( toggle ) {
+					dataShow.hidden = !hidden;
 				}
-			} else {
-				dataShow = jQuery._data( elem, "fxshow", {} );
-			}
 	
-			// store state if its toggle - enables .stop().toggle() to "reverse"
-			if ( toggle ) {
-				dataShow.hidden = !hidden;
-			}
-			if ( hidden ) {
-				jQuery( elem ).show();
-			} else {
-				anim.done(function() {
-					jQuery( elem ).hide();
-				});
-			}
-			anim.done(function() {
-				var prop;
-				jQuery._removeData( elem, "fxshow" );
-				for ( prop in orig ) {
-					jQuery.style( elem, prop, orig[ prop ] );
+				// Show elements before animating them
+				if ( hidden ) {
+					showHide( [ elem ], true );
 				}
-			});
-			for ( prop in orig ) {
-				tween = createTween( hidden ? dataShow[ prop ] : 0, prop, anim );
 	
-				if ( !( prop in dataShow ) ) {
-					dataShow[ prop ] = tween.start;
-					if ( hidden ) {
-						tween.end = tween.start;
-						tween.start = prop === "width" || prop === "height" ? 1 : 0;
+				/* eslint-disable no-loop-func */
+	
+				anim.done( function() {
+	
+				/* eslint-enable no-loop-func */
+	
+					// The final step of a "hide" animation is actually hiding the element
+					if ( !hidden ) {
+						showHide( [ elem ] );
 					}
-				}
+					dataPriv.remove( elem, "fxshow" );
+					for ( prop in orig ) {
+						jQuery.style( elem, prop, orig[ prop ] );
+					}
+				} );
 			}
 	
-		// If this is a noop like .hide().hide(), restore an overwritten display value
-		} else if ( (display === "none" ? defaultDisplay( elem.nodeName ) : display) === "inline" ) {
-			style.display = display;
+			// Per-property setup
+			propTween = createTween( hidden ? dataShow[ prop ] : 0, prop, anim );
+			if ( !( prop in dataShow ) ) {
+				dataShow[ prop ] = propTween.start;
+				if ( hidden ) {
+					propTween.end = propTween.start;
+					propTween.start = 0;
+				}
+			}
 		}
 	}
 	
@@ -29537,8 +29328,8 @@
 				value = hooks.expand( value );
 				delete props[ name ];
 	
-				// not quite $.extend, this wont overwrite keys already present.
-				// also - reusing 'index' from above because we have the correct "name"
+				// Not quite $.extend, this won't overwrite existing keys.
+				// Reusing 'index' because we have the correct "name"
 				for ( index in value ) {
 					if ( !( index in props ) ) {
 						props[ index ] = value[ index ];
@@ -29555,28 +29346,31 @@
 		var result,
 			stopped,
 			index = 0,
-			length = animationPrefilters.length,
+			length = Animation.prefilters.length,
 			deferred = jQuery.Deferred().always( function() {
-				// don't match elem in the :animated selector
+	
+				// Don't match elem in the :animated selector
 				delete tick.elem;
-			}),
+			} ),
 			tick = function() {
 				if ( stopped ) {
 					return false;
 				}
 				var currentTime = fxNow || createFxNow(),
 					remaining = Math.max( 0, animation.startTime + animation.duration - currentTime ),
-					// archaic crash bug won't allow us to use 1 - ( 0.5 || 0 ) (#12497)
+	
+					// Support: Android 2.3 only
+					// Archaic crash bug won't allow us to use `1 - ( 0.5 || 0 )` (#12497)
 					temp = remaining / animation.duration || 0,
 					percent = 1 - temp,
 					index = 0,
 					length = animation.tweens.length;
 	
-				for ( ; index < length ; index++ ) {
+				for ( ; index < length; index++ ) {
 					animation.tweens[ index ].run( percent );
 				}
 	
-				deferred.notifyWith( elem, [ animation, percent, remaining ]);
+				deferred.notifyWith( elem, [ animation, percent, remaining ] );
 	
 				if ( percent < 1 && length ) {
 					return remaining;
@@ -29585,10 +29379,13 @@
 					return false;
 				}
 			},
-			animation = deferred.promise({
+			animation = deferred.promise( {
 				elem: elem,
 				props: jQuery.extend( {}, properties ),
-				opts: jQuery.extend( true, { specialEasing: {} }, options ),
+				opts: jQuery.extend( true, {
+					specialEasing: {},
+					easing: jQuery.easing._default
+				}, options ),
 				originalProperties: properties,
 				originalOptions: options,
 				startTime: fxNow || createFxNow(),
@@ -29602,34 +29399,39 @@
 				},
 				stop: function( gotoEnd ) {
 					var index = 0,
-						// if we are going to the end, we want to run all the tweens
+	
+						// If we are going to the end, we want to run all the tweens
 						// otherwise we skip this part
 						length = gotoEnd ? animation.tweens.length : 0;
 					if ( stopped ) {
 						return this;
 					}
 					stopped = true;
-					for ( ; index < length ; index++ ) {
+					for ( ; index < length; index++ ) {
 						animation.tweens[ index ].run( 1 );
 					}
 	
-					// resolve when we played the last frame
-					// otherwise, reject
+					// Resolve when we played the last frame; otherwise, reject
 					if ( gotoEnd ) {
+						deferred.notifyWith( elem, [ animation, 1, 0 ] );
 						deferred.resolveWith( elem, [ animation, gotoEnd ] );
 					} else {
 						deferred.rejectWith( elem, [ animation, gotoEnd ] );
 					}
 					return this;
 				}
-			}),
+			} ),
 			props = animation.props;
 	
 		propFilter( props, animation.opts.specialEasing );
 	
-		for ( ; index < length ; index++ ) {
-			result = animationPrefilters[ index ].call( animation, elem, props, animation.opts );
+		for ( ; index < length; index++ ) {
+			result = Animation.prefilters[ index ].call( animation, elem, props, animation.opts );
 			if ( result ) {
+				if ( jQuery.isFunction( result.stop ) ) {
+					jQuery._queueHooks( animation.elem, animation.opts.queue ).stop =
+						jQuery.proxy( result.stop, result );
+				}
 				return result;
 			}
 		}
@@ -29645,7 +29447,7 @@
 				elem: elem,
 				anim: animation,
 				queue: animation.opts.queue
-			})
+			} )
 		);
 	
 		// attach callbacks from options
@@ -29656,33 +29458,44 @@
 	}
 	
 	jQuery.Animation = jQuery.extend( Animation, {
+	
+		tweeners: {
+			"*": [ function( prop, value ) {
+				var tween = this.createTween( prop, value );
+				adjustCSS( tween.elem, prop, rcssNum.exec( value ), tween );
+				return tween;
+			} ]
+		},
+	
 		tweener: function( props, callback ) {
 			if ( jQuery.isFunction( props ) ) {
 				callback = props;
 				props = [ "*" ];
 			} else {
-				props = props.split(" ");
+				props = props.match( rnothtmlwhite );
 			}
 	
 			var prop,
 				index = 0,
 				length = props.length;
 	
-			for ( ; index < length ; index++ ) {
+			for ( ; index < length; index++ ) {
 				prop = props[ index ];
-				tweeners[ prop ] = tweeners[ prop ] || [];
-				tweeners[ prop ].unshift( callback );
+				Animation.tweeners[ prop ] = Animation.tweeners[ prop ] || [];
+				Animation.tweeners[ prop ].unshift( callback );
 			}
 		},
 	
+		prefilters: [ defaultPrefilter ],
+	
 		prefilter: function( callback, prepend ) {
 			if ( prepend ) {
-				animationPrefilters.unshift( callback );
+				Animation.prefilters.unshift( callback );
 			} else {
-				animationPrefilters.push( callback );
+				Animation.prefilters.push( callback );
 			}
 		}
-	});
+	} );
 	
 	jQuery.speed = function( speed, easing, fn ) {
 		var opt = speed && typeof speed === "object" ? jQuery.extend( {}, speed ) : {
@@ -29692,10 +29505,22 @@
 			easing: fn && easing || easing && !jQuery.isFunction( easing ) && easing
 		};
 	
-		opt.duration = jQuery.fx.off ? 0 : typeof opt.duration === "number" ? opt.duration :
-			opt.duration in jQuery.fx.speeds ? jQuery.fx.speeds[ opt.duration ] : jQuery.fx.speeds._default;
+		// Go to the end state if fx are off or if document is hidden
+		if ( jQuery.fx.off || document.hidden ) {
+			opt.duration = 0;
 	
-		// normalize opt.queue - true/undefined/null -> "fx"
+		} else {
+			if ( typeof opt.duration !== "number" ) {
+				if ( opt.duration in jQuery.fx.speeds ) {
+					opt.duration = jQuery.fx.speeds[ opt.duration ];
+	
+				} else {
+					opt.duration = jQuery.fx.speeds._default;
+				}
+			}
+		}
+	
+		// Normalize opt.queue - true/undefined/null -> "fx"
 		if ( opt.queue == null || opt.queue === true ) {
 			opt.queue = "fx";
 		}
@@ -29716,24 +29541,25 @@
 		return opt;
 	};
 	
-	jQuery.fn.extend({
+	jQuery.fn.extend( {
 		fadeTo: function( speed, to, easing, callback ) {
 	
-			// show any hidden elements after setting opacity to 0
-			return this.filter( isHidden ).css( "opacity", 0 ).show()
+			// Show any hidden elements after setting opacity to 0
+			return this.filter( isHiddenWithinTree ).css( "opacity", 0 ).show()
 	
-				// animate to the value specified
-				.end().animate({ opacity: to }, speed, easing, callback );
+				// Animate to the value specified
+				.end().animate( { opacity: to }, speed, easing, callback );
 		},
 		animate: function( prop, speed, easing, callback ) {
 			var empty = jQuery.isEmptyObject( prop ),
 				optall = jQuery.speed( speed, easing, callback ),
 				doAnimation = function() {
+	
 					// Operate on a copy of prop so per-property easing won't be lost
 					var anim = Animation( this, jQuery.extend( {}, prop ), optall );
 	
 					// Empty animations, or finishing resolves immediately
-					if ( empty || jQuery._data( this, "finish" ) ) {
+					if ( empty || dataPriv.get( this, "finish" ) ) {
 						anim.stop( true );
 					}
 				};
@@ -29759,11 +29585,11 @@
 				this.queue( type || "fx", [] );
 			}
 	
-			return this.each(function() {
+			return this.each( function() {
 				var dequeue = true,
 					index = type != null && type + "queueHooks",
 					timers = jQuery.timers,
-					data = jQuery._data( this );
+					data = dataPriv.get( this );
 	
 				if ( index ) {
 					if ( data[ index ] && data[ index ].stop ) {
@@ -29778,44 +29604,46 @@
 				}
 	
 				for ( index = timers.length; index--; ) {
-					if ( timers[ index ].elem === this && (type == null || timers[ index ].queue === type) ) {
+					if ( timers[ index ].elem === this &&
+						( type == null || timers[ index ].queue === type ) ) {
+	
 						timers[ index ].anim.stop( gotoEnd );
 						dequeue = false;
 						timers.splice( index, 1 );
 					}
 				}
 	
-				// start the next in the queue if the last step wasn't forced
-				// timers currently will call their complete callbacks, which will dequeue
-				// but only if they were gotoEnd
+				// Start the next in the queue if the last step wasn't forced.
+				// Timers currently will call their complete callbacks, which
+				// will dequeue but only if they were gotoEnd.
 				if ( dequeue || !gotoEnd ) {
 					jQuery.dequeue( this, type );
 				}
-			});
+			} );
 		},
 		finish: function( type ) {
 			if ( type !== false ) {
 				type = type || "fx";
 			}
-			return this.each(function() {
+			return this.each( function() {
 				var index,
-					data = jQuery._data( this ),
+					data = dataPriv.get( this ),
 					queue = data[ type + "queue" ],
 					hooks = data[ type + "queueHooks" ],
 					timers = jQuery.timers,
 					length = queue ? queue.length : 0;
 	
-				// enable finishing flag on private data
+				// Enable finishing flag on private data
 				data.finish = true;
 	
-				// empty the queue first
+				// Empty the queue first
 				jQuery.queue( this, type, [] );
 	
 				if ( hooks && hooks.stop ) {
 					hooks.stop.call( this, true );
 				}
 	
-				// look for any active animations, and finish them
+				// Look for any active animations, and finish them
 				for ( index = timers.length; index--; ) {
 					if ( timers[ index ].elem === this && timers[ index ].queue === type ) {
 						timers[ index ].anim.stop( true );
@@ -29823,33 +29651,33 @@
 					}
 				}
 	
-				// look for any animations in the old queue and finish them
+				// Look for any animations in the old queue and finish them
 				for ( index = 0; index < length; index++ ) {
 					if ( queue[ index ] && queue[ index ].finish ) {
 						queue[ index ].finish.call( this );
 					}
 				}
 	
-				// turn off finishing flag
+				// Turn off finishing flag
 				delete data.finish;
-			});
+			} );
 		}
-	});
+	} );
 	
-	jQuery.each([ "toggle", "show", "hide" ], function( i, name ) {
+	jQuery.each( [ "toggle", "show", "hide" ], function( i, name ) {
 		var cssFn = jQuery.fn[ name ];
 		jQuery.fn[ name ] = function( speed, easing, callback ) {
 			return speed == null || typeof speed === "boolean" ?
 				cssFn.apply( this, arguments ) :
 				this.animate( genFx( name, true ), speed, easing, callback );
 		};
-	});
+	} );
 	
 	// Generate shortcuts for custom animations
-	jQuery.each({
-		slideDown: genFx("show"),
-		slideUp: genFx("hide"),
-		slideToggle: genFx("toggle"),
+	jQuery.each( {
+		slideDown: genFx( "show" ),
+		slideUp: genFx( "hide" ),
+		slideToggle: genFx( "toggle" ),
 		fadeIn: { opacity: "show" },
 		fadeOut: { opacity: "hide" },
 		fadeToggle: { opacity: "toggle" }
@@ -29857,18 +29685,19 @@
 		jQuery.fn[ name ] = function( speed, easing, callback ) {
 			return this.animate( props, speed, easing, callback );
 		};
-	});
+	} );
 	
 	jQuery.timers = [];
 	jQuery.fx.tick = function() {
 		var timer,
-			timers = jQuery.timers,
-			i = 0;
+			i = 0,
+			timers = jQuery.timers;
 	
 		fxNow = jQuery.now();
 	
 		for ( ; i < timers.length; i++ ) {
 			timer = timers[ i ];
+	
 			// Checks the timer has not already been removed
 			if ( !timer() && timers[ i ] === timer ) {
 				timers.splice( i--, 1 );
@@ -29891,119 +29720,542 @@
 	};
 	
 	jQuery.fx.interval = 13;
-	
 	jQuery.fx.start = function() {
 		if ( !timerId ) {
-			timerId = setInterval( jQuery.fx.tick, jQuery.fx.interval );
+			timerId = window.requestAnimationFrame ?
+				window.requestAnimationFrame( raf ) :
+				window.setInterval( jQuery.fx.tick, jQuery.fx.interval );
 		}
 	};
 	
 	jQuery.fx.stop = function() {
-		clearInterval( timerId );
+		if ( window.cancelAnimationFrame ) {
+			window.cancelAnimationFrame( timerId );
+		} else {
+			window.clearInterval( timerId );
+		}
+	
 		timerId = null;
 	};
 	
 	jQuery.fx.speeds = {
 		slow: 600,
 		fast: 200,
+	
 		// Default speed
 		_default: 400
 	};
 	
 	
 	// Based off of the plugin by Clint Helfers, with permission.
-	// http://blindsignals.com/index.php/2009/07/jquery-delay/
+	// https://web.archive.org/web/20100324014747/http://blindsignals.com/index.php/2009/07/jquery-delay/
 	jQuery.fn.delay = function( time, type ) {
 		time = jQuery.fx ? jQuery.fx.speeds[ time ] || time : time;
 		type = type || "fx";
 	
 		return this.queue( type, function( next, hooks ) {
-			var timeout = setTimeout( next, time );
+			var timeout = window.setTimeout( next, time );
 			hooks.stop = function() {
-				clearTimeout( timeout );
+				window.clearTimeout( timeout );
 			};
-		});
+		} );
 	};
 	
 	
-	(function() {
-		// Minified: var a,b,c,d,e
-		var input, div, select, a, opt;
+	( function() {
+		var input = document.createElement( "input" ),
+			select = document.createElement( "select" ),
+			opt = select.appendChild( document.createElement( "option" ) );
 	
-		// Setup
-		div = document.createElement( "div" );
-		div.setAttribute( "className", "t" );
-		div.innerHTML = "  <link/><table></table><a href='/a'>a</a><input type='checkbox'/>";
-		a = div.getElementsByTagName("a")[ 0 ];
+		input.type = "checkbox";
 	
-		// First batch of tests.
-		select = document.createElement("select");
-		opt = select.appendChild( document.createElement("option") );
-		input = div.getElementsByTagName("input")[ 0 ];
+		// Support: Android <=4.3 only
+		// Default value for a checkbox should be "on"
+		support.checkOn = input.value !== "";
 	
-		a.style.cssText = "top:1px";
-	
-		// Test setAttribute on camelCase class. If it works, we need attrFixes when doing get/setAttribute (ie6/7)
-		support.getSetAttribute = div.className !== "t";
-	
-		// Get the style information from getAttribute
-		// (IE uses .cssText instead)
-		support.style = /top/.test( a.getAttribute("style") );
-	
-		// Make sure that URLs aren't manipulated
-		// (IE normalizes it by default)
-		support.hrefNormalized = a.getAttribute("href") === "/a";
-	
-		// Check the default checkbox/radio value ("" on WebKit; "on" elsewhere)
-		support.checkOn = !!input.value;
-	
-		// Make sure that a selected-by-default option has a working selected property.
-		// (WebKit defaults to false instead of true, IE too, if it's in an optgroup)
+		// Support: IE <=11 only
+		// Must access selectedIndex to make default options select
 		support.optSelected = opt.selected;
 	
-		// Tests for enctype support on a form (#6743)
-		support.enctype = !!document.createElement("form").enctype;
-	
-		// Make sure that the options inside disabled selects aren't marked as disabled
-		// (WebKit marks them as disabled)
-		select.disabled = true;
-		support.optDisabled = !opt.disabled;
-	
-		// Support: IE8 only
-		// Check if we can trust getAttribute("value")
+		// Support: IE <=11 only
+		// An input loses its value after becoming a radio
 		input = document.createElement( "input" );
-		input.setAttribute( "value", "" );
-		support.input = input.getAttribute( "value" ) === "";
-	
-		// Check if an input maintains its value after becoming a radio
 		input.value = "t";
-		input.setAttribute( "type", "radio" );
+		input.type = "radio";
 		support.radioValue = input.value === "t";
-	})();
+	} )();
+	
+	
+	var boolHook,
+		attrHandle = jQuery.expr.attrHandle;
+	
+	jQuery.fn.extend( {
+		attr: function( name, value ) {
+			return access( this, jQuery.attr, name, value, arguments.length > 1 );
+		},
+	
+		removeAttr: function( name ) {
+			return this.each( function() {
+				jQuery.removeAttr( this, name );
+			} );
+		}
+	} );
+	
+	jQuery.extend( {
+		attr: function( elem, name, value ) {
+			var ret, hooks,
+				nType = elem.nodeType;
+	
+			// Don't get/set attributes on text, comment and attribute nodes
+			if ( nType === 3 || nType === 8 || nType === 2 ) {
+				return;
+			}
+	
+			// Fallback to prop when attributes are not supported
+			if ( typeof elem.getAttribute === "undefined" ) {
+				return jQuery.prop( elem, name, value );
+			}
+	
+			// Attribute hooks are determined by the lowercase version
+			// Grab necessary hook if one is defined
+			if ( nType !== 1 || !jQuery.isXMLDoc( elem ) ) {
+				hooks = jQuery.attrHooks[ name.toLowerCase() ] ||
+					( jQuery.expr.match.bool.test( name ) ? boolHook : undefined );
+			}
+	
+			if ( value !== undefined ) {
+				if ( value === null ) {
+					jQuery.removeAttr( elem, name );
+					return;
+				}
+	
+				if ( hooks && "set" in hooks &&
+					( ret = hooks.set( elem, value, name ) ) !== undefined ) {
+					return ret;
+				}
+	
+				elem.setAttribute( name, value + "" );
+				return value;
+			}
+	
+			if ( hooks && "get" in hooks && ( ret = hooks.get( elem, name ) ) !== null ) {
+				return ret;
+			}
+	
+			ret = jQuery.find.attr( elem, name );
+	
+			// Non-existent attributes return null, we normalize to undefined
+			return ret == null ? undefined : ret;
+		},
+	
+		attrHooks: {
+			type: {
+				set: function( elem, value ) {
+					if ( !support.radioValue && value === "radio" &&
+						jQuery.nodeName( elem, "input" ) ) {
+						var val = elem.value;
+						elem.setAttribute( "type", value );
+						if ( val ) {
+							elem.value = val;
+						}
+						return value;
+					}
+				}
+			}
+		},
+	
+		removeAttr: function( elem, value ) {
+			var name,
+				i = 0,
+	
+				// Attribute names can contain non-HTML whitespace characters
+				// https://html.spec.whatwg.org/multipage/syntax.html#attributes-2
+				attrNames = value && value.match( rnothtmlwhite );
+	
+			if ( attrNames && elem.nodeType === 1 ) {
+				while ( ( name = attrNames[ i++ ] ) ) {
+					elem.removeAttribute( name );
+				}
+			}
+		}
+	} );
+	
+	// Hooks for boolean attributes
+	boolHook = {
+		set: function( elem, value, name ) {
+			if ( value === false ) {
+	
+				// Remove boolean attributes when set to false
+				jQuery.removeAttr( elem, name );
+			} else {
+				elem.setAttribute( name, name );
+			}
+			return name;
+		}
+	};
+	
+	jQuery.each( jQuery.expr.match.bool.source.match( /\w+/g ), function( i, name ) {
+		var getter = attrHandle[ name ] || jQuery.find.attr;
+	
+		attrHandle[ name ] = function( elem, name, isXML ) {
+			var ret, handle,
+				lowercaseName = name.toLowerCase();
+	
+			if ( !isXML ) {
+	
+				// Avoid an infinite loop by temporarily removing this function from the getter
+				handle = attrHandle[ lowercaseName ];
+				attrHandle[ lowercaseName ] = ret;
+				ret = getter( elem, name, isXML ) != null ?
+					lowercaseName :
+					null;
+				attrHandle[ lowercaseName ] = handle;
+			}
+			return ret;
+		};
+	} );
+	
+	
+	
+	
+	var rfocusable = /^(?:input|select|textarea|button)$/i,
+		rclickable = /^(?:a|area)$/i;
+	
+	jQuery.fn.extend( {
+		prop: function( name, value ) {
+			return access( this, jQuery.prop, name, value, arguments.length > 1 );
+		},
+	
+		removeProp: function( name ) {
+			return this.each( function() {
+				delete this[ jQuery.propFix[ name ] || name ];
+			} );
+		}
+	} );
+	
+	jQuery.extend( {
+		prop: function( elem, name, value ) {
+			var ret, hooks,
+				nType = elem.nodeType;
+	
+			// Don't get/set properties on text, comment and attribute nodes
+			if ( nType === 3 || nType === 8 || nType === 2 ) {
+				return;
+			}
+	
+			if ( nType !== 1 || !jQuery.isXMLDoc( elem ) ) {
+	
+				// Fix name and attach hooks
+				name = jQuery.propFix[ name ] || name;
+				hooks = jQuery.propHooks[ name ];
+			}
+	
+			if ( value !== undefined ) {
+				if ( hooks && "set" in hooks &&
+					( ret = hooks.set( elem, value, name ) ) !== undefined ) {
+					return ret;
+				}
+	
+				return ( elem[ name ] = value );
+			}
+	
+			if ( hooks && "get" in hooks && ( ret = hooks.get( elem, name ) ) !== null ) {
+				return ret;
+			}
+	
+			return elem[ name ];
+		},
+	
+		propHooks: {
+			tabIndex: {
+				get: function( elem ) {
+	
+					// Support: IE <=9 - 11 only
+					// elem.tabIndex doesn't always return the
+					// correct value when it hasn't been explicitly set
+					// https://web.archive.org/web/20141116233347/http://fluidproject.org/blog/2008/01/09/getting-setting-and-removing-tabindex-values-with-javascript/
+					// Use proper attribute retrieval(#12072)
+					var tabindex = jQuery.find.attr( elem, "tabindex" );
+	
+					if ( tabindex ) {
+						return parseInt( tabindex, 10 );
+					}
+	
+					if (
+						rfocusable.test( elem.nodeName ) ||
+						rclickable.test( elem.nodeName ) &&
+						elem.href
+					) {
+						return 0;
+					}
+	
+					return -1;
+				}
+			}
+		},
+	
+		propFix: {
+			"for": "htmlFor",
+			"class": "className"
+		}
+	} );
+	
+	// Support: IE <=11 only
+	// Accessing the selectedIndex property
+	// forces the browser to respect setting selected
+	// on the option
+	// The getter ensures a default option is selected
+	// when in an optgroup
+	// eslint rule "no-unused-expressions" is disabled for this code
+	// since it considers such accessions noop
+	if ( !support.optSelected ) {
+		jQuery.propHooks.selected = {
+			get: function( elem ) {
+	
+				/* eslint no-unused-expressions: "off" */
+	
+				var parent = elem.parentNode;
+				if ( parent && parent.parentNode ) {
+					parent.parentNode.selectedIndex;
+				}
+				return null;
+			},
+			set: function( elem ) {
+	
+				/* eslint no-unused-expressions: "off" */
+	
+				var parent = elem.parentNode;
+				if ( parent ) {
+					parent.selectedIndex;
+	
+					if ( parent.parentNode ) {
+						parent.parentNode.selectedIndex;
+					}
+				}
+			}
+		};
+	}
+	
+	jQuery.each( [
+		"tabIndex",
+		"readOnly",
+		"maxLength",
+		"cellSpacing",
+		"cellPadding",
+		"rowSpan",
+		"colSpan",
+		"useMap",
+		"frameBorder",
+		"contentEditable"
+	], function() {
+		jQuery.propFix[ this.toLowerCase() ] = this;
+	} );
+	
+	
+	
+	
+		// Strip and collapse whitespace according to HTML spec
+		// https://html.spec.whatwg.org/multipage/infrastructure.html#strip-and-collapse-whitespace
+		function stripAndCollapse( value ) {
+			var tokens = value.match( rnothtmlwhite ) || [];
+			return tokens.join( " " );
+		}
+	
+	
+	function getClass( elem ) {
+		return elem.getAttribute && elem.getAttribute( "class" ) || "";
+	}
+	
+	jQuery.fn.extend( {
+		addClass: function( value ) {
+			var classes, elem, cur, curValue, clazz, j, finalValue,
+				i = 0;
+	
+			if ( jQuery.isFunction( value ) ) {
+				return this.each( function( j ) {
+					jQuery( this ).addClass( value.call( this, j, getClass( this ) ) );
+				} );
+			}
+	
+			if ( typeof value === "string" && value ) {
+				classes = value.match( rnothtmlwhite ) || [];
+	
+				while ( ( elem = this[ i++ ] ) ) {
+					curValue = getClass( elem );
+					cur = elem.nodeType === 1 && ( " " + stripAndCollapse( curValue ) + " " );
+	
+					if ( cur ) {
+						j = 0;
+						while ( ( clazz = classes[ j++ ] ) ) {
+							if ( cur.indexOf( " " + clazz + " " ) < 0 ) {
+								cur += clazz + " ";
+							}
+						}
+	
+						// Only assign if different to avoid unneeded rendering.
+						finalValue = stripAndCollapse( cur );
+						if ( curValue !== finalValue ) {
+							elem.setAttribute( "class", finalValue );
+						}
+					}
+				}
+			}
+	
+			return this;
+		},
+	
+		removeClass: function( value ) {
+			var classes, elem, cur, curValue, clazz, j, finalValue,
+				i = 0;
+	
+			if ( jQuery.isFunction( value ) ) {
+				return this.each( function( j ) {
+					jQuery( this ).removeClass( value.call( this, j, getClass( this ) ) );
+				} );
+			}
+	
+			if ( !arguments.length ) {
+				return this.attr( "class", "" );
+			}
+	
+			if ( typeof value === "string" && value ) {
+				classes = value.match( rnothtmlwhite ) || [];
+	
+				while ( ( elem = this[ i++ ] ) ) {
+					curValue = getClass( elem );
+	
+					// This expression is here for better compressibility (see addClass)
+					cur = elem.nodeType === 1 && ( " " + stripAndCollapse( curValue ) + " " );
+	
+					if ( cur ) {
+						j = 0;
+						while ( ( clazz = classes[ j++ ] ) ) {
+	
+							// Remove *all* instances
+							while ( cur.indexOf( " " + clazz + " " ) > -1 ) {
+								cur = cur.replace( " " + clazz + " ", " " );
+							}
+						}
+	
+						// Only assign if different to avoid unneeded rendering.
+						finalValue = stripAndCollapse( cur );
+						if ( curValue !== finalValue ) {
+							elem.setAttribute( "class", finalValue );
+						}
+					}
+				}
+			}
+	
+			return this;
+		},
+	
+		toggleClass: function( value, stateVal ) {
+			var type = typeof value;
+	
+			if ( typeof stateVal === "boolean" && type === "string" ) {
+				return stateVal ? this.addClass( value ) : this.removeClass( value );
+			}
+	
+			if ( jQuery.isFunction( value ) ) {
+				return this.each( function( i ) {
+					jQuery( this ).toggleClass(
+						value.call( this, i, getClass( this ), stateVal ),
+						stateVal
+					);
+				} );
+			}
+	
+			return this.each( function() {
+				var className, i, self, classNames;
+	
+				if ( type === "string" ) {
+	
+					// Toggle individual class names
+					i = 0;
+					self = jQuery( this );
+					classNames = value.match( rnothtmlwhite ) || [];
+	
+					while ( ( className = classNames[ i++ ] ) ) {
+	
+						// Check each className given, space separated list
+						if ( self.hasClass( className ) ) {
+							self.removeClass( className );
+						} else {
+							self.addClass( className );
+						}
+					}
+	
+				// Toggle whole class name
+				} else if ( value === undefined || type === "boolean" ) {
+					className = getClass( this );
+					if ( className ) {
+	
+						// Store className if set
+						dataPriv.set( this, "__className__", className );
+					}
+	
+					// If the element has a class name or if we're passed `false`,
+					// then remove the whole classname (if there was one, the above saved it).
+					// Otherwise bring back whatever was previously saved (if anything),
+					// falling back to the empty string if nothing was stored.
+					if ( this.setAttribute ) {
+						this.setAttribute( "class",
+							className || value === false ?
+							"" :
+							dataPriv.get( this, "__className__" ) || ""
+						);
+					}
+				}
+			} );
+		},
+	
+		hasClass: function( selector ) {
+			var className, elem,
+				i = 0;
+	
+			className = " " + selector + " ";
+			while ( ( elem = this[ i++ ] ) ) {
+				if ( elem.nodeType === 1 &&
+					( " " + stripAndCollapse( getClass( elem ) ) + " " ).indexOf( className ) > -1 ) {
+						return true;
+				}
+			}
+	
+			return false;
+		}
+	} );
+	
+	
 	
 	
 	var rreturn = /\r/g;
 	
-	jQuery.fn.extend({
+	jQuery.fn.extend( {
 		val: function( value ) {
 			var hooks, ret, isFunction,
-				elem = this[0];
+				elem = this[ 0 ];
 	
 			if ( !arguments.length ) {
 				if ( elem ) {
-					hooks = jQuery.valHooks[ elem.type ] || jQuery.valHooks[ elem.nodeName.toLowerCase() ];
+					hooks = jQuery.valHooks[ elem.type ] ||
+						jQuery.valHooks[ elem.nodeName.toLowerCase() ];
 	
-					if ( hooks && "get" in hooks && (ret = hooks.get( elem, "value" )) !== undefined ) {
+					if ( hooks &&
+						"get" in hooks &&
+						( ret = hooks.get( elem, "value" ) ) !== undefined
+					) {
 						return ret;
 					}
 	
 					ret = elem.value;
 	
-					return typeof ret === "string" ?
-						// handle most common string cases
-						ret.replace(rreturn, "") :
-						// handle cases where value is null/undef or number
-						ret == null ? "" : ret;
+					// Handle most common string cases
+					if ( typeof ret === "string" ) {
+						return ret.replace( rreturn, "" );
+					}
+	
+					// Handle cases where value is null/undef or number
+					return ret == null ? "" : ret;
 				}
 	
 				return;
@@ -30011,7 +30263,7 @@
 	
 			isFunction = jQuery.isFunction( value );
 	
-			return this.each(function( i ) {
+			return this.each( function( i ) {
 				var val;
 	
 				if ( this.nodeType !== 1 ) {
@@ -30027,57 +30279,70 @@
 				// Treat null/undefined as ""; convert numbers to string
 				if ( val == null ) {
 					val = "";
+	
 				} else if ( typeof val === "number" ) {
 					val += "";
+	
 				} else if ( jQuery.isArray( val ) ) {
 					val = jQuery.map( val, function( value ) {
 						return value == null ? "" : value + "";
-					});
+					} );
 				}
 	
 				hooks = jQuery.valHooks[ this.type ] || jQuery.valHooks[ this.nodeName.toLowerCase() ];
 	
 				// If set returns undefined, fall back to normal setting
-				if ( !hooks || !("set" in hooks) || hooks.set( this, val, "value" ) === undefined ) {
+				if ( !hooks || !( "set" in hooks ) || hooks.set( this, val, "value" ) === undefined ) {
 					this.value = val;
 				}
-			});
+			} );
 		}
-	});
+	} );
 	
-	jQuery.extend({
+	jQuery.extend( {
 		valHooks: {
 			option: {
 				get: function( elem ) {
+	
 					var val = jQuery.find.attr( elem, "value" );
 					return val != null ?
 						val :
-						// Support: IE10-11+
+	
+						// Support: IE <=10 - 11 only
 						// option.text throws exceptions (#14686, #14858)
-						jQuery.trim( jQuery.text( elem ) );
+						// Strip and collapse whitespace
+						// https://html.spec.whatwg.org/#strip-and-collapse-whitespace
+						stripAndCollapse( jQuery.text( elem ) );
 				}
 			},
 			select: {
 				get: function( elem ) {
-					var value, option,
+					var value, option, i,
 						options = elem.options,
 						index = elem.selectedIndex,
-						one = elem.type === "select-one" || index < 0,
+						one = elem.type === "select-one",
 						values = one ? null : [],
-						max = one ? index + 1 : options.length,
-						i = index < 0 ?
-							max :
-							one ? index : 0;
+						max = one ? index + 1 : options.length;
+	
+					if ( index < 0 ) {
+						i = max;
+	
+					} else {
+						i = one ? index : 0;
+					}
 	
 					// Loop through all the selected options
 					for ( ; i < max; i++ ) {
 						option = options[ i ];
 	
-						// oldIE doesn't update selected after form reset (#2551)
+						// Support: IE <=9 only
+						// IE8-9 doesn't update selected after form reset (#2551)
 						if ( ( option.selected || i === index ) &&
+	
 								// Don't return options that are disabled or in a disabled optgroup
-								( support.optDisabled ? !option.disabled : option.getAttribute("disabled") === null ) &&
-								( !option.parentNode.disabled || !jQuery.nodeName( option.parentNode, "optgroup" ) ) ) {
+								!option.disabled &&
+								( !option.parentNode.disabled ||
+									!jQuery.nodeName( option.parentNode, "optgroup" ) ) ) {
 	
 							// Get the specific value for the option
 							value = jQuery( option ).val();
@@ -30104,599 +30369,42 @@
 					while ( i-- ) {
 						option = options[ i ];
 	
-						if ( jQuery.inArray( jQuery.valHooks.option.get( option ), values ) >= 0 ) {
+						/* eslint-disable no-cond-assign */
 	
-							// Support: IE6
-							// When new option element is added to select box we need to
-							// force reflow of newly added node in order to workaround delay
-							// of initialization properties
-							try {
-								option.selected = optionSet = true;
-	
-							} catch ( _ ) {
-	
-								// Will be executed only in IE6
-								option.scrollHeight;
-							}
-	
-						} else {
-							option.selected = false;
+						if ( option.selected =
+							jQuery.inArray( jQuery.valHooks.option.get( option ), values ) > -1
+						) {
+							optionSet = true;
 						}
+	
+						/* eslint-enable no-cond-assign */
 					}
 	
 					// Force browsers to behave consistently when non-matching value is set
 					if ( !optionSet ) {
 						elem.selectedIndex = -1;
 					}
-	
-					return options;
+					return values;
 				}
 			}
 		}
-	});
+	} );
 	
 	// Radios and checkboxes getter/setter
-	jQuery.each([ "radio", "checkbox" ], function() {
+	jQuery.each( [ "radio", "checkbox" ], function() {
 		jQuery.valHooks[ this ] = {
 			set: function( elem, value ) {
 				if ( jQuery.isArray( value ) ) {
-					return ( elem.checked = jQuery.inArray( jQuery(elem).val(), value ) >= 0 );
+					return ( elem.checked = jQuery.inArray( jQuery( elem ).val(), value ) > -1 );
 				}
 			}
 		};
 		if ( !support.checkOn ) {
 			jQuery.valHooks[ this ].get = function( elem ) {
-				// Support: Webkit
-				// "" is returned instead of "on" if a value isn't specified
-				return elem.getAttribute("value") === null ? "on" : elem.value;
+				return elem.getAttribute( "value" ) === null ? "on" : elem.value;
 			};
 		}
-	});
-	
-	
-	
-	
-	var nodeHook, boolHook,
-		attrHandle = jQuery.expr.attrHandle,
-		ruseDefault = /^(?:checked|selected)$/i,
-		getSetAttribute = support.getSetAttribute,
-		getSetInput = support.input;
-	
-	jQuery.fn.extend({
-		attr: function( name, value ) {
-			return access( this, jQuery.attr, name, value, arguments.length > 1 );
-		},
-	
-		removeAttr: function( name ) {
-			return this.each(function() {
-				jQuery.removeAttr( this, name );
-			});
-		}
-	});
-	
-	jQuery.extend({
-		attr: function( elem, name, value ) {
-			var hooks, ret,
-				nType = elem.nodeType;
-	
-			// don't get/set attributes on text, comment and attribute nodes
-			if ( !elem || nType === 3 || nType === 8 || nType === 2 ) {
-				return;
-			}
-	
-			// Fallback to prop when attributes are not supported
-			if ( typeof elem.getAttribute === strundefined ) {
-				return jQuery.prop( elem, name, value );
-			}
-	
-			// All attributes are lowercase
-			// Grab necessary hook if one is defined
-			if ( nType !== 1 || !jQuery.isXMLDoc( elem ) ) {
-				name = name.toLowerCase();
-				hooks = jQuery.attrHooks[ name ] ||
-					( jQuery.expr.match.bool.test( name ) ? boolHook : nodeHook );
-			}
-	
-			if ( value !== undefined ) {
-	
-				if ( value === null ) {
-					jQuery.removeAttr( elem, name );
-	
-				} else if ( hooks && "set" in hooks && (ret = hooks.set( elem, value, name )) !== undefined ) {
-					return ret;
-	
-				} else {
-					elem.setAttribute( name, value + "" );
-					return value;
-				}
-	
-			} else if ( hooks && "get" in hooks && (ret = hooks.get( elem, name )) !== null ) {
-				return ret;
-	
-			} else {
-				ret = jQuery.find.attr( elem, name );
-	
-				// Non-existent attributes return null, we normalize to undefined
-				return ret == null ?
-					undefined :
-					ret;
-			}
-		},
-	
-		removeAttr: function( elem, value ) {
-			var name, propName,
-				i = 0,
-				attrNames = value && value.match( rnotwhite );
-	
-			if ( attrNames && elem.nodeType === 1 ) {
-				while ( (name = attrNames[i++]) ) {
-					propName = jQuery.propFix[ name ] || name;
-	
-					// Boolean attributes get special treatment (#10870)
-					if ( jQuery.expr.match.bool.test( name ) ) {
-						// Set corresponding property to false
-						if ( getSetInput && getSetAttribute || !ruseDefault.test( name ) ) {
-							elem[ propName ] = false;
-						// Support: IE<9
-						// Also clear defaultChecked/defaultSelected (if appropriate)
-						} else {
-							elem[ jQuery.camelCase( "default-" + name ) ] =
-								elem[ propName ] = false;
-						}
-	
-					// See #9699 for explanation of this approach (setting first, then removal)
-					} else {
-						jQuery.attr( elem, name, "" );
-					}
-	
-					elem.removeAttribute( getSetAttribute ? name : propName );
-				}
-			}
-		},
-	
-		attrHooks: {
-			type: {
-				set: function( elem, value ) {
-					if ( !support.radioValue && value === "radio" && jQuery.nodeName(elem, "input") ) {
-						// Setting the type on a radio button after the value resets the value in IE6-9
-						// Reset value to default in case type is set after value during creation
-						var val = elem.value;
-						elem.setAttribute( "type", value );
-						if ( val ) {
-							elem.value = val;
-						}
-						return value;
-					}
-				}
-			}
-		}
-	});
-	
-	// Hook for boolean attributes
-	boolHook = {
-		set: function( elem, value, name ) {
-			if ( value === false ) {
-				// Remove boolean attributes when set to false
-				jQuery.removeAttr( elem, name );
-			} else if ( getSetInput && getSetAttribute || !ruseDefault.test( name ) ) {
-				// IE<8 needs the *property* name
-				elem.setAttribute( !getSetAttribute && jQuery.propFix[ name ] || name, name );
-	
-			// Use defaultChecked and defaultSelected for oldIE
-			} else {
-				elem[ jQuery.camelCase( "default-" + name ) ] = elem[ name ] = true;
-			}
-	
-			return name;
-		}
-	};
-	
-	// Retrieve booleans specially
-	jQuery.each( jQuery.expr.match.bool.source.match( /\w+/g ), function( i, name ) {
-	
-		var getter = attrHandle[ name ] || jQuery.find.attr;
-	
-		attrHandle[ name ] = getSetInput && getSetAttribute || !ruseDefault.test( name ) ?
-			function( elem, name, isXML ) {
-				var ret, handle;
-				if ( !isXML ) {
-					// Avoid an infinite loop by temporarily removing this function from the getter
-					handle = attrHandle[ name ];
-					attrHandle[ name ] = ret;
-					ret = getter( elem, name, isXML ) != null ?
-						name.toLowerCase() :
-						null;
-					attrHandle[ name ] = handle;
-				}
-				return ret;
-			} :
-			function( elem, name, isXML ) {
-				if ( !isXML ) {
-					return elem[ jQuery.camelCase( "default-" + name ) ] ?
-						name.toLowerCase() :
-						null;
-				}
-			};
-	});
-	
-	// fix oldIE attroperties
-	if ( !getSetInput || !getSetAttribute ) {
-		jQuery.attrHooks.value = {
-			set: function( elem, value, name ) {
-				if ( jQuery.nodeName( elem, "input" ) ) {
-					// Does not return so that setAttribute is also used
-					elem.defaultValue = value;
-				} else {
-					// Use nodeHook if defined (#1954); otherwise setAttribute is fine
-					return nodeHook && nodeHook.set( elem, value, name );
-				}
-			}
-		};
-	}
-	
-	// IE6/7 do not support getting/setting some attributes with get/setAttribute
-	if ( !getSetAttribute ) {
-	
-		// Use this for any attribute in IE6/7
-		// This fixes almost every IE6/7 issue
-		nodeHook = {
-			set: function( elem, value, name ) {
-				// Set the existing or create a new attribute node
-				var ret = elem.getAttributeNode( name );
-				if ( !ret ) {
-					elem.setAttributeNode(
-						(ret = elem.ownerDocument.createAttribute( name ))
-					);
-				}
-	
-				ret.value = value += "";
-	
-				// Break association with cloned elements by also using setAttribute (#9646)
-				if ( name === "value" || value === elem.getAttribute( name ) ) {
-					return value;
-				}
-			}
-		};
-	
-		// Some attributes are constructed with empty-string values when not defined
-		attrHandle.id = attrHandle.name = attrHandle.coords =
-			function( elem, name, isXML ) {
-				var ret;
-				if ( !isXML ) {
-					return (ret = elem.getAttributeNode( name )) && ret.value !== "" ?
-						ret.value :
-						null;
-				}
-			};
-	
-		// Fixing value retrieval on a button requires this module
-		jQuery.valHooks.button = {
-			get: function( elem, name ) {
-				var ret = elem.getAttributeNode( name );
-				if ( ret && ret.specified ) {
-					return ret.value;
-				}
-			},
-			set: nodeHook.set
-		};
-	
-		// Set contenteditable to false on removals(#10429)
-		// Setting to empty string throws an error as an invalid value
-		jQuery.attrHooks.contenteditable = {
-			set: function( elem, value, name ) {
-				nodeHook.set( elem, value === "" ? false : value, name );
-			}
-		};
-	
-		// Set width and height to auto instead of 0 on empty string( Bug #8150 )
-		// This is for removals
-		jQuery.each([ "width", "height" ], function( i, name ) {
-			jQuery.attrHooks[ name ] = {
-				set: function( elem, value ) {
-					if ( value === "" ) {
-						elem.setAttribute( name, "auto" );
-						return value;
-					}
-				}
-			};
-		});
-	}
-	
-	if ( !support.style ) {
-		jQuery.attrHooks.style = {
-			get: function( elem ) {
-				// Return undefined in the case of empty string
-				// Note: IE uppercases css property names, but if we were to .toLowerCase()
-				// .cssText, that would destroy case senstitivity in URL's, like in "background"
-				return elem.style.cssText || undefined;
-			},
-			set: function( elem, value ) {
-				return ( elem.style.cssText = value + "" );
-			}
-		};
-	}
-	
-	
-	
-	
-	var rfocusable = /^(?:input|select|textarea|button|object)$/i,
-		rclickable = /^(?:a|area)$/i;
-	
-	jQuery.fn.extend({
-		prop: function( name, value ) {
-			return access( this, jQuery.prop, name, value, arguments.length > 1 );
-		},
-	
-		removeProp: function( name ) {
-			name = jQuery.propFix[ name ] || name;
-			return this.each(function() {
-				// try/catch handles cases where IE balks (such as removing a property on window)
-				try {
-					this[ name ] = undefined;
-					delete this[ name ];
-				} catch( e ) {}
-			});
-		}
-	});
-	
-	jQuery.extend({
-		propFix: {
-			"for": "htmlFor",
-			"class": "className"
-		},
-	
-		prop: function( elem, name, value ) {
-			var ret, hooks, notxml,
-				nType = elem.nodeType;
-	
-			// don't get/set properties on text, comment and attribute nodes
-			if ( !elem || nType === 3 || nType === 8 || nType === 2 ) {
-				return;
-			}
-	
-			notxml = nType !== 1 || !jQuery.isXMLDoc( elem );
-	
-			if ( notxml ) {
-				// Fix name and attach hooks
-				name = jQuery.propFix[ name ] || name;
-				hooks = jQuery.propHooks[ name ];
-			}
-	
-			if ( value !== undefined ) {
-				return hooks && "set" in hooks && (ret = hooks.set( elem, value, name )) !== undefined ?
-					ret :
-					( elem[ name ] = value );
-	
-			} else {
-				return hooks && "get" in hooks && (ret = hooks.get( elem, name )) !== null ?
-					ret :
-					elem[ name ];
-			}
-		},
-	
-		propHooks: {
-			tabIndex: {
-				get: function( elem ) {
-					// elem.tabIndex doesn't always return the correct value when it hasn't been explicitly set
-					// http://fluidproject.org/blog/2008/01/09/getting-setting-and-removing-tabindex-values-with-javascript/
-					// Use proper attribute retrieval(#12072)
-					var tabindex = jQuery.find.attr( elem, "tabindex" );
-	
-					return tabindex ?
-						parseInt( tabindex, 10 ) :
-						rfocusable.test( elem.nodeName ) || rclickable.test( elem.nodeName ) && elem.href ?
-							0 :
-							-1;
-				}
-			}
-		}
-	});
-	
-	// Some attributes require a special call on IE
-	// http://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
-	if ( !support.hrefNormalized ) {
-		// href/src property should get the full normalized URL (#10299/#12915)
-		jQuery.each([ "href", "src" ], function( i, name ) {
-			jQuery.propHooks[ name ] = {
-				get: function( elem ) {
-					return elem.getAttribute( name, 4 );
-				}
-			};
-		});
-	}
-	
-	// Support: Safari, IE9+
-	// mis-reports the default selected property of an option
-	// Accessing the parent's selectedIndex property fixes it
-	if ( !support.optSelected ) {
-		jQuery.propHooks.selected = {
-			get: function( elem ) {
-				var parent = elem.parentNode;
-	
-				if ( parent ) {
-					parent.selectedIndex;
-	
-					// Make sure that it also works with optgroups, see #5701
-					if ( parent.parentNode ) {
-						parent.parentNode.selectedIndex;
-					}
-				}
-				return null;
-			}
-		};
-	}
-	
-	jQuery.each([
-		"tabIndex",
-		"readOnly",
-		"maxLength",
-		"cellSpacing",
-		"cellPadding",
-		"rowSpan",
-		"colSpan",
-		"useMap",
-		"frameBorder",
-		"contentEditable"
-	], function() {
-		jQuery.propFix[ this.toLowerCase() ] = this;
-	});
-	
-	// IE6/7 call enctype encoding
-	if ( !support.enctype ) {
-		jQuery.propFix.enctype = "encoding";
-	}
-	
-	
-	
-	
-	var rclass = /[\t\r\n\f]/g;
-	
-	jQuery.fn.extend({
-		addClass: function( value ) {
-			var classes, elem, cur, clazz, j, finalValue,
-				i = 0,
-				len = this.length,
-				proceed = typeof value === "string" && value;
-	
-			if ( jQuery.isFunction( value ) ) {
-				return this.each(function( j ) {
-					jQuery( this ).addClass( value.call( this, j, this.className ) );
-				});
-			}
-	
-			if ( proceed ) {
-				// The disjunction here is for better compressibility (see removeClass)
-				classes = ( value || "" ).match( rnotwhite ) || [];
-	
-				for ( ; i < len; i++ ) {
-					elem = this[ i ];
-					cur = elem.nodeType === 1 && ( elem.className ?
-						( " " + elem.className + " " ).replace( rclass, " " ) :
-						" "
-					);
-	
-					if ( cur ) {
-						j = 0;
-						while ( (clazz = classes[j++]) ) {
-							if ( cur.indexOf( " " + clazz + " " ) < 0 ) {
-								cur += clazz + " ";
-							}
-						}
-	
-						// only assign if different to avoid unneeded rendering.
-						finalValue = jQuery.trim( cur );
-						if ( elem.className !== finalValue ) {
-							elem.className = finalValue;
-						}
-					}
-				}
-			}
-	
-			return this;
-		},
-	
-		removeClass: function( value ) {
-			var classes, elem, cur, clazz, j, finalValue,
-				i = 0,
-				len = this.length,
-				proceed = arguments.length === 0 || typeof value === "string" && value;
-	
-			if ( jQuery.isFunction( value ) ) {
-				return this.each(function( j ) {
-					jQuery( this ).removeClass( value.call( this, j, this.className ) );
-				});
-			}
-			if ( proceed ) {
-				classes = ( value || "" ).match( rnotwhite ) || [];
-	
-				for ( ; i < len; i++ ) {
-					elem = this[ i ];
-					// This expression is here for better compressibility (see addClass)
-					cur = elem.nodeType === 1 && ( elem.className ?
-						( " " + elem.className + " " ).replace( rclass, " " ) :
-						""
-					);
-	
-					if ( cur ) {
-						j = 0;
-						while ( (clazz = classes[j++]) ) {
-							// Remove *all* instances
-							while ( cur.indexOf( " " + clazz + " " ) >= 0 ) {
-								cur = cur.replace( " " + clazz + " ", " " );
-							}
-						}
-	
-						// only assign if different to avoid unneeded rendering.
-						finalValue = value ? jQuery.trim( cur ) : "";
-						if ( elem.className !== finalValue ) {
-							elem.className = finalValue;
-						}
-					}
-				}
-			}
-	
-			return this;
-		},
-	
-		toggleClass: function( value, stateVal ) {
-			var type = typeof value;
-	
-			if ( typeof stateVal === "boolean" && type === "string" ) {
-				return stateVal ? this.addClass( value ) : this.removeClass( value );
-			}
-	
-			if ( jQuery.isFunction( value ) ) {
-				return this.each(function( i ) {
-					jQuery( this ).toggleClass( value.call(this, i, this.className, stateVal), stateVal );
-				});
-			}
-	
-			return this.each(function() {
-				if ( type === "string" ) {
-					// toggle individual class names
-					var className,
-						i = 0,
-						self = jQuery( this ),
-						classNames = value.match( rnotwhite ) || [];
-	
-					while ( (className = classNames[ i++ ]) ) {
-						// check each className given, space separated list
-						if ( self.hasClass( className ) ) {
-							self.removeClass( className );
-						} else {
-							self.addClass( className );
-						}
-					}
-	
-				// Toggle whole class name
-				} else if ( type === strundefined || type === "boolean" ) {
-					if ( this.className ) {
-						// store className if set
-						jQuery._data( this, "__className__", this.className );
-					}
-	
-					// If the element has a class name or if we're passed "false",
-					// then remove the whole classname (if there was one, the above saved it).
-					// Otherwise bring back whatever was previously saved (if anything),
-					// falling back to the empty string if nothing was stored.
-					this.className = this.className || value === false ? "" : jQuery._data( this, "__className__" ) || "";
-				}
-			});
-		},
-	
-		hasClass: function( selector ) {
-			var className = " " + selector + " ",
-				i = 0,
-				l = this.length;
-			for ( ; i < l; i++ ) {
-				if ( this[i].nodeType === 1 && (" " + this[i].className + " ").replace(rclass, " ").indexOf( className ) >= 0 ) {
-					return true;
-				}
-			}
-	
-			return false;
-		}
-	});
+	} );
 	
 	
 	
@@ -30704,9 +30412,182 @@
 	// Return jQuery for attributes-only inclusion
 	
 	
-	jQuery.each( ("blur focus focusin focusout load resize scroll unload click dblclick " +
+	var rfocusMorph = /^(?:focusinfocus|focusoutblur)$/;
+	
+	jQuery.extend( jQuery.event, {
+	
+		trigger: function( event, data, elem, onlyHandlers ) {
+	
+			var i, cur, tmp, bubbleType, ontype, handle, special,
+				eventPath = [ elem || document ],
+				type = hasOwn.call( event, "type" ) ? event.type : event,
+				namespaces = hasOwn.call( event, "namespace" ) ? event.namespace.split( "." ) : [];
+	
+			cur = tmp = elem = elem || document;
+	
+			// Don't do events on text and comment nodes
+			if ( elem.nodeType === 3 || elem.nodeType === 8 ) {
+				return;
+			}
+	
+			// focus/blur morphs to focusin/out; ensure we're not firing them right now
+			if ( rfocusMorph.test( type + jQuery.event.triggered ) ) {
+				return;
+			}
+	
+			if ( type.indexOf( "." ) > -1 ) {
+	
+				// Namespaced trigger; create a regexp to match event type in handle()
+				namespaces = type.split( "." );
+				type = namespaces.shift();
+				namespaces.sort();
+			}
+			ontype = type.indexOf( ":" ) < 0 && "on" + type;
+	
+			// Caller can pass in a jQuery.Event object, Object, or just an event type string
+			event = event[ jQuery.expando ] ?
+				event :
+				new jQuery.Event( type, typeof event === "object" && event );
+	
+			// Trigger bitmask: & 1 for native handlers; & 2 for jQuery (always true)
+			event.isTrigger = onlyHandlers ? 2 : 3;
+			event.namespace = namespaces.join( "." );
+			event.rnamespace = event.namespace ?
+				new RegExp( "(^|\\.)" + namespaces.join( "\\.(?:.*\\.|)" ) + "(\\.|$)" ) :
+				null;
+	
+			// Clean up the event in case it is being reused
+			event.result = undefined;
+			if ( !event.target ) {
+				event.target = elem;
+			}
+	
+			// Clone any incoming data and prepend the event, creating the handler arg list
+			data = data == null ?
+				[ event ] :
+				jQuery.makeArray( data, [ event ] );
+	
+			// Allow special events to draw outside the lines
+			special = jQuery.event.special[ type ] || {};
+			if ( !onlyHandlers && special.trigger && special.trigger.apply( elem, data ) === false ) {
+				return;
+			}
+	
+			// Determine event propagation path in advance, per W3C events spec (#9951)
+			// Bubble up to document, then to window; watch for a global ownerDocument var (#9724)
+			if ( !onlyHandlers && !special.noBubble && !jQuery.isWindow( elem ) ) {
+	
+				bubbleType = special.delegateType || type;
+				if ( !rfocusMorph.test( bubbleType + type ) ) {
+					cur = cur.parentNode;
+				}
+				for ( ; cur; cur = cur.parentNode ) {
+					eventPath.push( cur );
+					tmp = cur;
+				}
+	
+				// Only add window if we got to document (e.g., not plain obj or detached DOM)
+				if ( tmp === ( elem.ownerDocument || document ) ) {
+					eventPath.push( tmp.defaultView || tmp.parentWindow || window );
+				}
+			}
+	
+			// Fire handlers on the event path
+			i = 0;
+			while ( ( cur = eventPath[ i++ ] ) && !event.isPropagationStopped() ) {
+	
+				event.type = i > 1 ?
+					bubbleType :
+					special.bindType || type;
+	
+				// jQuery handler
+				handle = ( dataPriv.get( cur, "events" ) || {} )[ event.type ] &&
+					dataPriv.get( cur, "handle" );
+				if ( handle ) {
+					handle.apply( cur, data );
+				}
+	
+				// Native handler
+				handle = ontype && cur[ ontype ];
+				if ( handle && handle.apply && acceptData( cur ) ) {
+					event.result = handle.apply( cur, data );
+					if ( event.result === false ) {
+						event.preventDefault();
+					}
+				}
+			}
+			event.type = type;
+	
+			// If nobody prevented the default action, do it now
+			if ( !onlyHandlers && !event.isDefaultPrevented() ) {
+	
+				if ( ( !special._default ||
+					special._default.apply( eventPath.pop(), data ) === false ) &&
+					acceptData( elem ) ) {
+	
+					// Call a native DOM method on the target with the same name as the event.
+					// Don't do default actions on window, that's where global variables be (#6170)
+					if ( ontype && jQuery.isFunction( elem[ type ] ) && !jQuery.isWindow( elem ) ) {
+	
+						// Don't re-trigger an onFOO event when we call its FOO() method
+						tmp = elem[ ontype ];
+	
+						if ( tmp ) {
+							elem[ ontype ] = null;
+						}
+	
+						// Prevent re-triggering of the same event, since we already bubbled it above
+						jQuery.event.triggered = type;
+						elem[ type ]();
+						jQuery.event.triggered = undefined;
+	
+						if ( tmp ) {
+							elem[ ontype ] = tmp;
+						}
+					}
+				}
+			}
+	
+			return event.result;
+		},
+	
+		// Piggyback on a donor event to simulate a different one
+		// Used only for `focus(in | out)` events
+		simulate: function( type, elem, event ) {
+			var e = jQuery.extend(
+				new jQuery.Event(),
+				event,
+				{
+					type: type,
+					isSimulated: true
+				}
+			);
+	
+			jQuery.event.trigger( e, null, elem );
+		}
+	
+	} );
+	
+	jQuery.fn.extend( {
+	
+		trigger: function( type, data ) {
+			return this.each( function() {
+				jQuery.event.trigger( type, data, this );
+			} );
+		},
+		triggerHandler: function( type, data ) {
+			var elem = this[ 0 ];
+			if ( elem ) {
+				return jQuery.event.trigger( type, data, elem, true );
+			}
+		}
+	} );
+	
+	
+	jQuery.each( ( "blur focus focusin focusout resize scroll click dblclick " +
 		"mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave " +
-		"change select submit keydown keypress keyup error contextmenu").split(" "), function( i, name ) {
+		"change select submit keydown keypress keyup contextmenu" ).split( " " ),
+		function( i, name ) {
 	
 		// Handle event binding
 		jQuery.fn[ name ] = function( data, fn ) {
@@ -30714,100 +30595,85 @@
 				this.on( name, null, data, fn ) :
 				this.trigger( name );
 		};
-	});
+	} );
 	
-	jQuery.fn.extend({
+	jQuery.fn.extend( {
 		hover: function( fnOver, fnOut ) {
 			return this.mouseenter( fnOver ).mouseleave( fnOut || fnOver );
-		},
-	
-		bind: function( types, data, fn ) {
-			return this.on( types, null, data, fn );
-		},
-		unbind: function( types, fn ) {
-			return this.off( types, null, fn );
-		},
-	
-		delegate: function( selector, types, data, fn ) {
-			return this.on( types, selector, data, fn );
-		},
-		undelegate: function( selector, types, fn ) {
-			// ( namespace ) or ( selector, types [, fn] )
-			return arguments.length === 1 ? this.off( selector, "**" ) : this.off( types, selector || "**", fn );
 		}
-	});
+	} );
 	
+	
+	
+	
+	support.focusin = "onfocusin" in window;
+	
+	
+	// Support: Firefox <=44
+	// Firefox doesn't have focus(in | out) events
+	// Related ticket - https://bugzilla.mozilla.org/show_bug.cgi?id=687787
+	//
+	// Support: Chrome <=48 - 49, Safari <=9.0 - 9.1
+	// focus(in | out) events fire after focus & blur events,
+	// which is spec violation - http://www.w3.org/TR/DOM-Level-3-Events/#events-focusevent-event-order
+	// Related ticket - https://bugs.chromium.org/p/chromium/issues/detail?id=449857
+	if ( !support.focusin ) {
+		jQuery.each( { focus: "focusin", blur: "focusout" }, function( orig, fix ) {
+	
+			// Attach a single capturing handler on the document while someone wants focusin/focusout
+			var handler = function( event ) {
+				jQuery.event.simulate( fix, event.target, jQuery.event.fix( event ) );
+			};
+	
+			jQuery.event.special[ fix ] = {
+				setup: function() {
+					var doc = this.ownerDocument || this,
+						attaches = dataPriv.access( doc, fix );
+	
+					if ( !attaches ) {
+						doc.addEventListener( orig, handler, true );
+					}
+					dataPriv.access( doc, fix, ( attaches || 0 ) + 1 );
+				},
+				teardown: function() {
+					var doc = this.ownerDocument || this,
+						attaches = dataPriv.access( doc, fix ) - 1;
+	
+					if ( !attaches ) {
+						doc.removeEventListener( orig, handler, true );
+						dataPriv.remove( doc, fix );
+	
+					} else {
+						dataPriv.access( doc, fix, attaches );
+					}
+				}
+			};
+		} );
+	}
+	var location = window.location;
 	
 	var nonce = jQuery.now();
 	
-	var rquery = (/\?/);
+	var rquery = ( /\?/ );
 	
-	
-	
-	var rvalidtokens = /(,)|(\[|{)|(}|])|"(?:[^"\\\r\n]|\\["\\\/bfnrt]|\\u[\da-fA-F]{4})*"\s*:?|true|false|null|-?(?!0\d)\d+(?:\.\d+|)(?:[eE][+-]?\d+|)/g;
-	
-	jQuery.parseJSON = function( data ) {
-		// Attempt to parse using the native JSON parser first
-		if ( window.JSON && window.JSON.parse ) {
-			// Support: Android 2.3
-			// Workaround failure to string-cast null input
-			return window.JSON.parse( data + "" );
-		}
-	
-		var requireNonComma,
-			depth = null,
-			str = jQuery.trim( data + "" );
-	
-		// Guard against invalid (and possibly dangerous) input by ensuring that nothing remains
-		// after removing valid tokens
-		return str && !jQuery.trim( str.replace( rvalidtokens, function( token, comma, open, close ) {
-	
-			// Force termination if we see a misplaced comma
-			if ( requireNonComma && comma ) {
-				depth = 0;
-			}
-	
-			// Perform no more replacements after returning to outermost depth
-			if ( depth === 0 ) {
-				return token;
-			}
-	
-			// Commas must not follow "[", "{", or ","
-			requireNonComma = open || comma;
-	
-			// Determine new depth
-			// array/object open ("[" or "{"): depth += true - false (increment)
-			// array/object close ("]" or "}"): depth += false - true (decrement)
-			// other cases ("," or primitive): depth += true - true (numeric cast)
-			depth += !close - !open;
-	
-			// Remove this token
-			return "";
-		}) ) ?
-			( Function( "return " + str ) )() :
-			jQuery.error( "Invalid JSON: " + data );
-	};
 	
 	
 	// Cross-browser xml parsing
 	jQuery.parseXML = function( data ) {
-		var xml, tmp;
+		var xml;
 		if ( !data || typeof data !== "string" ) {
 			return null;
 		}
+	
+		// Support: IE 9 - 11 only
+		// IE throws on parseFromString with invalid input.
 		try {
-			if ( window.DOMParser ) { // Standard
-				tmp = new DOMParser();
-				xml = tmp.parseFromString( data, "text/xml" );
-			} else { // IE
-				xml = new ActiveXObject( "Microsoft.XMLDOM" );
-				xml.async = "false";
-				xml.loadXML( data );
-			}
-		} catch( e ) {
+			xml = ( new window.DOMParser() ).parseFromString( data, "text/xml" );
+		} catch ( e ) {
 			xml = undefined;
 		}
-		if ( !xml || !xml.documentElement || xml.getElementsByTagName( "parsererror" ).length ) {
+	
+		if ( !xml || xml.getElementsByTagName( "parsererror" ).length ) {
 			jQuery.error( "Invalid XML: " + data );
 		}
 		return xml;
@@ -30815,18 +30681,134 @@
 	
 	
 	var
-		// Document location
-		ajaxLocParts,
-		ajaxLocation,
+		rbracket = /\[\]$/,
+		rCRLF = /\r?\n/g,
+		rsubmitterTypes = /^(?:submit|button|image|reset|file)$/i,
+		rsubmittable = /^(?:input|select|textarea|keygen)/i;
 	
+	function buildParams( prefix, obj, traditional, add ) {
+		var name;
+	
+		if ( jQuery.isArray( obj ) ) {
+	
+			// Serialize array item.
+			jQuery.each( obj, function( i, v ) {
+				if ( traditional || rbracket.test( prefix ) ) {
+	
+					// Treat each array item as a scalar.
+					add( prefix, v );
+	
+				} else {
+	
+					// Item is non-scalar (array or object), encode its numeric index.
+					buildParams(
+						prefix + "[" + ( typeof v === "object" && v != null ? i : "" ) + "]",
+						v,
+						traditional,
+						add
+					);
+				}
+			} );
+	
+		} else if ( !traditional && jQuery.type( obj ) === "object" ) {
+	
+			// Serialize object item.
+			for ( name in obj ) {
+				buildParams( prefix + "[" + name + "]", obj[ name ], traditional, add );
+			}
+	
+		} else {
+	
+			// Serialize scalar item.
+			add( prefix, obj );
+		}
+	}
+	
+	// Serialize an array of form elements or a set of
+	// key/values into a query string
+	jQuery.param = function( a, traditional ) {
+		var prefix,
+			s = [],
+			add = function( key, valueOrFunction ) {
+	
+				// If value is a function, invoke it and use its return value
+				var value = jQuery.isFunction( valueOrFunction ) ?
+					valueOrFunction() :
+					valueOrFunction;
+	
+				s[ s.length ] = encodeURIComponent( key ) + "=" +
+					encodeURIComponent( value == null ? "" : value );
+			};
+	
+		// If an array was passed in, assume that it is an array of form elements.
+		if ( jQuery.isArray( a ) || ( a.jquery && !jQuery.isPlainObject( a ) ) ) {
+	
+			// Serialize the form elements
+			jQuery.each( a, function() {
+				add( this.name, this.value );
+			} );
+	
+		} else {
+	
+			// If traditional, encode the "old" way (the way 1.3.2 or older
+			// did it), otherwise encode params recursively.
+			for ( prefix in a ) {
+				buildParams( prefix, a[ prefix ], traditional, add );
+			}
+		}
+	
+		// Return the resulting serialization
+		return s.join( "&" );
+	};
+	
+	jQuery.fn.extend( {
+		serialize: function() {
+			return jQuery.param( this.serializeArray() );
+		},
+		serializeArray: function() {
+			return this.map( function() {
+	
+				// Can add propHook for "elements" to filter or add form elements
+				var elements = jQuery.prop( this, "elements" );
+				return elements ? jQuery.makeArray( elements ) : this;
+			} )
+			.filter( function() {
+				var type = this.type;
+	
+				// Use .is( ":disabled" ) so that fieldset[disabled] works
+				return this.name && !jQuery( this ).is( ":disabled" ) &&
+					rsubmittable.test( this.nodeName ) && !rsubmitterTypes.test( type ) &&
+					( this.checked || !rcheckableType.test( type ) );
+			} )
+			.map( function( i, elem ) {
+				var val = jQuery( this ).val();
+	
+				if ( val == null ) {
+					return null;
+				}
+	
+				if ( jQuery.isArray( val ) ) {
+					return jQuery.map( val, function( val ) {
+						return { name: elem.name, value: val.replace( rCRLF, "\r\n" ) };
+					} );
+				}
+	
+				return { name: elem.name, value: val.replace( rCRLF, "\r\n" ) };
+			} ).get();
+		}
+	} );
+	
+	
+	var
+		r20 = /%20/g,
 		rhash = /#.*$/,
-		rts = /([?&])_=[^&]*/,
-		rheaders = /^(.*?):[ \t]*([^\r\n]*)\r?$/mg, // IE leaves an \r character at EOL
+		rantiCache = /([?&])_=[^&]*/,
+		rheaders = /^(.*?):[ \t]*([^\r\n]*)$/mg,
+	
 		// #7653, #8125, #8152: local protocol detection
 		rlocalProtocol = /^(?:about|app|app-storage|.+-extension|file|res|widget):$/,
 		rnoContent = /^(?:GET|HEAD)$/,
 		rprotocol = /^\/\//,
-		rurl = /^([\w.+-]+:)(?:\/\/(?:[^\/?#]*@|)([^\/?#:]*)(?::(\d+)|)|)/,
 	
 		/* Prefilters
 		 * 1) They are useful to introduce custom dataTypes (see ajax/jsonp.js for an example)
@@ -30847,22 +30829,11 @@
 		transports = {},
 	
 		// Avoid comment-prolog char sequence (#10098); must appease lint and evade compression
-		allTypes = "*/".concat("*");
+		allTypes = "*/".concat( "*" ),
 	
-	// #8138, IE may throw an exception when accessing
-	// a field from window.location if document.domain has been set
-	try {
-		ajaxLocation = location.href;
-	} catch( e ) {
-		// Use the href attribute of an A element
-		// since IE will modify it given document.location
-		ajaxLocation = document.createElement( "a" );
-		ajaxLocation.href = "";
-		ajaxLocation = ajaxLocation.href;
-	}
-	
-	// Segment location into parts
-	ajaxLocParts = rurl.exec( ajaxLocation.toLowerCase() ) || [];
+		// Anchor tag for parsing the document origin
+		originAnchor = document.createElement( "a" );
+		originAnchor.href = location.href;
 	
 	// Base "constructor" for jQuery.ajaxPrefilter and jQuery.ajaxTransport
 	function addToPrefiltersOrTransports( structure ) {
@@ -30877,19 +30848,21 @@
 	
 			var dataType,
 				i = 0,
-				dataTypes = dataTypeExpression.toLowerCase().match( rnotwhite ) || [];
+				dataTypes = dataTypeExpression.toLowerCase().match( rnothtmlwhite ) || [];
 	
 			if ( jQuery.isFunction( func ) ) {
+	
 				// For each dataType in the dataTypeExpression
-				while ( (dataType = dataTypes[i++]) ) {
+				while ( ( dataType = dataTypes[ i++ ] ) ) {
+	
 					// Prepend if requested
-					if ( dataType.charAt( 0 ) === "+" ) {
+					if ( dataType[ 0 ] === "+" ) {
 						dataType = dataType.slice( 1 ) || "*";
-						(structure[ dataType ] = structure[ dataType ] || []).unshift( func );
+						( structure[ dataType ] = structure[ dataType ] || [] ).unshift( func );
 	
 					// Otherwise append
 					} else {
-						(structure[ dataType ] = structure[ dataType ] || []).push( func );
+						( structure[ dataType ] = structure[ dataType ] || [] ).push( func );
 					}
 				}
 			}
@@ -30907,14 +30880,16 @@
 			inspected[ dataType ] = true;
 			jQuery.each( structure[ dataType ] || [], function( _, prefilterOrFactory ) {
 				var dataTypeOrTransport = prefilterOrFactory( options, originalOptions, jqXHR );
-				if ( typeof dataTypeOrTransport === "string" && !seekingTransport && !inspected[ dataTypeOrTransport ] ) {
+				if ( typeof dataTypeOrTransport === "string" &&
+					!seekingTransport && !inspected[ dataTypeOrTransport ] ) {
+	
 					options.dataTypes.unshift( dataTypeOrTransport );
 					inspect( dataTypeOrTransport );
 					return false;
 				} else if ( seekingTransport ) {
 					return !( selected = dataTypeOrTransport );
 				}
-			});
+			} );
 			return selected;
 		}
 	
@@ -30925,12 +30900,12 @@
 	// that takes "flat" options (not to be deep extended)
 	// Fixes #9887
 	function ajaxExtend( target, src ) {
-		var deep, key,
+		var key, deep,
 			flatOptions = jQuery.ajaxSettings.flatOptions || {};
 	
 		for ( key in src ) {
 			if ( src[ key ] !== undefined ) {
-				( flatOptions[ key ] ? target : ( deep || (deep = {}) ) )[ key ] = src[ key ];
+				( flatOptions[ key ] ? target : ( deep || ( deep = {} ) ) )[ key ] = src[ key ];
 			}
 		}
 		if ( deep ) {
@@ -30945,7 +30920,8 @@
 	 * - returns the corresponding response
 	 */
 	function ajaxHandleResponses( s, jqXHR, responses ) {
-		var firstDataType, ct, finalDataType, type,
+	
+		var ct, type, finalDataType, firstDataType,
 			contents = s.contents,
 			dataTypes = s.dataTypes;
 	
@@ -30953,7 +30929,7 @@
 		while ( dataTypes[ 0 ] === "*" ) {
 			dataTypes.shift();
 			if ( ct === undefined ) {
-				ct = s.mimeType || jqXHR.getResponseHeader("Content-Type");
+				ct = s.mimeType || jqXHR.getResponseHeader( "Content-Type" );
 			}
 		}
 	
@@ -30971,9 +30947,10 @@
 		if ( dataTypes[ 0 ] in responses ) {
 			finalDataType = dataTypes[ 0 ];
 		} else {
+	
 			// Try convertible dataTypes
 			for ( type in responses ) {
-				if ( !dataTypes[ 0 ] || s.converters[ type + " " + dataTypes[0] ] ) {
+				if ( !dataTypes[ 0 ] || s.converters[ type + " " + dataTypes[ 0 ] ] ) {
 					finalDataType = type;
 					break;
 				}
@@ -30981,6 +30958,7 @@
 					firstDataType = type;
 				}
 			}
+	
 			// Or just use first one
 			finalDataType = finalDataType || firstDataType;
 		}
@@ -31002,6 +30980,7 @@
 	function ajaxConvert( s, response, jqXHR, isSuccess ) {
 		var conv2, current, conv, tmp, prev,
 			converters = {},
+	
 			// Work with a copy of dataTypes in case we need to modify it for conversion
 			dataTypes = s.dataTypes.slice();
 	
@@ -31054,6 +31033,7 @@
 								conv = converters[ prev + " " + tmp[ 0 ] ] ||
 									converters[ "* " + tmp[ 0 ] ];
 								if ( conv ) {
+	
 									// Condense equivalence converters
 									if ( conv === true ) {
 										conv = converters[ conv2 ];
@@ -31073,13 +31053,16 @@
 					if ( conv !== true ) {
 	
 						// Unless errors are allowed to bubble, catch and return them
-						if ( conv && s[ "throws" ] ) {
+						if ( conv && s.throws ) {
 							response = conv( response );
 						} else {
 							try {
 								response = conv( response );
 							} catch ( e ) {
-								return { state: "parsererror", error: conv ? e : "No conversion from " + prev + " to " + current };
+								return {
+									state: "parsererror",
+									error: conv ? e : "No conversion from " + prev + " to " + current
+								};
 							}
 						}
 					}
@@ -31090,7 +31073,7 @@
 		return { state: "success", data: response };
 	}
 	
-	jQuery.extend({
+	jQuery.extend( {
 	
 		// Counter for holding the number of active queries
 		active: 0,
@@ -31100,13 +31083,14 @@
 		etag: {},
 	
 		ajaxSettings: {
-			url: ajaxLocation,
+			url: location.href,
 			type: "GET",
-			isLocal: rlocalProtocol.test( ajaxLocParts[ 1 ] ),
+			isLocal: rlocalProtocol.test( location.protocol ),
 			global: true,
 			processData: true,
 			async: true,
 			contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+	
 			/*
 			timeout: 0,
 			data: null,
@@ -31128,9 +31112,9 @@
 			},
 	
 			contents: {
-				xml: /xml/,
-				html: /html/,
-				json: /json/
+				xml: /\bxml\b/,
+				html: /\bhtml/,
+				json: /\bjson\b/
 			},
 	
 			responseFields: {
@@ -31150,7 +31134,7 @@
 				"text html": true,
 	
 				// Evaluate text as a json expression
-				"text json": jQuery.parseJSON,
+				"text json": JSON.parse,
 	
 				// Parse text as xml
 				"text xml": jQuery.parseXML
@@ -31194,43 +31178,59 @@
 			// Force options to be an object
 			options = options || {};
 	
-			var // Cross-domain detection vars
-				parts,
-				// Loop variable
-				i,
+			var transport,
+	
 				// URL without anti-cache param
 				cacheURL,
-				// Response headers as string
+	
+				// Response headers
 				responseHeadersString,
+				responseHeaders,
+	
 				// timeout handle
 				timeoutTimer,
+	
+				// Url cleanup var
+				urlAnchor,
+	
+				// Request state (becomes false upon send and true upon completion)
+				completed,
 	
 				// To know if global events are to be dispatched
 				fireGlobals,
 	
-				transport,
-				// Response headers
-				responseHeaders,
+				// Loop variable
+				i,
+	
+				// uncached part of the url
+				uncached,
+	
 				// Create the final options object
 				s = jQuery.ajaxSetup( {}, options ),
+	
 				// Callbacks context
 				callbackContext = s.context || s,
+	
 				// Context for global events is callbackContext if it is a DOM node or jQuery collection
-				globalEventContext = s.context && ( callbackContext.nodeType || callbackContext.jquery ) ?
-					jQuery( callbackContext ) :
-					jQuery.event,
+				globalEventContext = s.context &&
+					( callbackContext.nodeType || callbackContext.jquery ) ?
+						jQuery( callbackContext ) :
+						jQuery.event,
+	
 				// Deferreds
 				deferred = jQuery.Deferred(),
-				completeDeferred = jQuery.Callbacks("once memory"),
+				completeDeferred = jQuery.Callbacks( "once memory" ),
+	
 				// Status-dependent callbacks
 				statusCode = s.statusCode || {},
+	
 				// Headers (they are sent all at once)
 				requestHeaders = {},
 				requestHeadersNames = {},
-				// The jqXHR state
-				state = 0,
+	
 				// Default abort message
 				strAbort = "canceled",
+	
 				// Fake xhr
 				jqXHR = {
 					readyState: 0,
@@ -31238,11 +31238,11 @@
 					// Builds headers hashtable if needed
 					getResponseHeader: function( key ) {
 						var match;
-						if ( state === 2 ) {
+						if ( completed ) {
 							if ( !responseHeaders ) {
 								responseHeaders = {};
-								while ( (match = rheaders.exec( responseHeadersString )) ) {
-									responseHeaders[ match[1].toLowerCase() ] = match[ 2 ];
+								while ( ( match = rheaders.exec( responseHeadersString ) ) ) {
+									responseHeaders[ match[ 1 ].toLowerCase() ] = match[ 2 ];
 								}
 							}
 							match = responseHeaders[ key.toLowerCase() ];
@@ -31252,14 +31252,14 @@
 	
 					// Raw string
 					getAllResponseHeaders: function() {
-						return state === 2 ? responseHeadersString : null;
+						return completed ? responseHeadersString : null;
 					},
 	
 					// Caches the header
 					setRequestHeader: function( name, value ) {
-						var lname = name.toLowerCase();
-						if ( !state ) {
-							name = requestHeadersNames[ lname ] = requestHeadersNames[ lname ] || name;
+						if ( completed == null ) {
+							name = requestHeadersNames[ name.toLowerCase() ] =
+								requestHeadersNames[ name.toLowerCase() ] || name;
 							requestHeaders[ name ] = value;
 						}
 						return this;
@@ -31267,7 +31267,7 @@
 	
 					// Overrides response content-type header
 					overrideMimeType: function( type ) {
-						if ( !state ) {
+						if ( completed == null ) {
 							s.mimeType = type;
 						}
 						return this;
@@ -31277,14 +31277,16 @@
 					statusCode: function( map ) {
 						var code;
 						if ( map ) {
-							if ( state < 2 ) {
-								for ( code in map ) {
-									// Lazy-add the new callback in a way that preserves old ones
-									statusCode[ code ] = [ statusCode[ code ], map[ code ] ];
-								}
-							} else {
+							if ( completed ) {
+	
 								// Execute the appropriate callbacks
 								jqXHR.always( map[ jqXHR.status ] );
+							} else {
+	
+								// Lazy-add the new callbacks in a way that preserves old ones
+								for ( code in map ) {
+									statusCode[ code ] = [ statusCode[ code ], map[ code ] ];
+								}
 							}
 						}
 						return this;
@@ -31302,30 +31304,41 @@
 				};
 	
 			// Attach deferreds
-			deferred.promise( jqXHR ).complete = completeDeferred.add;
-			jqXHR.success = jqXHR.done;
-			jqXHR.error = jqXHR.fail;
+			deferred.promise( jqXHR );
 	
-			// Remove hash character (#7531: and string promotion)
-			// Add protocol if not provided (#5866: IE7 issue with protocol-less urls)
+			// Add protocol if not provided (prefilters might expect it)
 			// Handle falsy url in the settings object (#10093: consistency with old signature)
 			// We also use the url parameter if available
-			s.url = ( ( url || s.url || ajaxLocation ) + "" ).replace( rhash, "" ).replace( rprotocol, ajaxLocParts[ 1 ] + "//" );
+			s.url = ( ( url || s.url || location.href ) + "" )
+				.replace( rprotocol, location.protocol + "//" );
 	
 			// Alias method option to type as per ticket #12004
 			s.type = options.method || options.type || s.method || s.type;
 	
 			// Extract dataTypes list
-			s.dataTypes = jQuery.trim( s.dataType || "*" ).toLowerCase().match( rnotwhite ) || [ "" ];
+			s.dataTypes = ( s.dataType || "*" ).toLowerCase().match( rnothtmlwhite ) || [ "" ];
 	
-			// A cross-domain request is in order when we have a protocol:host:port mismatch
+			// A cross-domain request is in order when the origin doesn't match the current origin.
 			if ( s.crossDomain == null ) {
-				parts = rurl.exec( s.url.toLowerCase() );
-				s.crossDomain = !!( parts &&
-					( parts[ 1 ] !== ajaxLocParts[ 1 ] || parts[ 2 ] !== ajaxLocParts[ 2 ] ||
-						( parts[ 3 ] || ( parts[ 1 ] === "http:" ? "80" : "443" ) ) !==
-							( ajaxLocParts[ 3 ] || ( ajaxLocParts[ 1 ] === "http:" ? "80" : "443" ) ) )
-				);
+				urlAnchor = document.createElement( "a" );
+	
+				// Support: IE <=8 - 11, Edge 12 - 13
+				// IE throws exception on accessing the href property if url is malformed,
+				// e.g. http://example.com:80x/
+				try {
+					urlAnchor.href = s.url;
+	
+					// Support: IE <=8 - 11 only
+					// Anchor's host property isn't correctly set when s.url is relative
+					urlAnchor.href = urlAnchor.href;
+					s.crossDomain = originAnchor.protocol + "//" + originAnchor.host !==
+						urlAnchor.protocol + "//" + urlAnchor.host;
+				} catch ( e ) {
+	
+					// If there is an error parsing the URL, assume it is crossDomain,
+					// it can be rejected by the transport if it is invalid
+					s.crossDomain = true;
+				}
 			}
 	
 			// Convert data if not already a string
@@ -31337,7 +31350,7 @@
 			inspectPrefiltersOrTransports( prefilters, s, options, jqXHR );
 	
 			// If request was aborted inside a prefilter, stop there
-			if ( state === 2 ) {
+			if ( completed ) {
 				return jqXHR;
 			}
 	
@@ -31347,7 +31360,7 @@
 	
 			// Watch for a new set of requests
 			if ( fireGlobals && jQuery.active++ === 0 ) {
-				jQuery.event.trigger("ajaxStart");
+				jQuery.event.trigger( "ajaxStart" );
 			}
 	
 			// Uppercase the type
@@ -31358,28 +31371,36 @@
 	
 			// Save the URL in case we're toying with the If-Modified-Since
 			// and/or If-None-Match header later on
-			cacheURL = s.url;
+			// Remove hash to simplify url manipulation
+			cacheURL = s.url.replace( rhash, "" );
 	
 			// More options handling for requests with no content
 			if ( !s.hasContent ) {
 	
+				// Remember the hash so we can put it back
+				uncached = s.url.slice( cacheURL.length );
+	
 				// If data is available, append data to url
 				if ( s.data ) {
-					cacheURL = ( s.url += ( rquery.test( cacheURL ) ? "&" : "?" ) + s.data );
+					cacheURL += ( rquery.test( cacheURL ) ? "&" : "?" ) + s.data;
+	
 					// #9682: remove data so that it's not used in an eventual retry
 					delete s.data;
 				}
 	
-				// Add anti-cache in url if needed
+				// Add or update anti-cache param if needed
 				if ( s.cache === false ) {
-					s.url = rts.test( cacheURL ) ?
-	
-						// If there is already a '_' parameter, set its value
-						cacheURL.replace( rts, "$1_=" + nonce++ ) :
-	
-						// Otherwise add one to the end
-						cacheURL + ( rquery.test( cacheURL ) ? "&" : "?" ) + "_=" + nonce++;
+					cacheURL = cacheURL.replace( rantiCache, "$1" );
+					uncached = ( rquery.test( cacheURL ) ? "&" : "?" ) + "_=" + ( nonce++ ) + uncached;
 				}
+	
+				// Put hash and anti-cache on the URL that will be requested (gh-1732)
+				s.url = cacheURL + uncached;
+	
+			// Change '%20' to '+' if this is encoded form body content (gh-2658)
+			} else if ( s.data && s.processData &&
+				( s.contentType || "" ).indexOf( "application/x-www-form-urlencoded" ) === 0 ) {
+				s.data = s.data.replace( r20, "+" );
 			}
 	
 			// Set the If-Modified-Since and/or If-None-Match header, if in ifModified mode.
@@ -31400,8 +31421,9 @@
 			// Set the Accepts header for the server, depending on the dataType
 			jqXHR.setRequestHeader(
 				"Accept",
-				s.dataTypes[ 0 ] && s.accepts[ s.dataTypes[0] ] ?
-					s.accepts[ s.dataTypes[0] ] + ( s.dataTypes[ 0 ] !== "*" ? ", " + allTypes + "; q=0.01" : "" ) :
+				s.dataTypes[ 0 ] && s.accepts[ s.dataTypes[ 0 ] ] ?
+					s.accepts[ s.dataTypes[ 0 ] ] +
+						( s.dataTypes[ 0 ] !== "*" ? ", " + allTypes + "; q=0.01" : "" ) :
 					s.accepts[ "*" ]
 			);
 	
@@ -31411,18 +31433,20 @@
 			}
 	
 			// Allow custom headers/mimetypes and early abort
-			if ( s.beforeSend && ( s.beforeSend.call( callbackContext, jqXHR, s ) === false || state === 2 ) ) {
+			if ( s.beforeSend &&
+				( s.beforeSend.call( callbackContext, jqXHR, s ) === false || completed ) ) {
+	
 				// Abort if not done already and return
 				return jqXHR.abort();
 			}
 	
-			// aborting is no longer a cancellation
+			// Aborting is no longer a cancellation
 			strAbort = "abort";
 	
 			// Install callbacks on deferreds
-			for ( i in { success: 1, error: 1, complete: 1 } ) {
-				jqXHR[ i ]( s[ i ] );
-			}
+			completeDeferred.add( s.complete );
+			jqXHR.done( s.success );
+			jqXHR.fail( s.error );
 	
 			// Get transport
 			transport = inspectPrefiltersOrTransports( transports, s, options, jqXHR );
@@ -31437,24 +31461,31 @@
 				if ( fireGlobals ) {
 					globalEventContext.trigger( "ajaxSend", [ jqXHR, s ] );
 				}
+	
+				// If request was aborted inside ajaxSend, stop there
+				if ( completed ) {
+					return jqXHR;
+				}
+	
 				// Timeout
 				if ( s.async && s.timeout > 0 ) {
-					timeoutTimer = setTimeout(function() {
-						jqXHR.abort("timeout");
+					timeoutTimer = window.setTimeout( function() {
+						jqXHR.abort( "timeout" );
 					}, s.timeout );
 				}
 	
 				try {
-					state = 1;
+					completed = false;
 					transport.send( requestHeaders, done );
 				} catch ( e ) {
-					// Propagate exception as error if not done
-					if ( state < 2 ) {
-						done( -1, e );
-					// Simply rethrow otherwise
-					} else {
+	
+					// Rethrow post-completion exceptions
+					if ( completed ) {
 						throw e;
 					}
+	
+					// Propagate others as results
+					done( -1, e );
 				}
 			}
 	
@@ -31463,17 +31494,16 @@
 				var isSuccess, success, error, response, modified,
 					statusText = nativeStatusText;
 	
-				// Called once
-				if ( state === 2 ) {
+				// Ignore repeat invocations
+				if ( completed ) {
 					return;
 				}
 	
-				// State is "done" now
-				state = 2;
+				completed = true;
 	
 				// Clear timeout if it exists
 				if ( timeoutTimer ) {
-					clearTimeout( timeoutTimer );
+					window.clearTimeout( timeoutTimer );
 				}
 	
 				// Dereference transport for early garbage collection
@@ -31502,11 +31532,11 @@
 	
 					// Set the If-Modified-Since and/or If-None-Match header, if in ifModified mode.
 					if ( s.ifModified ) {
-						modified = jqXHR.getResponseHeader("Last-Modified");
+						modified = jqXHR.getResponseHeader( "Last-Modified" );
 						if ( modified ) {
 							jQuery.lastModified[ cacheURL ] = modified;
 						}
-						modified = jqXHR.getResponseHeader("etag");
+						modified = jqXHR.getResponseHeader( "etag" );
 						if ( modified ) {
 							jQuery.etag[ cacheURL ] = modified;
 						}
@@ -31528,8 +31558,8 @@
 						isSuccess = !error;
 					}
 				} else {
-					// We extract error from statusText
-					// then normalize statusText and status for non-aborts
+	
+					// Extract error from statusText and normalize for non-aborts
 					error = statusText;
 					if ( status || !statusText ) {
 						statusText = "error";
@@ -31564,9 +31594,10 @@
 	
 				if ( fireGlobals ) {
 					globalEventContext.trigger( "ajaxComplete", [ jqXHR, s ] );
+	
 					// Handle the global AJAX counter
 					if ( !( --jQuery.active ) ) {
-						jQuery.event.trigger("ajaxStop");
+						jQuery.event.trigger( "ajaxStop" );
 					}
 				}
 			}
@@ -31581,65 +31612,70 @@
 		getScript: function( url, callback ) {
 			return jQuery.get( url, undefined, callback, "script" );
 		}
-	});
+	} );
 	
 	jQuery.each( [ "get", "post" ], function( i, method ) {
 		jQuery[ method ] = function( url, data, callback, type ) {
-			// shift arguments if data argument was omitted
+	
+			// Shift arguments if data argument was omitted
 			if ( jQuery.isFunction( data ) ) {
 				type = type || callback;
 				callback = data;
 				data = undefined;
 			}
 	
-			return jQuery.ajax({
+			// The url can be an options object (which then must have .url)
+			return jQuery.ajax( jQuery.extend( {
 				url: url,
 				type: method,
 				dataType: type,
 				data: data,
 				success: callback
-			});
+			}, jQuery.isPlainObject( url ) && url ) );
 		};
-	});
+	} );
 	
 	
 	jQuery._evalUrl = function( url ) {
-		return jQuery.ajax({
+		return jQuery.ajax( {
 			url: url,
+	
+			// Make this explicit, since user can override this through ajaxSetup (#11264)
 			type: "GET",
 			dataType: "script",
+			cache: true,
 			async: false,
 			global: false,
 			"throws": true
-		});
+		} );
 	};
 	
 	
-	jQuery.fn.extend({
+	jQuery.fn.extend( {
 		wrapAll: function( html ) {
-			if ( jQuery.isFunction( html ) ) {
-				return this.each(function(i) {
-					jQuery(this).wrapAll( html.call(this, i) );
-				});
-			}
+			var wrap;
 	
-			if ( this[0] ) {
-				// The elements to wrap the target around
-				var wrap = jQuery( html, this[0].ownerDocument ).eq(0).clone(true);
-	
-				if ( this[0].parentNode ) {
-					wrap.insertBefore( this[0] );
+			if ( this[ 0 ] ) {
+				if ( jQuery.isFunction( html ) ) {
+					html = html.call( this[ 0 ] );
 				}
 	
-				wrap.map(function() {
+				// The elements to wrap the target around
+				wrap = jQuery( html, this[ 0 ].ownerDocument ).eq( 0 ).clone( true );
+	
+				if ( this[ 0 ].parentNode ) {
+					wrap.insertBefore( this[ 0 ] );
+				}
+	
+				wrap.map( function() {
 					var elem = this;
 	
-					while ( elem.firstChild && elem.firstChild.nodeType === 1 ) {
-						elem = elem.firstChild;
+					while ( elem.firstElementChild ) {
+						elem = elem.firstElementChild;
 					}
 	
 					return elem;
-				}).append( this );
+				} ).append( this );
 			}
 	
 			return this;
@@ -31647,12 +31683,12 @@
 	
 		wrapInner: function( html ) {
 			if ( jQuery.isFunction( html ) ) {
-				return this.each(function(i) {
-					jQuery(this).wrapInner( html.call(this, i) );
-				});
+				return this.each( function( i ) {
+					jQuery( this ).wrapInner( html.call( this, i ) );
+				} );
 			}
 	
-			return this.each(function() {
+			return this.each( function() {
 				var self = jQuery( this ),
 					contents = self.contents();
 	
@@ -31662,343 +31698,214 @@
 				} else {
 					self.append( html );
 				}
-			});
+			} );
 		},
 	
 		wrap: function( html ) {
 			var isFunction = jQuery.isFunction( html );
 	
-			return this.each(function(i) {
-				jQuery( this ).wrapAll( isFunction ? html.call(this, i) : html );
-			});
+			return this.each( function( i ) {
+				jQuery( this ).wrapAll( isFunction ? html.call( this, i ) : html );
+			} );
 		},
 	
-		unwrap: function() {
-			return this.parent().each(function() {
-				if ( !jQuery.nodeName( this, "body" ) ) {
-					jQuery( this ).replaceWith( this.childNodes );
-				}
-			}).end();
+		unwrap: function( selector ) {
+			this.parent( selector ).not( "body" ).each( function() {
+				jQuery( this ).replaceWith( this.childNodes );
+			} );
+			return this;
 		}
-	});
+	} );
 	
 	
-	jQuery.expr.filters.hidden = function( elem ) {
-		// Support: Opera <= 12.12
-		// Opera reports offsetWidths and offsetHeights less than zero on some elements
-		return elem.offsetWidth <= 0 && elem.offsetHeight <= 0 ||
-			(!support.reliableHiddenOffsets() &&
-				((elem.style && elem.style.display) || jQuery.css( elem, "display" )) === "none");
+	jQuery.expr.pseudos.hidden = function( elem ) {
+		return !jQuery.expr.pseudos.visible( elem );
 	};
-	
-	jQuery.expr.filters.visible = function( elem ) {
-		return !jQuery.expr.filters.hidden( elem );
+	jQuery.expr.pseudos.visible = function( elem ) {
+		return !!( elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length );
 	};
 	
 	
 	
 	
-	var r20 = /%20/g,
-		rbracket = /\[\]$/,
-		rCRLF = /\r?\n/g,
-		rsubmitterTypes = /^(?:submit|button|image|reset|file)$/i,
-		rsubmittable = /^(?:input|select|textarea|keygen)/i;
-	
-	function buildParams( prefix, obj, traditional, add ) {
-		var name;
-	
-		if ( jQuery.isArray( obj ) ) {
-			// Serialize array item.
-			jQuery.each( obj, function( i, v ) {
-				if ( traditional || rbracket.test( prefix ) ) {
-					// Treat each array item as a scalar.
-					add( prefix, v );
-	
-				} else {
-					// Item is non-scalar (array or object), encode its numeric index.
-					buildParams( prefix + "[" + ( typeof v === "object" ? i : "" ) + "]", v, traditional, add );
-				}
-			});
-	
-		} else if ( !traditional && jQuery.type( obj ) === "object" ) {
-			// Serialize object item.
-			for ( name in obj ) {
-				buildParams( prefix + "[" + name + "]", obj[ name ], traditional, add );
-			}
-	
-		} else {
-			// Serialize scalar item.
-			add( prefix, obj );
-		}
-	}
-	
-	// Serialize an array of form elements or a set of
-	// key/values into a query string
-	jQuery.param = function( a, traditional ) {
-		var prefix,
-			s = [],
-			add = function( key, value ) {
-				// If value is a function, invoke it and return its value
-				value = jQuery.isFunction( value ) ? value() : ( value == null ? "" : value );
-				s[ s.length ] = encodeURIComponent( key ) + "=" + encodeURIComponent( value );
-			};
-	
-		// Set traditional to true for jQuery <= 1.3.2 behavior.
-		if ( traditional === undefined ) {
-			traditional = jQuery.ajaxSettings && jQuery.ajaxSettings.traditional;
-		}
-	
-		// If an array was passed in, assume that it is an array of form elements.
-		if ( jQuery.isArray( a ) || ( a.jquery && !jQuery.isPlainObject( a ) ) ) {
-			// Serialize the form elements
-			jQuery.each( a, function() {
-				add( this.name, this.value );
-			});
-	
-		} else {
-			// If traditional, encode the "old" way (the way 1.3.2 or older
-			// did it), otherwise encode params recursively.
-			for ( prefix in a ) {
-				buildParams( prefix, a[ prefix ], traditional, add );
-			}
-		}
-	
-		// Return the resulting serialization
-		return s.join( "&" ).replace( r20, "+" );
-	};
-	
-	jQuery.fn.extend({
-		serialize: function() {
-			return jQuery.param( this.serializeArray() );
-		},
-		serializeArray: function() {
-			return this.map(function() {
-				// Can add propHook for "elements" to filter or add form elements
-				var elements = jQuery.prop( this, "elements" );
-				return elements ? jQuery.makeArray( elements ) : this;
-			})
-			.filter(function() {
-				var type = this.type;
-				// Use .is(":disabled") so that fieldset[disabled] works
-				return this.name && !jQuery( this ).is( ":disabled" ) &&
-					rsubmittable.test( this.nodeName ) && !rsubmitterTypes.test( type ) &&
-					( this.checked || !rcheckableType.test( type ) );
-			})
-			.map(function( i, elem ) {
-				var val = jQuery( this ).val();
-	
-				return val == null ?
-					null :
-					jQuery.isArray( val ) ?
-						jQuery.map( val, function( val ) {
-							return { name: elem.name, value: val.replace( rCRLF, "\r\n" ) };
-						}) :
-						{ name: elem.name, value: val.replace( rCRLF, "\r\n" ) };
-			}).get();
-		}
-	});
-	
-	
-	// Create the request object
-	// (This is still attached to ajaxSettings for backward compatibility)
-	jQuery.ajaxSettings.xhr = window.ActiveXObject !== undefined ?
-		// Support: IE6+
-		function() {
-	
-			// XHR cannot access local files, always use ActiveX for that case
-			return !this.isLocal &&
-	
-				// Support: IE7-8
-				// oldIE XHR does not support non-RFC2616 methods (#13240)
-				// See http://msdn.microsoft.com/en-us/library/ie/ms536648(v=vs.85).aspx
-				// and http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9
-				// Although this check for six methods instead of eight
-				// since IE also does not support "trace" and "connect"
-				/^(get|post|head|put|delete|options)$/i.test( this.type ) &&
-	
-				createStandardXHR() || createActiveXHR();
-		} :
-		// For all other browsers, use the standard XMLHttpRequest object
-		createStandardXHR;
-	
-	var xhrId = 0,
-		xhrCallbacks = {},
-		xhrSupported = jQuery.ajaxSettings.xhr();
-	
-	// Support: IE<10
-	// Open requests must be manually aborted on unload (#5280)
-	// See https://support.microsoft.com/kb/2856746 for more info
-	if ( window.attachEvent ) {
-		window.attachEvent( "onunload", function() {
-			for ( var key in xhrCallbacks ) {
-				xhrCallbacks[ key ]( undefined, true );
-			}
-		});
-	}
-	
-	// Determine support properties
-	support.cors = !!xhrSupported && ( "withCredentials" in xhrSupported );
-	xhrSupported = support.ajax = !!xhrSupported;
-	
-	// Create transport if the browser can provide an xhr
-	if ( xhrSupported ) {
-	
-		jQuery.ajaxTransport(function( options ) {
-			// Cross domain only allowed if supported through XMLHttpRequest
-			if ( !options.crossDomain || support.cors ) {
-	
-				var callback;
-	
-				return {
-					send: function( headers, complete ) {
-						var i,
-							xhr = options.xhr(),
-							id = ++xhrId;
-	
-						// Open the socket
-						xhr.open( options.type, options.url, options.async, options.username, options.password );
-	
-						// Apply custom fields if provided
-						if ( options.xhrFields ) {
-							for ( i in options.xhrFields ) {
-								xhr[ i ] = options.xhrFields[ i ];
-							}
-						}
-	
-						// Override mime type if needed
-						if ( options.mimeType && xhr.overrideMimeType ) {
-							xhr.overrideMimeType( options.mimeType );
-						}
-	
-						// X-Requested-With header
-						// For cross-domain requests, seeing as conditions for a preflight are
-						// akin to a jigsaw puzzle, we simply never set it to be sure.
-						// (it can always be set on a per-request basis or even using ajaxSetup)
-						// For same-domain requests, won't change header if already provided.
-						if ( !options.crossDomain && !headers["X-Requested-With"] ) {
-							headers["X-Requested-With"] = "XMLHttpRequest";
-						}
-	
-						// Set headers
-						for ( i in headers ) {
-							// Support: IE<9
-							// IE's ActiveXObject throws a 'Type Mismatch' exception when setting
-							// request header to a null-value.
-							//
-							// To keep consistent with other XHR implementations, cast the value
-							// to string and ignore `undefined`.
-							if ( headers[ i ] !== undefined ) {
-								xhr.setRequestHeader( i, headers[ i ] + "" );
-							}
-						}
-	
-						// Do send the request
-						// This may raise an exception which is actually
-						// handled in jQuery.ajax (so no try/catch here)
-						xhr.send( ( options.hasContent && options.data ) || null );
-	
-						// Listener
-						callback = function( _, isAbort ) {
-							var status, statusText, responses;
-	
-							// Was never called and is aborted or complete
-							if ( callback && ( isAbort || xhr.readyState === 4 ) ) {
-								// Clean up
-								delete xhrCallbacks[ id ];
-								callback = undefined;
-								xhr.onreadystatechange = jQuery.noop;
-	
-								// Abort manually if needed
-								if ( isAbort ) {
-									if ( xhr.readyState !== 4 ) {
-										xhr.abort();
-									}
-								} else {
-									responses = {};
-									status = xhr.status;
-	
-									// Support: IE<10
-									// Accessing binary-data responseText throws an exception
-									// (#11426)
-									if ( typeof xhr.responseText === "string" ) {
-										responses.text = xhr.responseText;
-									}
-	
-									// Firefox throws an exception when accessing
-									// statusText for faulty cross-domain requests
-									try {
-										statusText = xhr.statusText;
-									} catch( e ) {
-										// We normalize with Webkit giving an empty statusText
-										statusText = "";
-									}
-	
-									// Filter status for non standard behaviors
-	
-									// If the request is local and we have data: assume a success
-									// (success with no data won't get notified, that's the best we
-									// can do given current implementations)
-									if ( !status && options.isLocal && !options.crossDomain ) {
-										status = responses.text ? 200 : 404;
-									// IE - #1450: sometimes returns 1223 when it should be 204
-									} else if ( status === 1223 ) {
-										status = 204;
-									}
-								}
-							}
-	
-							// Call complete if needed
-							if ( responses ) {
-								complete( status, statusText, responses, xhr.getAllResponseHeaders() );
-							}
-						};
-	
-						if ( !options.async ) {
-							// if we're in sync mode we fire the callback
-							callback();
-						} else if ( xhr.readyState === 4 ) {
-							// (IE6 & IE7) if it's in cache and has been
-							// retrieved directly we need to fire the callback
-							setTimeout( callback );
-						} else {
-							// Add to the list of active xhr callbacks
-							xhr.onreadystatechange = xhrCallbacks[ id ] = callback;
-						}
-					},
-	
-					abort: function() {
-						if ( callback ) {
-							callback( undefined, true );
-						}
-					}
-				};
-			}
-		});
-	}
-	
-	// Functions to create xhrs
-	function createStandardXHR() {
+	jQuery.ajaxSettings.xhr = function() {
 		try {
 			return new window.XMLHttpRequest();
-		} catch( e ) {}
-	}
+		} catch ( e ) {}
+	};
 	
-	function createActiveXHR() {
-		try {
-			return new window.ActiveXObject( "Microsoft.XMLHTTP" );
-		} catch( e ) {}
-	}
+	var xhrSuccessStatus = {
+	
+			// File protocol always yields status code 0, assume 200
+			0: 200,
+	
+			// Support: IE <=9 only
+			// #1450: sometimes IE returns 1223 when it should be 204
+			1223: 204
+		},
+		xhrSupported = jQuery.ajaxSettings.xhr();
+	
+	support.cors = !!xhrSupported && ( "withCredentials" in xhrSupported );
+	support.ajax = xhrSupported = !!xhrSupported;
+	
+	jQuery.ajaxTransport( function( options ) {
+		var callback, errorCallback;
+	
+		// Cross domain only allowed if supported through XMLHttpRequest
+		if ( support.cors || xhrSupported && !options.crossDomain ) {
+			return {
+				send: function( headers, complete ) {
+					var i,
+						xhr = options.xhr();
+	
+					xhr.open(
+						options.type,
+						options.url,
+						options.async,
+						options.username,
+						options.password
+					);
+	
+					// Apply custom fields if provided
+					if ( options.xhrFields ) {
+						for ( i in options.xhrFields ) {
+							xhr[ i ] = options.xhrFields[ i ];
+						}
+					}
+	
+					// Override mime type if needed
+					if ( options.mimeType && xhr.overrideMimeType ) {
+						xhr.overrideMimeType( options.mimeType );
+					}
+	
+					// X-Requested-With header
+					// For cross-domain requests, seeing as conditions for a preflight are
+					// akin to a jigsaw puzzle, we simply never set it to be sure.
+					// (it can always be set on a per-request basis or even using ajaxSetup)
+					// For same-domain requests, won't change header if already provided.
+					if ( !options.crossDomain && !headers[ "X-Requested-With" ] ) {
+						headers[ "X-Requested-With" ] = "XMLHttpRequest";
+					}
+	
+					// Set headers
+					for ( i in headers ) {
+						xhr.setRequestHeader( i, headers[ i ] );
+					}
+	
+					// Callback
+					callback = function( type ) {
+						return function() {
+							if ( callback ) {
+								callback = errorCallback = xhr.onload =
+									xhr.onerror = xhr.onabort = xhr.onreadystatechange = null;
+	
+								if ( type === "abort" ) {
+									xhr.abort();
+								} else if ( type === "error" ) {
+	
+									// Support: IE <=9 only
+									// On a manual native abort, IE9 throws
+									// errors on any property access that is not readyState
+									if ( typeof xhr.status !== "number" ) {
+										complete( 0, "error" );
+									} else {
+										complete(
+	
+											// File: protocol always yields status 0; see #8605, #14207
+											xhr.status,
+											xhr.statusText
+										);
+									}
+								} else {
+									complete(
+										xhrSuccessStatus[ xhr.status ] || xhr.status,
+										xhr.statusText,
+	
+										// Support: IE <=9 only
+										// IE9 has no XHR2 but throws on binary (trac-11426)
+										// For XHR2 non-text, let the caller handle it (gh-2498)
+										( xhr.responseType || "text" ) !== "text"  ||
+										typeof xhr.responseText !== "string" ?
+											{ binary: xhr.response } :
+											{ text: xhr.responseText },
+										xhr.getAllResponseHeaders()
+									);
+								}
+							}
+						};
+					};
+	
+					// Listen to events
+					xhr.onload = callback();
+					errorCallback = xhr.onerror = callback( "error" );
+	
+					// Support: IE 9 only
+					// Use onreadystatechange to replace onabort
+					// to handle uncaught aborts
+					if ( xhr.onabort !== undefined ) {
+						xhr.onabort = errorCallback;
+					} else {
+						xhr.onreadystatechange = function() {
+	
+							// Check readyState before timeout as it changes
+							if ( xhr.readyState === 4 ) {
+	
+								// Allow onerror to be called first,
+								// but that will not handle a native abort
+								// Also, save errorCallback to a variable
+								// as xhr.onerror cannot be accessed
+								window.setTimeout( function() {
+									if ( callback ) {
+										errorCallback();
+									}
+								} );
+							}
+						};
+					}
+	
+					// Create the abort callback
+					callback = callback( "abort" );
+	
+					try {
+	
+						// Do send the request (this may raise an exception)
+						xhr.send( options.hasContent && options.data || null );
+					} catch ( e ) {
+	
+						// #14683: Only rethrow if this hasn't been notified as an error yet
+						if ( callback ) {
+							throw e;
+						}
+					}
+				},
+	
+				abort: function() {
+					if ( callback ) {
+						callback();
+					}
+				}
+			};
+		}
+	} );
 	
 	
 	
+	
+	// Prevent auto-execution of scripts when no explicit dataType was provided (See gh-2432)
+	jQuery.ajaxPrefilter( function( s ) {
+		if ( s.crossDomain ) {
+			s.contents.script = false;
+		}
+	} );
 	
 	// Install script dataType
-	jQuery.ajaxSetup({
+	jQuery.ajaxSetup( {
 		accepts: {
-			script: "text/javascript, application/javascript, application/ecmascript, application/x-ecmascript"
+			script: "text/javascript, application/javascript, " +
+				"application/ecmascript, application/x-ecmascript"
 		},
 		contents: {
-			script: /(?:java|ecma)script/
+			script: /\b(?:java|ecma)script\b/
 		},
 		converters: {
 			"text script": function( text ) {
@@ -32006,78 +31913,51 @@
 				return text;
 			}
 		}
-	});
+	} );
 	
-	// Handle cache's special case and global
+	// Handle cache's special case and crossDomain
 	jQuery.ajaxPrefilter( "script", function( s ) {
 		if ( s.cache === undefined ) {
 			s.cache = false;
 		}
 		if ( s.crossDomain ) {
 			s.type = "GET";
-			s.global = false;
 		}
-	});
+	} );
 	
 	// Bind script tag hack transport
-	jQuery.ajaxTransport( "script", function(s) {
+	jQuery.ajaxTransport( "script", function( s ) {
 	
 		// This transport only deals with cross domain requests
 		if ( s.crossDomain ) {
-	
-			var script,
-				head = document.head || jQuery("head")[0] || document.documentElement;
-	
+			var script, callback;
 			return {
-	
-				send: function( _, callback ) {
-	
-					script = document.createElement("script");
-	
-					script.async = true;
-	
-					if ( s.scriptCharset ) {
-						script.charset = s.scriptCharset;
-					}
-	
-					script.src = s.url;
-	
-					// Attach handlers for all browsers
-					script.onload = script.onreadystatechange = function( _, isAbort ) {
-	
-						if ( isAbort || !script.readyState || /loaded|complete/.test( script.readyState ) ) {
-	
-							// Handle memory leak in IE
-							script.onload = script.onreadystatechange = null;
-	
-							// Remove the script
-							if ( script.parentNode ) {
-								script.parentNode.removeChild( script );
-							}
-	
-							// Dereference the script
-							script = null;
-	
-							// Callback if not abort
-							if ( !isAbort ) {
-								callback( 200, "success" );
+				send: function( _, complete ) {
+					script = jQuery( "<script>" ).prop( {
+						charset: s.scriptCharset,
+						src: s.url
+					} ).on(
+						"load error",
+						callback = function( evt ) {
+							script.remove();
+							callback = null;
+							if ( evt ) {
+								complete( evt.type === "error" ? 404 : 200, evt.type );
 							}
 						}
-					};
+					);
 	
-					// Circumvent IE6 bugs with base elements (#2709 and #4378) by prepending
 					// Use native DOM manipulation to avoid our domManip AJAX trickery
-					head.insertBefore( script, head.firstChild );
+					document.head.appendChild( script[ 0 ] );
 				},
-	
 				abort: function() {
-					if ( script ) {
-						script.onload( undefined, true );
+					if ( callback ) {
+						callback();
 					}
 				}
 			};
 		}
-	});
+	} );
 	
 	
 	
@@ -32086,14 +31966,14 @@
 		rjsonp = /(=)\?(?=&|$)|\?\?/;
 	
 	// Default jsonp settings
-	jQuery.ajaxSetup({
+	jQuery.ajaxSetup( {
 		jsonp: "callback",
 		jsonpCallback: function() {
 			var callback = oldCallbacks.pop() || ( jQuery.expando + "_" + ( nonce++ ) );
 			this[ callback ] = true;
 			return callback;
 		}
-	});
+	} );
 	
 	// Detect, normalize options and install callbacks for jsonp requests
 	jQuery.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
@@ -32101,7 +31981,10 @@
 		var callbackName, overwritten, responseContainer,
 			jsonProp = s.jsonp !== false && ( rjsonp.test( s.url ) ?
 				"url" :
-				typeof s.data === "string" && !( s.contentType || "" ).indexOf("application/x-www-form-urlencoded") && rjsonp.test( s.data ) && "data"
+				typeof s.data === "string" &&
+					( s.contentType || "" )
+						.indexOf( "application/x-www-form-urlencoded" ) === 0 &&
+					rjsonp.test( s.data ) && "data"
 			);
 	
 		// Handle iff the expected data type is "jsonp" or we have a parameter to set
@@ -32120,14 +32003,14 @@
 			}
 	
 			// Use data converter to retrieve json after script execution
-			s.converters["script json"] = function() {
+			s.converters[ "script json" ] = function() {
 				if ( !responseContainer ) {
 					jQuery.error( callbackName + " was not called" );
 				}
 				return responseContainer[ 0 ];
 			};
 	
-			// force json dataType
+			// Force json dataType
 			s.dataTypes[ 0 ] = "json";
 	
 			// Install callback
@@ -32137,16 +32020,24 @@
 			};
 	
 			// Clean-up function (fires after converters)
-			jqXHR.always(function() {
-				// Restore preexisting value
-				window[ callbackName ] = overwritten;
+			jqXHR.always( function() {
+	
+				// If previous value didn't exist - remove it
+				if ( overwritten === undefined ) {
+					jQuery( window ).removeProp( callbackName );
+	
+				// Otherwise restore preexisting value
+				} else {
+					window[ callbackName ] = overwritten;
+				}
 	
 				// Save back as free
 				if ( s[ callbackName ] ) {
-					// make sure that re-using the options doesn't screw things around
+	
+					// Make sure that re-using the options doesn't screw things around
 					s.jsonpCallback = originalSettings.jsonpCallback;
 	
-					// save the callback name for future use
+					// Save the callback name for future use
 					oldCallbacks.push( callbackName );
 				}
 	
@@ -32156,38 +32047,70 @@
 				}
 	
 				responseContainer = overwritten = undefined;
-			});
+			} );
 	
 			// Delegate to script
 			return "script";
 		}
-	});
+	} );
 	
 	
 	
 	
-	// data: string of html
-	// context (optional): If specified, the fragment will be created in this context, defaults to document
+	// Support: Safari 8 only
+	// In Safari 8 documents created via document.implementation.createHTMLDocument
+	// collapse sibling forms: the second one becomes a child of the first one.
+	// Because of that, this security measure has to be disabled in Safari 8.
+	// https://bugs.webkit.org/show_bug.cgi?id=137337
+	support.createHTMLDocument = ( function() {
+		var body = document.implementation.createHTMLDocument( "" ).body;
+		body.innerHTML = "<form></form><form></form>";
+		return body.childNodes.length === 2;
+	} )();
+	
+	
+	// Argument "data" should be string of html
+	// context (optional): If specified, the fragment will be created in this context,
+	// defaults to document
 	// keepScripts (optional): If true, will include scripts passed in the html string
 	jQuery.parseHTML = function( data, context, keepScripts ) {
-		if ( !data || typeof data !== "string" ) {
-			return null;
+		if ( typeof data !== "string" ) {
+			return [];
 		}
 		if ( typeof context === "boolean" ) {
 			keepScripts = context;
 			context = false;
 		}
-		context = context || document;
 	
-		var parsed = rsingleTag.exec( data ),
-			scripts = !keepScripts && [];
+		var base, parsed, scripts;
+	
+		if ( !context ) {
+	
+			// Stop scripts or inline event handlers from being executed immediately
+			// by using document.implementation
+			if ( support.createHTMLDocument ) {
+				context = document.implementation.createHTMLDocument( "" );
+	
+				// Set the base href for the created document
+				// so any parsed elements with URLs
+				// are based on the document's URL (gh-2965)
+				base = context.createElement( "base" );
+				base.href = document.location.href;
+				context.head.appendChild( base );
+			} else {
+				context = document;
+			}
+		}
+	
+		parsed = rsingleTag.exec( data );
+		scripts = !keepScripts && [];
 	
 		// Single tag
 		if ( parsed ) {
-			return [ context.createElement( parsed[1] ) ];
+			return [ context.createElement( parsed[ 1 ] ) ];
 		}
 	
-		parsed = jQuery.buildFragment( [ data ], context, scripts );
+		parsed = buildFragment( [ data ], context, scripts );
 	
 		if ( scripts && scripts.length ) {
 			jQuery( scripts ).remove();
@@ -32197,23 +32120,16 @@
 	};
 	
 	
-	// Keep a copy of the old load method
-	var _load = jQuery.fn.load;
-	
 	/**
 	 * Load a url into a page
 	 */
 	jQuery.fn.load = function( url, params, callback ) {
-		if ( typeof url !== "string" && _load ) {
-			return _load.apply( this, arguments );
-		}
-	
-		var selector, response, type,
+		var selector, type, response,
 			self = this,
-			off = url.indexOf(" ");
+			off = url.indexOf( " " );
 	
-		if ( off >= 0 ) {
-			selector = jQuery.trim( url.slice( off, url.length ) );
+		if ( off > -1 ) {
+			selector = stripAndCollapse( url.slice( off ) );
 			url = url.slice( 0, off );
 		}
 	
@@ -32231,14 +32147,16 @@
 	
 		// If we have elements to modify, make the request
 		if ( self.length > 0 ) {
-			jQuery.ajax({
+			jQuery.ajax( {
 				url: url,
 	
-				// if "type" variable is undefined, then "GET" method will be used
-				type: type,
+				// If "type" variable is undefined, then "GET" method will be used.
+				// Make value of this field explicit since
+				// user can override it through ajaxSetup method
+				type: type || "GET",
 				dataType: "html",
 				data: params
-			}).done(function( responseText ) {
+			} ).done( function( responseText ) {
 	
 				// Save response for use in complete callback
 				response = arguments;
@@ -32247,14 +32165,19 @@
 	
 					// If a selector was specified, locate the right elements in a dummy div
 					// Exclude scripts to avoid IE 'Permission Denied' errors
-					jQuery("<div>").append( jQuery.parseHTML( responseText ) ).find( selector ) :
+					jQuery( "<div>" ).append( jQuery.parseHTML( responseText ) ).find( selector ) :
 	
 					// Otherwise use the full result
 					responseText );
 	
-			}).complete( callback && function( jqXHR, status ) {
-				self.each( callback, response || [ jqXHR.responseText, status, jqXHR ] );
-			});
+			// If the request succeeds, this function gets "data", "status", "jqXHR"
+			// but they are ignored because response was set above.
+			// If it fails, this function gets "jqXHR", "status", "error"
+			} ).always( callback && function( jqXHR, status ) {
+				self.each( function() {
+					callback.apply( this, response || [ jqXHR.responseText, status, jqXHR ] );
+				} );
+			} );
 		}
 	
 		return this;
@@ -32264,36 +32187,36 @@
 	
 	
 	// Attach a bunch of functions for handling common AJAX events
-	jQuery.each( [ "ajaxStart", "ajaxStop", "ajaxComplete", "ajaxError", "ajaxSuccess", "ajaxSend" ], function( i, type ) {
+	jQuery.each( [
+		"ajaxStart",
+		"ajaxStop",
+		"ajaxComplete",
+		"ajaxError",
+		"ajaxSuccess",
+		"ajaxSend"
+	], function( i, type ) {
 		jQuery.fn[ type ] = function( fn ) {
 			return this.on( type, fn );
 		};
-	});
+	} );
 	
 	
 	
 	
-	jQuery.expr.filters.animated = function( elem ) {
-		return jQuery.grep(jQuery.timers, function( fn ) {
+	jQuery.expr.pseudos.animated = function( elem ) {
+		return jQuery.grep( jQuery.timers, function( fn ) {
 			return elem === fn.elem;
-		}).length;
+		} ).length;
 	};
 	
 	
 	
 	
-	
-	var docElem = window.document.documentElement;
-	
 	/**
 	 * Gets a window from an element
 	 */
 	function getWindow( elem ) {
-		return jQuery.isWindow( elem ) ?
-			elem :
-			elem.nodeType === 9 ?
-				elem.defaultView || elem.parentWindow :
-				false;
+		return jQuery.isWindow( elem ) ? elem : elem.nodeType === 9 && elem.defaultView;
 	}
 	
 	jQuery.offset = {
@@ -32303,7 +32226,7 @@
 				curElem = jQuery( elem ),
 				props = {};
 	
-			// set position first, in-case top/left are set even on static elem
+			// Set position first, in-case top/left are set even on static elem
 			if ( position === "static" ) {
 				elem.style.position = "relative";
 			}
@@ -32312,20 +32235,24 @@
 			curCSSTop = jQuery.css( elem, "top" );
 			curCSSLeft = jQuery.css( elem, "left" );
 			calculatePosition = ( position === "absolute" || position === "fixed" ) &&
-				jQuery.inArray("auto", [ curCSSTop, curCSSLeft ] ) > -1;
+				( curCSSTop + curCSSLeft ).indexOf( "auto" ) > -1;
 	
-			// need to be able to calculate position if either top or left is auto and position is either absolute or fixed
+			// Need to be able to calculate position if either
+			// top or left is auto and position is either absolute or fixed
 			if ( calculatePosition ) {
 				curPosition = curElem.position();
 				curTop = curPosition.top;
 				curLeft = curPosition.left;
+	
 			} else {
 				curTop = parseFloat( curCSSTop ) || 0;
 				curLeft = parseFloat( curCSSLeft ) || 0;
 			}
 	
 			if ( jQuery.isFunction( options ) ) {
-				options = options.call( elem, i, curOffset );
+	
+				// Use jQuery.extend here to allow modification of coordinates argument (gh-1848)
+				options = options.call( elem, i, jQuery.extend( {}, curOffset ) );
 			}
 	
 			if ( options.top != null ) {
@@ -32337,48 +32264,55 @@
 	
 			if ( "using" in options ) {
 				options.using.call( elem, props );
+	
 			} else {
 				curElem.css( props );
 			}
 		}
 	};
 	
-	jQuery.fn.extend({
+	jQuery.fn.extend( {
 		offset: function( options ) {
+	
+			// Preserve chaining for setter
 			if ( arguments.length ) {
 				return options === undefined ?
 					this :
-					this.each(function( i ) {
+					this.each( function( i ) {
 						jQuery.offset.setOffset( this, options, i );
-					});
+					} );
 			}
 	
-			var docElem, win,
-				box = { top: 0, left: 0 },
-				elem = this[ 0 ],
-				doc = elem && elem.ownerDocument;
+			var docElem, win, rect, doc,
+				elem = this[ 0 ];
 	
-			if ( !doc ) {
+			if ( !elem ) {
 				return;
 			}
 	
-			docElem = doc.documentElement;
-	
-			// Make sure it's not a disconnected DOM node
-			if ( !jQuery.contains( docElem, elem ) ) {
-				return box;
+			// Support: IE <=11 only
+			// Running getBoundingClientRect on a
+			// disconnected node in IE throws an error
+			if ( !elem.getClientRects().length ) {
+				return { top: 0, left: 0 };
 			}
 	
-			// If we don't have gBCR, just use 0,0 rather than error
-			// BlackBerry 5, iOS 3 (original iPhone)
-			if ( typeof elem.getBoundingClientRect !== strundefined ) {
-				box = elem.getBoundingClientRect();
+			rect = elem.getBoundingClientRect();
+	
+			// Make sure element is not hidden (display: none)
+			if ( rect.width || rect.height ) {
+				doc = elem.ownerDocument;
+				win = getWindow( doc );
+				docElem = doc.documentElement;
+	
+				return {
+					top: rect.top + win.pageYOffset - docElem.clientTop,
+					left: rect.left + win.pageXOffset - docElem.clientLeft
+				};
 			}
-			win = getWindow( doc );
-			return {
-				top: box.top  + ( win.pageYOffset || docElem.scrollTop )  - ( docElem.clientTop  || 0 ),
-				left: box.left + ( win.pageXOffset || docElem.scrollLeft ) - ( docElem.clientLeft || 0 )
-			};
+	
+			// Return zeros for disconnected and hidden elements (gh-2310)
+			return rect;
 		},
 	
 		position: function() {
@@ -32387,14 +32321,18 @@
 			}
 	
 			var offsetParent, offset,
-				parentOffset = { top: 0, left: 0 },
-				elem = this[ 0 ];
+				elem = this[ 0 ],
+				parentOffset = { top: 0, left: 0 };
 	
-			// fixed elements are offset from window (parentOffset = {top:0, left: 0}, because it is its only offset parent
+			// Fixed elements are offset from window (parentOffset = {top:0, left: 0},
+			// because it is its only offset parent
 			if ( jQuery.css( elem, "position" ) === "fixed" ) {
-				// we assume that getBoundingClientRect is available when computed position is fixed
+	
+				// Assume getBoundingClientRect is there when computed position is fixed
 				offset = elem.getBoundingClientRect();
+	
 			} else {
+	
 				// Get *real* offsetParent
 				offsetParent = this.offsetParent();
 	
@@ -32405,81 +32343,95 @@
 				}
 	
 				// Add offsetParent borders
-				parentOffset.top  += jQuery.css( offsetParent[ 0 ], "borderTopWidth", true );
-				parentOffset.left += jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true );
+				parentOffset = {
+					top: parentOffset.top + jQuery.css( offsetParent[ 0 ], "borderTopWidth", true ),
+					left: parentOffset.left + jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true )
+				};
 			}
 	
 			// Subtract parent offsets and element margins
-			// note: when an element has margin: auto the offsetLeft and marginLeft
-			// are the same in Safari causing offset.left to incorrectly be 0
 			return {
-				top:  offset.top  - parentOffset.top - jQuery.css( elem, "marginTop", true ),
-				left: offset.left - parentOffset.left - jQuery.css( elem, "marginLeft", true)
+				top: offset.top - parentOffset.top - jQuery.css( elem, "marginTop", true ),
+				left: offset.left - parentOffset.left - jQuery.css( elem, "marginLeft", true )
 			};
 		},
 	
+		// This method will return documentElement in the following cases:
+		// 1) For the element inside the iframe without offsetParent, this method will return
+		//    documentElement of the parent window
+		// 2) For the hidden or detached element
+		// 3) For body or html element, i.e. in case of the html node - it will return itself
+		//
+		// but those exceptions were never presented as a real life use-cases
+		// and might be considered as more preferable results.
+		//
+		// This logic, however, is not guaranteed and can change at any point in the future
 		offsetParent: function() {
-			return this.map(function() {
-				var offsetParent = this.offsetParent || docElem;
+			return this.map( function() {
+				var offsetParent = this.offsetParent;
 	
-				while ( offsetParent && ( !jQuery.nodeName( offsetParent, "html" ) && jQuery.css( offsetParent, "position" ) === "static" ) ) {
+				while ( offsetParent && jQuery.css( offsetParent, "position" ) === "static" ) {
 					offsetParent = offsetParent.offsetParent;
 				}
-				return offsetParent || docElem;
-			});
+	
+				return offsetParent || documentElement;
+			} );
 		}
-	});
+	} );
 	
 	// Create scrollLeft and scrollTop methods
 	jQuery.each( { scrollLeft: "pageXOffset", scrollTop: "pageYOffset" }, function( method, prop ) {
-		var top = /Y/.test( prop );
+		var top = "pageYOffset" === prop;
 	
 		jQuery.fn[ method ] = function( val ) {
 			return access( this, function( elem, method, val ) {
 				var win = getWindow( elem );
 	
 				if ( val === undefined ) {
-					return win ? (prop in win) ? win[ prop ] :
-						win.document.documentElement[ method ] :
-						elem[ method ];
+					return win ? win[ prop ] : elem[ method ];
 				}
 	
 				if ( win ) {
 					win.scrollTo(
-						!top ? val : jQuery( win ).scrollLeft(),
-						top ? val : jQuery( win ).scrollTop()
+						!top ? val : win.pageXOffset,
+						top ? val : win.pageYOffset
 					);
 	
 				} else {
 					elem[ method ] = val;
 				}
-			}, method, val, arguments.length, null );
+			}, method, val, arguments.length );
 		};
-	});
+	} );
 	
+	// Support: Safari <=7 - 9.1, Chrome <=37 - 49
 	// Add the top/left cssHooks using jQuery.fn.position
 	// Webkit bug: https://bugs.webkit.org/show_bug.cgi?id=29084
-	// getComputedStyle returns percent when specified for top/left/bottom/right
-	// rather than make the css module depend on the offset module, we just check for it here
+	// Blink bug: https://bugs.chromium.org/p/chromium/issues/detail?id=589347
+	// getComputedStyle returns percent when specified for top/left/bottom/right;
+	// rather than make the css module depend on the offset module, just check for it here
 	jQuery.each( [ "top", "left" ], function( i, prop ) {
 		jQuery.cssHooks[ prop ] = addGetHookIf( support.pixelPosition,
 			function( elem, computed ) {
 				if ( computed ) {
 					computed = curCSS( elem, prop );
-					// if curCSS returns percentage, fallback to offset
+	
+					// If curCSS returns percentage, fallback to offset
 					return rnumnonpx.test( computed ) ?
 						jQuery( elem ).position()[ prop ] + "px" :
 						computed;
 				}
 			}
 		);
-	});
+	} );
 	
 	
 	// Create innerHeight, innerWidth, height, width, outerHeight and outerWidth methods
 	jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
-		jQuery.each( { padding: "inner" + name, content: type, "": "outer" + name }, function( defaultExtra, funcName ) {
-			// margin is only for outerHeight, outerWidth
+		jQuery.each( { padding: "inner" + name, content: type, "": "outer" + name },
+			function( defaultExtra, funcName ) {
+	
+			// Margin is only for outerHeight, outerWidth
 			jQuery.fn[ funcName ] = function( margin, value ) {
 				var chainable = arguments.length && ( defaultExtra || typeof margin !== "boolean" ),
 					extra = defaultExtra || ( margin === true || value === true ? "margin" : "border" );
@@ -32488,18 +32440,19 @@
 					var doc;
 	
 					if ( jQuery.isWindow( elem ) ) {
-						// As of 5/8/2012 this will yield incorrect results for Mobile Safari, but there
-						// isn't a whole lot we can do. See pull request at this URL for discussion:
-						// https://github.com/jquery/jquery/pull/764
-						return elem.document.documentElement[ "client" + name ];
+	
+						// $( window ).outerWidth/Height return w/h including scrollbars (gh-1729)
+						return funcName.indexOf( "outer" ) === 0 ?
+							elem[ "inner" + name ] :
+							elem.document.documentElement[ "client" + name ];
 					}
 	
 					// Get document width or height
 					if ( elem.nodeType === 9 ) {
 						doc = elem.documentElement;
 	
-						// Either scroll[Width/Height] or offset[Width/Height] or client[Width/Height], whichever is greatest
-						// unfortunately, this causes bug #3838 in IE6/8 only, but there is currently no good, small way to fix it.
+						// Either scroll[Width/Height] or offset[Width/Height] or client[Width/Height],
+						// whichever is greatest
 						return Math.max(
 							elem.body[ "scroll" + name ], doc[ "scroll" + name ],
 							elem.body[ "offset" + name ], doc[ "offset" + name ],
@@ -32508,23 +32461,40 @@
 					}
 	
 					return value === undefined ?
+	
 						// Get width or height on the element, requesting but not forcing parseFloat
 						jQuery.css( elem, type, extra ) :
 	
 						// Set width or height on the element
 						jQuery.style( elem, type, value, extra );
-				}, type, chainable ? margin : undefined, chainable, null );
+				}, type, chainable ? margin : undefined, chainable );
 			};
-		});
-	});
+		} );
+	} );
 	
 	
-	// The number of elements contained in the matched element set
-	jQuery.fn.size = function() {
-		return this.length;
-	};
+	jQuery.fn.extend( {
 	
-	jQuery.fn.andSelf = jQuery.fn.addBack;
+		bind: function( types, data, fn ) {
+			return this.on( types, null, data, fn );
+		},
+		unbind: function( types, fn ) {
+			return this.off( types, null, fn );
+		},
+	
+		delegate: function( selector, types, data, fn ) {
+			return this.on( types, selector, data, fn );
+		},
+		undelegate: function( selector, types, fn ) {
+	
+			// ( namespace ) or ( selector, types [, fn] )
+			return arguments.length === 1 ?
+				this.off( selector, "**" ) :
+				this.off( types, selector || "**", fn );
+		}
+	} );
+	
+	jQuery.parseJSON = JSON.parse;
 	
 	
 	
@@ -32552,6 +32522,7 @@
 	
 	
 	var
+	
 		// Map over jQuery in case of overwrite
 		_jQuery = window.jQuery,
 	
@@ -32570,23 +32541,23 @@
 		return jQuery;
 	};
 	
-	// Expose jQuery and $ identifiers, even in
-	// AMD (#7102#comment:10, https://github.com/jquery/jquery/pull/557)
+	// Expose jQuery and $ identifiers, even in AMD
+	// (#7102#comment:10, https://github.com/jquery/jquery/pull/557)
 	// and CommonJS for browser emulators (#13566)
-	if ( typeof noGlobal === strundefined ) {
+	if ( !noGlobal ) {
 		window.jQuery = window.$ = jQuery;
 	}
 	
 	
 	
 	
-	return jQuery;
 	
-	}));
+	return jQuery;
+	} );
 
 
 /***/ },
-/* 175 */
+/* 181 */
 /*!*****************************************!*\
   !*** ./src/client/app/BoxComponent.jsx ***!
   \*****************************************/
@@ -32660,7 +32631,7 @@
 	                _react2.default.createElement(
 	                    'span',
 	                    null,
-	                    ' 🝯 ',
+	                    '\xA0\uD83D\uDF6F ',
 	                    this.state.times_viewed
 	                )
 	            );

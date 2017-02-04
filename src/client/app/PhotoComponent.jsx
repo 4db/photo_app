@@ -35,6 +35,7 @@ class PhotoComponent extends React.Component {
                 rpp: 50,
                 page: this.state.page,
                 feature: 'upcoming',
+                only:'Animals',
                 image_size: [4],
                 sdk_key: 'b68e60cff4c929bedea36ca978830c5caca790c3'
             },
